@@ -16,7 +16,7 @@ async def test(message):
     await message.channel.send(f"Two plus two is {result}")
 test.metadata = {
   "syntax": "test",
-  "names": ["preferredName", "twoplustwo"],
+  "alias": ["twoplustwo"],
   "role_requirements": [configuration.MODERATOR_ROLE]
 }
 ```
