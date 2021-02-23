@@ -1,6 +1,6 @@
 import discord
+import configuration
 
-PREFIX = "$"
 
 def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
     for prefix in prefixes:
@@ -18,7 +18,7 @@ class PhnixBotClient(discord.Client):
         if message.author.bot == True: return
         
         # Check if it has our command prefix, or starts with a mention of our bot
-        command_text = check_for_and_strip_prefixes(message.content, (PREFIX, self.user.mention, f"<@!{self.user.id}>"))
+        command_text = check_for_and_strip_prefixes(message.content, (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>"))
         if command_text is not None:
             
             # TODO: add command logic here
