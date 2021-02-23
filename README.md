@@ -1,11 +1,11 @@
 # phnix-discord-bot
 
-A command needs:
-• function (aka the code)
-• name used to invoke it
-• roles required to use it
-• aliases
-• syntax & description (if we want a good help command)
+A command needs: \n
+• function (aka the code)\n
+• name used to invoke it\n
+• roles required to use it\n
+• aliases\n
+• syntax & description (if we want a good help command)\n
 
 Command example:
 
