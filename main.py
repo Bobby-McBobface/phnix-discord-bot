@@ -41,9 +41,9 @@ class PhnixBotClient(discord.Client):
         # If there was a command prefix...
         if command_text is not None:
             
-            # split into the name of the command and the list of arguments (seperated by spaces)
+            # Split into the name of the command and the list of arguments (seperated by spaces)
             command_name = command_text.split(maxsplit=1)[0]
-            #Format the command so it workes even if theres mIxEd cAsE
+            # Format the command so it workes even if theres mIxEd cAsE
             command_name = command_name.lower()
             
             # Get the command function
