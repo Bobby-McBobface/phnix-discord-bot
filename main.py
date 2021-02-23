@@ -19,6 +19,7 @@ for name in command_dict:
 
 
 def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
+    """If `string` starts with one of the given prefixes, return the string sans the prefix. Otherwise, returns None."""
     for prefix in prefixes:
         if string.startswith(prefix):
             return string[len(prefix):].lstrip()
