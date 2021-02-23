@@ -1,6 +1,6 @@
 import discord
 import configuration
-
+import commands
 
 def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
     for prefix in prefixes:
