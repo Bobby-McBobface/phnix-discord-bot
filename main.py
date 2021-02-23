@@ -19,6 +19,10 @@ class PhnixBotClient(discord.Client):
         
         # Check if it has our command prefix, or starts with a mention of our bot
         command_text = check_for_and_strip_prefixes(message.content, (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>"))
+        
+        #Format the command so it workes even if theres mIxEd cAsE
+        commmand_text = command_text.lower()
+        
         if command_text is not None:
             
             # TODO: add command logic here
