@@ -10,10 +10,13 @@ A command needs:
 Command example:
 
 ```py
-async def my_command():
-  return
-my_command.name = 'command'
-my_command.role_requirements = [roleID, roleID2] 
-my_command.alias = [alias, alias2]
-my_command.description = 'Does nothing'
+async def test(message):
+    """A command named 'test'"""
+    result = 2 + 2
+    await message.channel.send(f"Two plus two is {result}")
+test.metadata = {
+  "syntax": "test",
+  "names": ["preferredName", "twoplustwo"],
+  "role_requirements": [configuration.MODERATOR_ROLE]
+}
 ```
