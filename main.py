@@ -53,6 +53,10 @@ class PhnixBotClient(discord.Client):
                 # There must not be a command by that name.
                 return
             
-            # Run the found function
-            await command_function(message)
+            # Do role checks
+            for role in command_funtion.role_requirments:
+                if role in message.author.roles:
+                    
+                # Run the found function
+                await command_function(message)
         
