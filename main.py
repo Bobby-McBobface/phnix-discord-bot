@@ -6,12 +6,16 @@ import commands
 # Build a dictionary of all commands
 command_dict = dict(inspect.getmembers(commands, inspect.iscoroutine))
 
+command_aliases_dict = {}
 # Iterate through the commands to get aliases
-command_aliases = {}
 for name in command_dict:
+    # Get the value that we're setting them to from the other dict
     function = command_dict[name]
+    # Add the command's name itself as an alias
+    command_aliases_dict[name] = function
+    # Iterate through all aliases and add them as aliases
     for alias in function.metadata["aliases"]:
-        command_aliases[alias] = function
+        command_aliases_dict[alias] = function
 
 
 def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
@@ -29,24 +33,24 @@ class PhnixBotClient(discord.Client):
         # Ignore bot accounts
         if message.author.bot == True: return
         
-        # Check if it has our command prefix, or starts with a mention of our bot
+        #TODO: EXP/leveling system here?
+        
+        # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
         command_text = check_for_and_strip_prefixes(message.content, (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>"))
+        # If there was a command prefix...
         if command_text is not None:
             
             # split into the name of the command and the list of arguments (seperated by spaces)
-            command_name, *command_arguments = command_text.split()
+            command_name = command_text.split(maxsplit=1)[0]
             #Format the command so it workes even if theres mIxEd cAsE
             command_name = command_name.lower()
             
             # Get the command function
             try:
-                command_function = command_dict[command_name]
+                command_function = command_aliases_dict[command_name]
             except KeyError:
-                try:
-                    command_function = command_aliases[command_name]
-                except KeyError:
-                    # There must not be a command by that name.
-                    return
+                # There must not be a command by that name.
+                return
             
             # Run the found function
             await command_function(message)
