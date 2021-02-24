@@ -15,7 +15,7 @@ for name in command_dict:
     # Add the command's name itself as an alias
     command_aliases_dict[name] = function
     # Iterate through all aliases and add them as aliases
-    for alias in function.metadata["aliases"]:
+    for alias in function.command_data["aliases"]:
         command_aliases_dict[alias] = function
 
 
