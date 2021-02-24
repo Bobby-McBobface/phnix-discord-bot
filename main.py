@@ -5,7 +5,7 @@ import commands
 import levels
 
 # Build a dictionary of all commands
-command_dict = dict(inspect.getmembers(commands, inspect.iscoroutine))
+command_dict = dict(inspect.getmembers(commands, inspect.isfunction))
 
 command_aliases_dict = {}
 # Iterate through the commands to get aliases
@@ -18,7 +18,6 @@ for name in command_dict:
     for alias in function.command_data["aliases"]:
         command_aliases_dict[alias] = function
 
-
 def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
     """If `string` starts with one of the given prefixes, return the string sans the prefix. Otherwise, returns None."""
     for prefix in prefixes:
@@ -29,6 +28,10 @@ def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
     
 
 class PhnixBotClient(discord.Client):
+    async def on_ready(self):
+        """Runs when the bot is operational"""
+        print('PhnixBot is ready')
+        
     async def on_message(self, message):
         """Runs every time the bot notices a message being sent anywhere."""
         
@@ -46,7 +49,7 @@ class PhnixBotClient(discord.Client):
             command_name = command_text.split(maxsplit=1)[0]
             # Format the command so it workes even if theres mIxEd cAsE
             command_name = command_name.lower()
-            
+
             # Get the command function
             try:
                 command_function = command_aliases_dict[command_name]
@@ -55,9 +58,14 @@ class PhnixBotClient(discord.Client):
                 return
             
             # Do role checks
-            for role in command_funtion.role_requirments:
-                if role in message.author.roles:
-                    
-                # Run the found function
-                await command_function(message)
-        
+            for role in message.author.roles:
+                if role.id in command_function.command_data['role_requirements']:
+                     # Run the found function
+                     await command_function(message)
+                     return # So we don't run it more than once
+                
+with open('token.env') as file:
+    token = file.read()
+
+client = PhnixBotClient()
+client.run(token)
