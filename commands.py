@@ -12,10 +12,15 @@ test.command_data = {
 
 async def pad(msg):
     """Spaces out your text"""
-    cmd_arguments = msg.content.split(maxsplit=1)[1:]
-    await msg.channel.send(" ".join(cmd_arguments))
+    try:
+        # Get all text after first whitespace character
+        command_argument = msg.content.split(maxsplit=1)[1]
+    except IndexError:
+        await msg.channel.send("Usage: `pad <message>`")
+    else:
+        await msg.channel.send(" ".join(command_argument))
 pad.command_data = {
-  "syntax": "pad <text>",
+  "syntax": "pad <message>",
   "aliases": [],
   "role_requirements": []
 }
