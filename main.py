@@ -31,14 +31,16 @@ class PhnixBotClient(discord.Client):
     async def on_ready(self):
         """Runs when the bot is operational"""
         print('PhnixBot is ready')
+        await levels.clear_chatted_loop()
         
     async def on_message(self, message):
         """Runs every time the bot notices a message being sent anywhere."""
-        
+        print(message.content)
         # Ignore bot accounts
         if message.author.bot == True: return
         
         #TODO: EXP/leveling system here?
+        await levels.add_exp(message.author.id)
         
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
         command_text = check_for_and_strip_prefixes(message.content, (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>"))
@@ -64,8 +66,10 @@ class PhnixBotClient(discord.Client):
                      await command_function(message)
                      return # So we don't run it more than once
                 
-with open('token.env') as file:
+with open('env/token') as file:
     token = file.read()
 
 client = PhnixBotClient()
 client.run(token)
+
+print('hello')

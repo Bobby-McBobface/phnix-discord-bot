@@ -4,7 +4,8 @@ level_dict = {
 
 warn_dict = {
   #Format: User ID: [Warning1, Warning2]
-  
+}
+
 mute_dict = {
   #Format: User ID: Unmute timestamp
 }
