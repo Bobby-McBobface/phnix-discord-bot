@@ -7,7 +7,7 @@ async def test(message):
 test.command_data = {
   "syntax": "test",
   "aliases": ["twoplustwo"],
-  "role_requirements": [configuration.MODERATOR_ROLE]
+  "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
 }
 
 async def pad(msg):
@@ -22,5 +22,5 @@ async def pad(msg):
 pad.command_data = {
   "syntax": "pad <message>",
   "aliases": [],
-  "role_requirements": []
+  "role_requirements": [configuration.EVERYONE_ROLE]
 }
