@@ -1,1 +1,1 @@
-discord.py== some verson
+discord.py==1.6.0
