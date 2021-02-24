@@ -1,5 +1,8 @@
 import configuration
 
+#--------------------------------------------------#
+# MISC COMMANDS #
+#--------------------------------------------------#
 async def test(message):
     """A command named 'test'"""
     result = 2 + 2
@@ -24,3 +27,18 @@ pad.command_data = {
   "aliases": [],
   "role_requirements": [configuration.EVERYONE_ROLE]
 }
+
+#--------------------------------------------------#
+# MODERATION COMMANDS #
+#--------------------------------------------------#
+async def warn():
+    pass
+
+async def mute():
+    pass
+
+async def kick():
+    pass
+
+async def ban():
+    pass
