@@ -4,7 +4,7 @@ async def test(message):
     """A command named 'test'"""
     result = 2 + 2
     await message.channel.send(f"Two plus two is {result}")
-test.metadata = {
+test.command_data = {
   "syntax": "test",
   "aliases": ["twoplustwo"],
   "role_requirements": [configuration.MODERATOR_ROLE]
@@ -12,8 +12,9 @@ test.metadata = {
 
 async def pad(msg):
     """Spaces out your text"""
-    await msg.channel.send(" ".join(msg.content))
-pad.metadata = {
+    cmd_arguments = msg.content.split(maxsplit=1)[1:]
+    await msg.channel.send(" ".join(cmd_arguments))
+pad.command_data = {
   "syntax": "pad <text>",
   "aliases": [],
   "role_requirements": []
