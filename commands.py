@@ -1,4 +1,6 @@
 import configuration
+import data
+import main
 
 #--------------------------------------------------#
 # MISC COMMANDS #
@@ -42,3 +44,17 @@ async def kick():
 
 async def ban():
     pass'''
+
+#--------------------------------------------------#
+# LEVEL COMMANDS #
+#--------------------------------------------------#
+async def rank(msg):
+    try:
+        await msg.channel.send(data.level_dict[msg.author.id])
+    except KeyError:
+        await msg.channel.send("You aren't ranked yet! Send some messages first and try again later")
+rank.command_data = {
+  "syntax": "rank",
+  "aliases": [],
+  "role_requirements": [configuration.EVERYONE_ROLE]
+}
