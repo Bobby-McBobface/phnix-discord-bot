@@ -48,13 +48,15 @@ class PhnixBotClient(discord.Client):
         # If there was a command prefix...
         if command_text is not None:
             
-            # Split into the name of the command and the list of arguments (seperated by spaces)
-            command_name = command_text.split(maxsplit=1)[0]
-            # Format the command so it workes even if theres mIxEd cAsE and whitespace after prefix
-            command_name = command_name.lower()
-
+            # Split the command into 2 parts, command name and parameters
+            split_command_text = command_text.split(maxsplit=1)
             try:
-                parameters = command_text.split(maxsplit=1)[1]
+                command_name = split_command_text[0].lower()
+            except IndexError:
+                # No command specified
+                return
+            try:
+                parameters = split_command_text[1]
             except IndexError:
                 # No paramaters specified
                 parameters = None
