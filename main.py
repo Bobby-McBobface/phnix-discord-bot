@@ -57,7 +57,7 @@ class PhnixBotClient(discord.Client):
                 parameters = command_text.split(maxsplit=1)[1]
             except IndexError:
                 # No paramaters specified
-                parameters = ''
+                parameters = None
             
             # Get the command function
             try:
