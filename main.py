@@ -3,6 +3,7 @@ import inspect
 import configuration
 import commands
 import levels
+import data
 
 # Build a dictionary of all commands
 command_dict = dict(inspect.getmembers(commands, inspect.isfunction))
