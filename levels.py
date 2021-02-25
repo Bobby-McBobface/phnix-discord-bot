@@ -9,7 +9,7 @@ async def add_exp(member):
   
   if member not in chatted:
     chatted.append(member)
-    # Need to save the data as well
+
     try:
       data.level_dict[member] += EXP_RATE
     except KeyError:
