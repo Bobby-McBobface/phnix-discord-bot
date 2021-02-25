@@ -5,7 +5,7 @@ import main
 #--------------------------------------------------#
 # MISC COMMANDS #
 #--------------------------------------------------#
-async def test(message):
+async def test(message, parameters):
     """A command named 'test'"""
     result = 2 + 2
     await message.channel.send(f"Two plus two is {result}")
@@ -15,12 +15,12 @@ test.command_data = {
   "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
 }
 
-async def pad(msg):
+async def pad(message, parameters):
     """Spaces out your text"""
-    if msg.formatted_content = "":
-        await msg.channel.send("Usage: `pad <message>`")
+    if parameters == "":
+        await message.channel.send("Usage: `pad <message>`")
     else:
-        await msg.channel.send(" ".join(command_argument))
+        await message.channel.send(" ".join(parameters))
 pad.command_data = {
   "syntax": "pad <message>",
   "aliases": [],
