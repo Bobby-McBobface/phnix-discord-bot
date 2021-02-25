@@ -36,11 +36,11 @@ class PhnixBotClient(discord.Client):
         
     async def on_message(self, message):
         """Runs every time the bot notices a message being sent anywhere."""
-        print(message.content)
+
         # Ignore bot accounts
         if message.author.bot == True: return
         
-        #TODO: EXP/leveling system here?
+        #EXP/leveling system
         await levels.add_exp(message.author.id)
         
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
@@ -73,4 +73,4 @@ with open('env/token') as file:
 client = PhnixBotClient()
 client.run(token)
 
-print('hello')
+print('PhnixBot killed')

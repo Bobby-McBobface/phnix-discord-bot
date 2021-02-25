@@ -31,7 +31,7 @@ pad.command_data = {
 #--------------------------------------------------#
 # MODERATION COMMANDS #
 #--------------------------------------------------#
-async def warn():
+'''async def warn():
     pass
 
 async def mute():
@@ -41,4 +41,4 @@ async def kick():
     pass
 
 async def ban():
-    pass
+    pass'''
