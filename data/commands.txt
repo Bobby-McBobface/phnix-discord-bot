@@ -1,0 +1,1 @@
+{'help': <function help at 0x000001CDB7250A60>, 'pad': <function pad at 0x000001CDB72508B0>, 'rank': <function rank at 0x000001CDB7250AF0>, 'test': <function test at 0x000001CDB7244E50>, 'twoplustwo': <function test at 0x000001CDB7244E50>}

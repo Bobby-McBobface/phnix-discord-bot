@@ -66,11 +66,13 @@ class PhnixBotClient(discord.Client):
                      # Run the found function
                      await command_function(message)
                      return # So we don't run it more than once
-                
-with open('env/token') as file:
-    token = file.read()
 
-client = PhnixBotClient()
-client.run(token)
+if __name__ == '__main__':
 
-print('PhnixBot killed')
+    with open('env/token') as file:
+        token = file.read()
+
+    client = PhnixBotClient()
+    client.run(token)
+
+    print('PhnixBot killed')
