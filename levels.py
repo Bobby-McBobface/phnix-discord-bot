@@ -15,6 +15,8 @@ async def add_exp(member):
     except KeyError:
       # They haven't chatted before
       data.level_dict[member] = EXP_RATE
+    finally:
+      data.save_data(data.level_dict, 'levels.txt')
 
 # Need a non blocking loop here to reset chatted every INTERVAL seconds
 async def clear_chatted_loop():
