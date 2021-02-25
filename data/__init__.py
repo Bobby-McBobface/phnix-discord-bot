@@ -1,7 +1,7 @@
 import ast
 
 def save_data(data, filename):
-  with open(filename) as file:
+  with open(filename, 'w') as file:
     file.write(data)
 
 with open('data/levels.txt', 'r') as level_file:
