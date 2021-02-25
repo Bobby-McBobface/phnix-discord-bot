@@ -50,9 +50,10 @@ class PhnixBotClient(discord.Client):
             
             # Split into the name of the command and the list of arguments (seperated by spaces)
             command_name = command_text.split(maxsplit=1)[0]
-            # Format the command so it workes even if theres mIxEd cAsE
-            command_name = command_name.lower()
-
+            # Format the command so it workes even if theres mIxEd cAsE and whitespace after prefix
+            command_name = command_name.lower()    
+            message.formatted_content = command_text.split(maxsplit=1)[1]
+            
             # Get the command function
             try:
                 command_function = command_aliases_dict[command_name]
