@@ -51,8 +51,13 @@ class PhnixBotClient(discord.Client):
             # Split into the name of the command and the list of arguments (seperated by spaces)
             command_name = command_text.split(maxsplit=1)[0]
             # Format the command so it workes even if theres mIxEd cAsE and whitespace after prefix
-            command_name = command_name.lower()    
-            message.formatted_content = command_text.split(maxsplit=1)[1]
+            command_name = command_name.lower()
+
+            try:
+                parameters = command_text.split(maxsplit=1)[1]
+            except IndexError:
+                # No paramaters specified
+                parameters = ''
             
             # Get the command function
             try:
@@ -65,7 +70,7 @@ class PhnixBotClient(discord.Client):
             for role in message.author.roles:
                 if role.id in command_function.command_data['role_requirements']:
                      # Run the found function
-                     await command_function(message)
+                     await command_function(message, parameters)
                      return # So we don't run it more than once
 
 if __name__ == '__main__':
