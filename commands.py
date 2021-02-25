@@ -17,7 +17,7 @@ test.command_data = {
 
 async def pad(msg):
     """Spaces out your text"""
-    if msg.formatted_content = "":
+    if msg.formatted_content == "":
         await msg.channel.send("Usage: `pad <message>`")
     else:
         await msg.channel.send(" ".join(command_argument))
