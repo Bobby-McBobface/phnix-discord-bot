@@ -26,7 +26,7 @@ pad.command_data = {
   "syntax": "pad <message>",
   "aliases": [],
   "role_requirements": [configuration.EVERYONE_ROLE]
-}
+} 
 
 #--------------------------------------------------#
 # MODERATION COMMANDS #
