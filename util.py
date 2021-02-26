@@ -6,15 +6,18 @@ async def split_into_member_and_reason(parameters:str) -> tuple:
     split_params = parameters.split(maxsplit=1)
     
     member_text = split_params[0] # There always will be a string here
-    member_text.strip('<@!>')
-   
-    member = message.guild.get_member(int(member_text))  
+    
+    try:
+        member_id = int(member_text.strip('<@!>'))
+    except ValueError:
+        member_id = None
+        
     try: 
         reason = split_params[1]
     except IndexError:
         reason = None
         
-    return (member, reason)
+    return (member_id, reason)
   
 async def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
     """If `string` starts with one of the given prefixes, return the string sans the prefix. Otherwise, returns None."""
