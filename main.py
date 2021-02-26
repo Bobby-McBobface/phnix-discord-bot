@@ -5,7 +5,7 @@ import commands
 import levels
 import data
 import util
-
+    
 # Build a dictionary of all commands
 command_dict = dict(inspect.getmembers(commands, inspect.isfunction))
 
@@ -71,7 +71,13 @@ if __name__ == '__main__':
     with open('env/token') as file:
         token = file.read()
 
-    client = PhnixBotClient()
+    intents = discord.Intents.default()
+    intents.members = True
+    intents.typing = False
+    intents.presences = False
+
+
+    client = PhnixBotClient(intents=intents)
     client.run(token)
 
     print('PhnixBot killed')
