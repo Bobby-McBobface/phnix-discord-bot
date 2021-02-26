@@ -8,7 +8,7 @@ async def split_into_member_and_reason(parameters:str) -> tuple:
     member_text = split_params[0] # There always will be a string here
     member_text.strip('<@!>')
    
-    member = get_member(int(member_text))  
+    member = message.guild.get_member(int(member_text))  
     try: 
         reason = split_params[1]
     except IndexError:
