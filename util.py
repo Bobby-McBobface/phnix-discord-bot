@@ -1,12 +1,12 @@
 async def split_into_member_and_reason(parameters:str) -> tuple:
     """Splits parameters into member and reason, used for most moderation commands."""
-    split_params = parameters.split(maxsplit=1)
-    try:
-        member_text = split_params[0]
-        member_text.strip('<@!>')
-    except IndexError:
-        # Syntax error! No need to procede
+    if parameters == None:
         return (None, None)
+    
+    split_params = parameters.split(maxsplit=1)
+    
+    member_text = split_params[0] # There always will be a string here
+    member_text.strip('<@!>')
    
     member = get_member(int(member_text))  
     try: 
