@@ -50,7 +50,7 @@ pad.command_data = {
 async def kick(message, parameters):  
     formatted_parameters = await util.split_into_member_and_reason(parameters)
     
-    if formatted_parameters[0] = None:
+    if formatted_parameters[0] == None:
         await message.channel.send("Invalid syntax/user! Usage:", kick.syntax)
         
     try:     
@@ -67,7 +67,7 @@ kick.command_data = {
 async def ban(message, parameters):  
     formatted_parameters = await util.split_into_member_and_reason(parameters)
     
-    if formatted_parameters[0] = None:
+    if formatted_parameters[0] == None:
         await message.channel.send("Invalid syntax/user! Usage:", ban.syntax)
         
     try:     
