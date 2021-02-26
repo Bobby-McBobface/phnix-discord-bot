@@ -26,6 +26,6 @@ def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
 
 class warning():
   pass
-
+ 
     
                 
