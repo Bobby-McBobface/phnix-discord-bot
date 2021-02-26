@@ -51,7 +51,7 @@ async def kick(message, parameters):
     formatted_parameters = await util.split_into_member_and_reason(parameters)
     
     if formatted_parameters[0] == None:
-        await message.channel.send("Invalid syntax/user! Usage:", kick.syntax)
+        await message.channel.send("Invalid syntax/user! Usage:", kick.command_data['syntax'])
         
     try:     
         await message.guild.kick(formatted_parameters[0], formatted_parameters[1])
@@ -68,7 +68,7 @@ async def ban(message, parameters):
     formatted_parameters = await util.split_into_member_and_reason(parameters)
     
     if formatted_parameters[0] == None:
-        await message.channel.send("Invalid syntax/user! Usage:", ban.syntax)
+        await message.channel.send("Invalid syntax/user! Usage:", ban.command_data['syntax'])
         
     try:     
         await message.guild.ban(formatted_parameters[0], formatted_parameters[1])
