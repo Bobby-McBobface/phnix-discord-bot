@@ -45,11 +45,11 @@ async def ban():
 #--------------------------------------------------#
 # LEVEL COMMANDS #
 #--------------------------------------------------#
-async def rank(msg):
+async def rank(message, parameters):
     try:
-        await msg.channel.send(data.level_dict[msg.author.id])
+        await message.channel.send(data.level_dict[message.author.id])
     except KeyError:
-        await msg.channel.send("You aren't ranked yet! Send some messages first and try again later")
+        await message.channel.send("You aren't ranked yet! Send some messages first and try again later")
 rank.command_data = {
   "syntax": "rank",
   "aliases": [],
