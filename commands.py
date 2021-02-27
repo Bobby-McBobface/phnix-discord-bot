@@ -2,6 +2,7 @@ import configuration
 import data
 import main
 import util
+import discord
 
 #--------------------------------------------------#
 # MISC COMMANDS #
@@ -55,11 +56,11 @@ async def kick(message, parameters):
     if member == None:
         error_message = "Invalid syntax/user! Usage:" + kick.command_data['syntax']
         await message.channel.send(error_message)
-        retur
+        return
         
     try:     
         await message.guild.kick(member, reason=formatted_parameters[1])
-    except discord.Forbidden:
+    except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to kick")
                        
 kick.command_data = {
@@ -80,8 +81,7 @@ async def ban(message, parameters):
         
     try:     
         await message.guild.ban(member, reason=formatted_parameters[1])
-    except Exception as e:
-        print(e)
+    except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to ban")        
                  
 ban.command_data = {
@@ -95,7 +95,8 @@ ban.command_data = {
 #--------------------------------------------------#
 async def rank(message, parameters):
     try:
-        await message.channel.send(data.level_dict[message.author.id])
+        response = "XP count: " + str(data.level_dict[message.author.id]) + "\nRank: " + str(sorted(data.level_dict.items(), key=lambda x: x[1], reverse=True).index((message.author.id, data.level_dict[message.author.id]))+1) # Horizontal scroll bar + PEP 8 is fuming right now
+        await message.channel.send(response)
     except KeyError:
         await message.channel.send("You aren't ranked yet! Send some messages first and try again later")
 rank.command_data = {
