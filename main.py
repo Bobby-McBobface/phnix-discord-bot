@@ -28,6 +28,7 @@ class PhnixBotClient(discord.Client):
         
     async def on_message(self, message):
         """Runs every time the bot notices a message being sent anywhere."""
+        
         # Ignore bot accounts
         if message.author.bot == True: return
         
