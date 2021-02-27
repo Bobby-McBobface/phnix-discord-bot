@@ -26,9 +26,5 @@ async def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
             return string[len(prefix):].lstrip()
     # If the loop ended, it failed to find a prefix
     return None
-
-class warning():
-  pass
- 
     
                 
