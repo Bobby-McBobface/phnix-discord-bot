@@ -36,7 +36,10 @@ class PhnixBotClient(discord.Client):
         await levels.add_exp(message.author.id)
         
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
-        command_text = await util.check_for_and_strip_prefixes(message.content, (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>"))
+        command_text = await util.check_for_and_strip_prefixes(
+            message.content,
+            (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>") )
+        
         # If there was a command prefix...
         if command_text is not None:
             

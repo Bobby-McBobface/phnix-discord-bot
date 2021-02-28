@@ -49,45 +49,41 @@ pad.command_data = {
 }
 '''
 async def kick(message, parameters):  
-    formatted_parameters = await util.split_into_member_and_reason(parameters)
+    formatted_parameters = await util.split_into_member_and_reason(message, parameters)
     member = formatted_parameters[0]
     
     if member == None:
-        error_message = "Invalid syntax/user! Usage:" + kick.command_data['syntax']
-        await message.channel.send(error_message)
+        await message.channel.send(f"Invalid syntax/user! Usage: {kick.command_data['syntax']}")
         return
     
     try:     
-        await message.guild.kick(member, reason=formatted_parameters[1])
-        response = "Kicked", member.name, "for", reason
-        await message.channel.send(response)
+        # await message.guild.kick(member, reason=formatted_parameters[1])
+        await message.channel.send(f"Kicked {member.name} for {formatted_parameters[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to kick")
                        
 kick.command_data = {
-  "syntax": "kick <member> [reason]",
+  "syntax": "kick <member> | [reason]",
   "aliases": [],
   "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
 }
 
 async def ban(message, parameters):  
-    formatted_parameters = await util.split_into_member_and_reason(parameters)
+    formatted_parameters = await util.split_into_member_and_reason(message, parameters)
     member = formatted_parameters[0]
     
     if member == None:
-        response = "Invalid syntax/user! Usage:" + ban.command_data['syntax']
-        await message.channel.send(response)
+        await message.channel.send(f"Invalid syntax/user! Usage: {ban.command_data['syntax']}")
         return
     
     try:     
         await message.guild.ban(member, reason=formatted_parameters[1], delete_message_days=0)
-        response = "Banned", member.name, "for", reason
-        await message.channel.send(response)
+        await message.channel.send(f"Banned {member.name} for {formatted_parameters[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to ban")        
                  
 ban.command_data = {
-  "syntax": "ban <member> [reason]",
+  "syntax": "ban <member> | [reason]",
   "aliases": [],
   "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
 }
@@ -97,8 +93,8 @@ ban.command_data = {
 #--------------------------------------------------#
 async def rank(message, parameters):
     try:
-        response = "XP count: " + str(data.level_dict[message.author.id]) + "\nRank: " + str(sorted(data.level_dict.items(), key=lambda x: x[1], reverse=True).index((message.author.id, data.level_dict[message.author.id]))+1) # Horizontal scroll bar + PEP 8 is fuming right now
-        await message.channel.send(response)
+         # Horizontal scroll bar + PEP 8 is fuming right now
+        await message.channel.send(f"XP count: {str(data.level_dict[message.author.id])} \nRank: {str(sorted(data.level_dict.items(), key=lambda x: x[1], reverse=True).index((message.author.id, data.level_dict[message.author.id]))+1)}")
     except KeyError:
         await message.channel.send("You aren't ranked yet! Send some messages first and try again later")
 rank.command_data = {
