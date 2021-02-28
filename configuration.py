@@ -1,4 +1,4 @@
-PREFIX = "$"
+PREFIX = "!"
 MODERATOR_ROLE = 329226272683065346
 
 # phnix testing server, not the main server
