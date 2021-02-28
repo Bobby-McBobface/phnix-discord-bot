@@ -50,14 +50,13 @@ pad.command_data = {
 '''
 async def kick(message, parameters):  
     formatted_parameters = await util.split_into_member_and_reason(parameters)
-    
-    member = message.guild.get_member(formatted_parameters[0])
+    member = formatted_parameters[0]
     
     if member == None:
         error_message = "Invalid syntax/user! Usage:" + kick.command_data['syntax']
         await message.channel.send(error_message)
         return
-        
+    
     try:     
         await message.guild.kick(member, reason=formatted_parameters[1])
     except discord.errors.Forbidden:
@@ -71,8 +70,7 @@ kick.command_data = {
 
 async def ban(message, parameters):  
     formatted_parameters = await util.split_into_member_and_reason(parameters)
-
-    member = message.guild.get_member(formatted_parameters[0])
+    member = formatted_parameters[0]
     
     if member == None:
         error_message = "Invalid syntax/user! Usage:" + ban.command_data['syntax']
@@ -80,7 +78,7 @@ async def ban(message, parameters):
         return
         
     try:     
-        await message.guild.ban(member, reason=formatted_parameters[1])
+        await message.guild.ban(member, reason=formatted_parameters[1], delete_message_days=0)
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to ban")        
                  
