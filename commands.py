@@ -58,7 +58,7 @@ async def kick(message, parameters):
     
     try:     
         # await message.guild.kick(member, reason=formatted_parameters[1])
-        await message.channel.send(f"Kicked {member.name} for {formatted_parameters[1]}")
+        await message.channel.send(f"Kicked {member.name}#{member.discriminator} for {formatted_parameters[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to kick")
                        
@@ -78,7 +78,7 @@ async def ban(message, parameters):
     
     try:     
         await message.guild.ban(member, reason=formatted_parameters[1], delete_message_days=0)
-        await message.channel.send(f"Banned {member.name} for {formatted_parameters[1]}")
+        await message.channel.send(f"Banned {member.name}#{member.discriminator} for {formatted_parameters[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to ban")        
                  
@@ -92,11 +92,18 @@ ban.command_data = {
 # LEVEL COMMANDS #
 #--------------------------------------------------#
 async def rank(message, parameters):
+    if not parameters == None:
+        member = await util.get_member_by_id_or_name(message, parameters)
+        if member == None:
+            await message.channel.send("Invalid user")
+            return
+    else:
+        member = message.author
     try:
          # Horizontal scroll bar + PEP 8 is fuming right now
-        await message.channel.send(f"XP count: {str(data.level_dict[message.author.id])} \nRank: {str(sorted(data.level_dict.items(), key=lambda x: x[1], reverse=True).index((message.author.id, data.level_dict[message.author.id]))+1)}")
+        await message.channel.send(f"XP count: {str(data.level_dict[member.id])} \nRank: {str(sorted(data.level_dict.items(), key=lambda x: x[1], reverse=True).index((member.id, data.level_dict[member.id]))+1)}")
     except KeyError:
-        await message.channel.send("You aren't ranked yet! Send some messages first and try again later")
+        await message.channel.send("The user isn't ranked yet!")
 rank.command_data = {
   "syntax": "rank",
   "aliases": [],

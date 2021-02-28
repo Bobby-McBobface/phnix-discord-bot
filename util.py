@@ -1,5 +1,20 @@
 import discord
 
+async def get_member_by_id_or_name(message, user:str) -> discord.Member:
+    if user == None:
+        return None
+    
+    member = None
+    try:
+        member = message.guild.get_member(int(user.strip('<@!>')))
+    except ValueError:
+        pass
+    
+    if member == None: 
+        member = message.guild.get_member_named(user)
+    
+    return member
+    
 async def split_into_member_and_reason(message, parameters:str) -> tuple:
     """
     Splits parameters into member and reason.
@@ -8,29 +23,28 @@ async def split_into_member_and_reason(message, parameters:str) -> tuple:
     
     if parameters == None:
         return (None, None)
-    
-    try:     
-        split_params = parameters.split(maxsplit=1)
-        member = message.guild.get_member(int(split_params[0].strip('<@!>')))
-        try: 
-            reason = split_params[1].lstrip('| ')
-        except IndexError:
-            reason = None
+     
+    split_params = parameters.split(maxsplit=1)
+    member = await get_member_by_id_or_name(message, split_params[0])
+    try: 
+        reason = split_params[1].lstrip('| ')
+    except IndexError:
+        reason = None
         
-    except ValueError:
+    if member == None:
         # Reversed to split the last | in case someone has | in their name
         split_params_pipe = parameters[::-1].split("|", 1)
         
-        member = message.guild.get_member_named(
-            split_params_pipe[1][::-1].rstrip())
+        member = await get_member_by_id_or_name(message,
+            split_params_pipe[len(split_params_pipe)-1][::-1].rstrip())
         
-        try: 
+        if len(split_params_pipe) == 2: 
             reason = split_params_pipe[0][::-1].lstrip()
-        except IndexError:
+        else:
             reason = None
             
     return (member, reason)
-  
+
 async def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
     """
     If `string` starts with one of the given prefixes,

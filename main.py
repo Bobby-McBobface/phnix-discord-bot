@@ -45,14 +45,16 @@ class PhnixBotClient(discord.Client):
             
             # Split the command into 2 parts, command name and parameters
             split_command_text = command_text.split(maxsplit=1)
-            try:
-                command_name = split_command_text[0].lower()
-            except IndexError:
-                # No command specified
+            if split_command_text == []:
+                # Nothing specified...
                 return
-            try:
+            
+            command_name = split_command_text[0].lower()
+
+            if len(split_command_text) == 2:
+                # Theres 2 elements, so there must be a name and parameters
                 parameters = split_command_text[1]
-            except IndexError:
+            else:
                 # No paramaters specified
                 parameters = None
             
