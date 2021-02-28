@@ -17,6 +17,7 @@ async def split_into_member_and_reason(parameters:str) -> tuple:
         member = discord.guild.get_member_named(member_text)
         try: 
             reason = split_params_pipe[1]
+            reason = reason[::1] # Unreverse
         except IndexError:
             reason = None 
     else:     
