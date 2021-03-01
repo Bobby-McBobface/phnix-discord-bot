@@ -11,8 +11,7 @@ XP_GAIN_PER_MESSAGE = 5
 
 # Messages
 STRINGS_HUG = [
-  # Format: ( "bot's reply", "default target" )
-  ("{hugger} hugs {target}", "themselves"),
-  ("{hugger} gives a big hug to {target}", "themselves, I guess"),
-  ("{hugger} 🫂 {target}", "themself")
+  "{hugger} hugs {target}",
+  "{hugger} gives a big hug to {target}",
+  "{hugger} 🫂 {target}"
 ]
