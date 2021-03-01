@@ -1,4 +1,6 @@
 import discord
+import random
+
 
 async def get_member_by_id_or_name(message, user:str) -> discord.Member:
     if user == None:
@@ -14,7 +16,8 @@ async def get_member_by_id_or_name(message, user:str) -> discord.Member:
         member = message.guild.get_member_named(user)
     
     return member
-    
+
+
 async def split_into_member_and_reason(message, parameters:str) -> tuple:
     """
     Splits parameters into member and reason.
@@ -45,6 +48,7 @@ async def split_into_member_and_reason(message, parameters:str) -> tuple:
             
     return (member, reason)
 
+
 async def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
     """
     If `string` starts with one of the given prefixes,
@@ -56,5 +60,8 @@ async def check_for_and_strip_prefixes(string:str, prefixes:tuple) -> str:
             return string[len(prefix):].lstrip()
     # If the loop ended, it failed to find a prefix
     return None
-    
-                
+
+
+def choose_random(choices:list):
+    """Returns a random item from `choices`"""
+    return random.choice(choices)
