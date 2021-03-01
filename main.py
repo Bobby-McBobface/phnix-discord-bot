@@ -58,19 +58,24 @@ class PhnixBotClient(discord.Client):
                 # No paramaters specified
                 parameters = None
             
-            # Get the command function
             try:
+                # Get the command's function
                 command_function = command_aliases_dict[command_name]
             except KeyError:
                 # There must not be a command by that name.
                 return
-            
-            # Do role checks
-            for role in message.author.roles:
-                if role.id in command_function.command_data['role_requirements']:
-                     # Run the found function
-                     await command_function(message, parameters)
-                     return # So we don't run it more than once
+            else:
+                
+                # Do role checks
+                for role in message.author.roles:
+                    if role.id in command_function.command_data['role_requirements']:
+                         # Run the found function
+                         await command_function(message, parameters)
+                         return # So we don't run it more than once
+                
+                # If we got here, then the user must not have permissions to do that command.
+                roles_string = " or ".join([f"<@&{role_id}>" for role_id in command_function.command_data['role_requirements']])
+                await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")
 
 if __name__ == '__main__':
 
