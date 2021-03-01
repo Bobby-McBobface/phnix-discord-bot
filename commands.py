@@ -27,7 +27,26 @@ pad.command_data = {
   "syntax": "pad <message>",
   "aliases": [],
   "role_requirements": [configuration.EVERYONE_ROLE]
-} 
+}
+
+async def hug(message, parameters):
+    # Make sure someone was specified
+    if parameters == None:
+        await message.channel.send("You must specify someone to hug.")
+    else:
+        # Get users
+        hugger = message.author.mention
+        target = parameters
+        # Get a random message and fill it in
+        choice = util.choose_random(configuration.STRINGS_HUG)
+        reply = choice.format(hugger=hugger, target=target)
+        # Done
+        await message.channel.send(reply)
+hug.command_data = {
+  "syntax": "hug <target>",
+  "aliases": [],
+  "role_requirements": [configuration.EVERYONE_ROLE]
+}
 
 #--------------------------------------------------#
 # MODERATION COMMANDS #
