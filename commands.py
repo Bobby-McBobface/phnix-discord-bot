@@ -4,6 +4,9 @@ import main
 import util
 import discord
 
+# Custom exceptions we can raise
+class CommandSyntaxError(Exception): pass
+
 #--------------------------------------------------#
 # MISC COMMANDS #
 #--------------------------------------------------#
@@ -32,7 +35,7 @@ pad.command_data = {
 async def hug(message, parameters):
     # Make sure someone was specified
     if parameters == None:
-        await message.channel.send("You must specify someone to hug.")
+        raise CommandSyntaxError("You must specify someone to hug.")
     else:
         # Get users
         hugger = message.author.mention
