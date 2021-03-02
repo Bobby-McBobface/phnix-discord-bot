@@ -75,9 +75,8 @@ async def kick(message, parameters):
     member = formatted_parameters[0]
     
     if member == None:
-        await message.channel.send(f"Invalid syntax/user! Usage: {kick.command_data['syntax']}")
-        return
-    
+        raise CommandSyntaxError('Invalid user')
+        
     try:     
         # await message.guild.kick(member, reason=formatted_parameters[1])
         await message.channel.send(f"Kicked {member.name}#{member.discriminator} for {formatted_parameters[1]}")
@@ -95,9 +94,8 @@ async def ban(message, parameters):
     member = formatted_parameters[0]
     
     if member == None:
-        await message.channel.send(f"Invalid syntax/user! Usage: {ban.command_data['syntax']}")
-        return
-    
+        raise CommandSyntaxError('Invalid user')
+        
     try:     
         await message.guild.ban(member, reason=formatted_parameters[1], delete_message_days=0)
         await message.channel.send(f"Banned {member.name}#{member.discriminator} for {formatted_parameters[1]}")
@@ -117,8 +115,7 @@ async def rank(message, parameters):
     if not parameters == None:
         member = await util.get_member_by_id_or_name(message, parameters)
         if member == None:
-            await message.channel.send("Invalid user")
-            return
+            raise CommandSyntaxError('Invalid user')
     else:
         member = message.author
     try:
