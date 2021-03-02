@@ -140,5 +140,5 @@ dmypy.json
 cython_debug/
 
 # Data
-data/*.txt
+data/*.txt 
 
