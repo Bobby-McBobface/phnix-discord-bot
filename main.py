@@ -76,9 +76,9 @@ class PhnixBotClient(discord.Client):
                         
                         except commands.CommandSyntaxError as err:
                             # If the command raised CommandSyntaxError, send some information to the user:
-                            error_details = str(err)
-                            error_syntax = command_function.command_data['syntax']
-                            error_message = f"Invalid syntax{f': {error_details}' if error_details != '' else ''}\nUsage: `{error_syntax}`"
+                            error_details = f": {str(err)}\n" if str(err) != "" else ". " # Get details from the exception, and format it
+                            error_syntax = command_function.command_data['syntax'] # Get command syntax from the function
+                            error_message = f"Invalid syntax{error_details}Usage: `{error_syntax}`" # Put it all together
                             await message.channel.send(error_message)
                         
                         return # So we don't run it more than once
