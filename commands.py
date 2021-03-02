@@ -7,6 +7,31 @@ import discord
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception): pass
 
+
+#--------------------------------------------------#
+# SYSTEM COMMANDS #
+#--------------------------------------------------#
+
+async def help(message, parameters):
+    """Help command - Lists all commands, or gives info on a specific command."""
+    
+    if parameters = "": # No specific command requested - List every command
+        # Get a string listing all commands
+        all_commands = "\n".join(main.command_dict)
+        # Make one of those fancy embed doohickies
+        help_embed = discord.Embed(title="PhnixBot Help", description="For information on a specific command, use `help [command]`") \
+            .add_field("Commands", all_commands)
+        # Sent it
+        await message.channel.send(embed=help_embed)
+        
+    else: # There was a paramater - Get help on a specific command
+        await message.channel.send("[TODO]")
+help.command_data = {
+  "syntax": "help [command]",
+  "aliases": ["?"],
+  "role_requirements": []
+}
+
 #--------------------------------------------------#
 # MISC COMMANDS #
 #--------------------------------------------------#
