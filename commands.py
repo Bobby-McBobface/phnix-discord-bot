@@ -75,7 +75,7 @@ async def kick(message, parameters):
     member = formatted_parameters[0]
     
     if member == None:
-        raise CommandSyntaxError('Invalid user')
+        raise CommandSyntaxError('You must specify a valid user.')
         
     try:     
         # await message.guild.kick(member, reason=formatted_parameters[1])
@@ -94,7 +94,7 @@ async def ban(message, parameters):
     member = formatted_parameters[0]
     
     if member == None:
-        raise CommandSyntaxError('Invalid user')
+        raise CommandSyntaxError('You must specify a valid user.')
         
     try:     
         await message.guild.ban(member, reason=formatted_parameters[1], delete_message_days=0)
@@ -115,7 +115,7 @@ async def rank(message, parameters):
     if not parameters == None:
         member = await util.get_member_by_id_or_name(message, parameters)
         if member == None:
-            raise CommandSyntaxError('Invalid user')
+            raise CommandSyntaxError('You must specify a valid user.')
     else:
         member = message.author
     try:
