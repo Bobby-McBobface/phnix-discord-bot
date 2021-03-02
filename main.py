@@ -69,9 +69,19 @@ class PhnixBotClient(discord.Client):
                 # Do role checks
                 for role in message.author.roles:
                     if role.id in command_function.command_data['role_requirements']:
-                         # Run the found function
-                         await command_function(message, parameters)
-                         return # So we don't run it more than once
+                        
+                        # Run the found function
+                        try:
+                            await command_function(message, parameters)
+                        
+                        except commands.CommandSyntaxError as err:
+                            # If the command raised CommandSyntaxError, send some information to the user:
+                            error_details = str(err)
+                            error_syntax = command_function.command_data['syntax']
+                            error_message = f"Invalid syntax{f': {error_details}' if error_details != '' else ''}\Usage: `{error_syntax}`"
+                            await message.channel.send(error_message)
+                        
+                        return # So we don't run it more than once
                 
                 # If we got here, then the user must not have permissions to do that command.
                 roles_string = " or ".join([f"<@&{role_id}>" for role_id in command_function.command_data['role_requirements']])
