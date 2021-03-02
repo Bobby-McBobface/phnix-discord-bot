@@ -23,7 +23,7 @@ test.command_data = {
 async def pad(message, parameters):
     """Spaces out your text"""
     if parameters == None:
-        await message.channel.send("Usage: `pad <message>`")
+        raise CommandSyntaxError
     else:
         await message.channel.send(" ".join(parameters))
 pad.command_data = {
