@@ -15,17 +15,39 @@ class CommandSyntaxError(Exception): pass
 async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""
     
-    if parameters is None: # No specific command requested - List every command
+    if isinstance(parameters, str):
+        # Assume this means they requested an invalid command
+        await message.channel.send(f"Unknown command `{parameters}`.\nUse this command without any parameters for a list of valid commands.")
+    
+    elif isinstance(parameters, dict):
+        # Assume that the dict we've been given is the dictionary of all commands {name: function}
+        # Therefore, send a list of every command...
+        command_dict = parameters
         # Get a string listing all commands
-        all_commands = "\n".join(main.command_dict)
+        all_commands = "\n".join(command_dict)
         # Make one of those fancy embed doohickies
         help_embed = discord.Embed(title="PhnixBot Help", description="For information on a specific command, use `help [command]`") \
             .add_field(name="Commands", value=all_commands)
         # Sent it
         await message.channel.send(embed=help_embed)
         
-    else: # There was a paramater - Get help on a specific command
-        await message.channel.send("[TODO]")
+    else:
+        # Assume that parameters is a function that the user wants information on
+        cmd = parameters
+        # Get info
+        cmd_name = cmd.__name__
+        cmd_syntax = cmd.command_data["syntax"]
+        cmd_aliases_list = cmd.command_data["aliases"]
+        cmd_aliases_str = "None" if len(cmd_aliases_list) == 0 else \
+            "`, `".join(cmd_aliases_list)
+        cmd_roles = cmd.command_data["role_requirements"]
+        # Build embed
+        help_embed = discord.Embed(title=cmd_name) \
+            .add_field(name="Syntax", value=f"`{cmd_syntax}`") \
+            .add_field(name="Aliases", value=f"`{cmd_aliases_str}`") \
+            .add_field(name="Roles", value=f"`{cmd_roles}`")
+        # Send
+        await message.channel.send(embed=help_embed)
 help.command_data = {
   "syntax": "help [command]",
   "aliases": ["?"],
