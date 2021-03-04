@@ -3,6 +3,7 @@ import data
 import main
 import util
 import discord
+import sqlite3
 
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception): pass
@@ -15,39 +16,17 @@ class CommandSyntaxError(Exception): pass
 async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""
     
-    if isinstance(parameters, str):
-        # Assume this means they requested an invalid command
-        await message.channel.send(f"Unknown command `{parameters}`.\nUse this command without any parameters for a list of valid commands.")
-    
-    elif isinstance(parameters, dict):
-        # Assume that the dict we've been given is the dictionary of all commands {name: function}
-        # Therefore, send a list of every command...
-        command_dict = parameters
+    if parameters is None: # No specific command requested - List every command
         # Get a string listing all commands
-        all_commands = "\n".join(command_dict)
+        all_commands = "\n".join(main.command_dict)
         # Make one of those fancy embed doohickies
         help_embed = discord.Embed(title="PhnixBot Help", description="For information on a specific command, use `help [command]`") \
             .add_field(name="Commands", value=all_commands)
         # Sent it
         await message.channel.send(embed=help_embed)
         
-    else:
-        # Assume that parameters is a function that the user wants information on
-        cmd = parameters
-        # Get info
-        cmd_name = cmd.__name__
-        cmd_syntax = cmd.command_data["syntax"]
-        cmd_aliases_list = cmd.command_data["aliases"]
-        cmd_aliases_str = "None" if len(cmd_aliases_list) == 0 else \
-            "`, `".join(cmd_aliases_list)
-        cmd_roles = cmd.command_data["role_requirements"]
-        # Build embed
-        help_embed = discord.Embed(title=cmd_name) \
-            .add_field(name="Syntax", value=f"`{cmd_syntax}`") \
-            .add_field(name="Aliases", value=f"`{cmd_aliases_str}`") \
-            .add_field(name="Roles", value=f"`{cmd_roles}`")
-        # Send
-        await message.channel.send(embed=help_embed)
+    else: # There was a paramater - Get help on a specific command
+        await message.channel.send("[TODO]")
 help.command_data = {
   "syntax": "help [command]",
   "aliases": ["?"],
@@ -165,11 +144,23 @@ async def rank(message, parameters):
             raise CommandSyntaxError('You must specify a valid user.')
     else:
         member = message.author
-    try:
-         # Horizontal scroll bar + PEP 8 is fuming right now
-        await message.channel.send(f"XP count: {str(data.level_dict[member.id])} \nRank: {str(sorted(data.level_dict.items(), key=lambda x: x[1], reverse=True).index((member.id, data.level_dict[member.id]))+1)}")
-    except KeyError:
-        await message.channel.send("The user isn't ranked yet!")
+
+    sqlite_client = sqlite3.connect('bot_database.db')
+    user_xp = sqlite_client.execute('''SELECT XP FROM LEVELS WHERE ID=:user_id''',
+                                    {'user_id': member.id}).fetchone()
+    if user_xp == None:
+        await message.channel.send("The user isn't ranked yet.")
+        return
+    
+    user_list = sqlite_client.execute('''SELECT ID FROM LEVELS ORDER BY XP''')
+    rank = 0
+    for user in user_list:
+        if user != member.id:
+            rank += 1
+        else:
+            break
+    await message.channel.send(f'XP: {user_xp[0]} \nRank: {rank}') 
+                
 rank.command_data = {
   "syntax": "rank",
   "aliases": [],

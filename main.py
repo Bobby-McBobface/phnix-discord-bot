@@ -63,19 +63,8 @@ class PhnixBotClient(discord.Client):
                 command_function = command_aliases_dict[command_name]
             except KeyError:
                 # There must not be a command by that name.
-                pass
+                return
             else:
-                # We got the command's function!
-                
-                # SPECIAL CASE: help command paramaters
-                if command_function == commands.help:
-                    if parameters is None:
-                        parameters = command_dict
-                    else:
-                        try:
-                            parameters = command_aliases_dict[parameters]
-                        except KeyError:
-                            pass
                 
                 # Do role checks
                 for role in message.author.roles:
