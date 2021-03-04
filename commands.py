@@ -164,11 +164,23 @@ async def rank(message, parameters):
             raise CommandSyntaxError('You must specify a valid user.')
     else:
         member = message.author
-    try:
-         # Horizontal scroll bar + PEP 8 is fuming right now
-        await message.channel.send(f"XP count: {str(data.level_dict[member.id])} \nRank: {str(sorted(data.level_dict.items(), key=lambda x: x[1], reverse=True).index((member.id, data.level_dict[member.id]))+1)}")
-    except KeyError:
-        await message.channel.send("The user isn't ranked yet!")
+
+    sqlite_client = sqlite3.connect('bot_database.db')
+    user_xp = sqlite_client.execute('''SELECT XP FROM LEVELS WHERE ID=:user_id''',
+                                    {'user_id': member.id}).fetchone()
+    if user_xp == None:
+        await message.channel.send("The user isn't ranked yet.")
+        return
+    
+    user_list = sqlite_client.execute('''SELECT ID FROM LEVELS ORDER BY XP''')
+    rank = 0
+    for user in user_list:
+        if user != member.id:
+            rank += 1
+        else:
+            break
+    await message.channel.send(f'XP: {user_xp[0]} \nRank: {rank}') 
+                
 rank.command_data = {
   "syntax": "rank",
   "aliases": [],
