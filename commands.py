@@ -1,5 +1,4 @@
 import configuration
-import data
 import main
 import util
 import discord
