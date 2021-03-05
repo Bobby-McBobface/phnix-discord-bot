@@ -1,5 +1,4 @@
 import asyncio
-import data
 import configuration
 import sqlite3
 
