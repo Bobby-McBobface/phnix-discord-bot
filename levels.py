@@ -17,8 +17,9 @@ async def add_exp(member:int):
 
     if user_xp == None:
       user_xp = 0
-
-    user_xp = user_xp[0]
+    else:
+      user_xp = user_xp[0]
+      
     user_xp += configuration.XP_GAIN_PER_MESSAGE
 
     sqlite_client.execute('''INSERT INTO LEVELS (ID, XP) \

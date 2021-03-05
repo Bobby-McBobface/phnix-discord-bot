@@ -3,6 +3,7 @@ import data
 import main
 import util
 import discord
+import sqlite3
 
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception): pass
@@ -172,14 +173,12 @@ async def rank(message, parameters):
         await message.channel.send("The user isn't ranked yet.")
         return
     
-    user_list = sqlite_client.execute('''SELECT ID FROM LEVELS ORDER BY XP''')
-    rank = 0
-    for user in user_list:
-        if user != member.id:
-            rank += 1
-        else:
-            break
-    await message.channel.send(f'XP: {user_xp[0]} \nRank: {rank}') 
+    user_xp = user_xp[0]
+    
+    user_rank = sqlite_client.execute('''SELECT COUNT(*)+1 FROM LEVELS WHERE XP > :user_xp''',
+                                      {'user_xp': user_xp}).fetchone()
+    
+    await message.channel.send(f'XP: {user_xp} \nRank: {user_rank[0]}') 
                 
 rank.command_data = {
   "syntax": "rank",
