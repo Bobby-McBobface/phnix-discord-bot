@@ -3,7 +3,6 @@ import inspect
 import configuration
 import commands
 import levels
-import data
 import util
     
 # Build a dictionary of all commands
