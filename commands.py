@@ -3,6 +3,7 @@ import data
 import main
 import util
 import discord
+import sqlite3
 
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception): pass
@@ -108,7 +109,6 @@ pad.command_data = {
   "aliases": [],
   "role_requirements": [configuration.EVERYONE_ROLE]
 }
-
 async def mute(message, parameters):
     pass
 pad.command_data = {
@@ -165,11 +165,21 @@ async def rank(message, parameters):
             raise CommandSyntaxError('You must specify a valid user.')
     else:
         member = message.author
-    try:
-         # Horizontal scroll bar + PEP 8 is fuming right now
-        await message.channel.send(f"XP count: {str(data.level_dict[member.id])} \nRank: {str(sorted(data.level_dict.items(), key=lambda x: x[1], reverse=True).index((member.id, data.level_dict[member.id]))+1)}")
-    except KeyError:
-        await message.channel.send("The user isn't ranked yet!")
+
+    sqlite_client = sqlite3.connect('bot_database.db')
+    user_xp = sqlite_client.execute('''SELECT XP FROM LEVELS WHERE ID=:user_id''',
+                                    {'user_id': member.id}).fetchone()
+    if user_xp == None:
+        await message.channel.send("The user isn't ranked yet.")
+        return
+    
+    user_xp = user_xp[0]
+    
+    user_rank = sqlite_client.execute('''SELECT COUNT(*)+1 FROM LEVELS WHERE XP > :user_xp''',
+                                      {'user_xp': user_xp}).fetchone()
+    
+    await message.channel.send(f'XP: {user_xp} \nRank: {user_rank[0]}') 
+                
 rank.command_data = {
   "syntax": "rank",
   "aliases": [],
