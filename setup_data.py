@@ -6,6 +6,16 @@ sqlite_client.execute('''CREATE TABLE IF NOT EXISTS LEVELS ( \
     XP INT             NOT NULL \
     );''')
 
+sqlite_client.execute('''CREATE TABLE IF NOT EXISTS WARNS ( \
+    ID INT             NOT NULL, \
+    TIMESTAMP NUMERIC  NOT NULL, \
+    REASON TEXT        NOT NULL  \
+    );''')
+sqlite_client.execute('''CREATE TABLE IF NOT EXISTS MUTES ( \
+    ID INT             NOT NULL, \
+    TIMESTAMP NUMERIC  NOT NULL, \
+    ROLES TEXT         NOT NULL  \
+    );''')
 sqlite_client.commit()
 sqlite_client.close()
     
