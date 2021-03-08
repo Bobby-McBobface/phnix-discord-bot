@@ -3,6 +3,7 @@ import util
 import discord
 import sqlite3
 import inspect
+import time
 
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception): pass
@@ -101,31 +102,61 @@ hug.command_data = {
 # MODERATION COMMANDS #
 #--------------------------------------------------#
 async def warn(message, parameters):
-    pass
+    formatted_parameters = await util.split_into_member_and_reason(message, parameters)
+
+    if formatted_parameters[0] == None:
+        raise CommandSyntaxError('You must specify a valid user.')
+    sqlite_client = sqlite3.connect('bot_database.db')
+    sqlite_client.execute('''INSERT INTO WARNS (ID, REASON, TIMESTAMP) \
+        VALUES(:member_id, :reason, :time)''',
+        {'member_id': member.id, 'reason': str(formatted_parameters[1]), 'time': round(time.time())})
+    sqlite_client.commit()
+    sqlite_client.close()
+    await message.channel.send(f"Warned {formatted_parameters[0].name}#{formatted_parameters[0].discriminator} for {formatted_parameters[1]}")
+    
 warn.command_data = {
-  "syntax": "pad <message>",
+  "syntax": "warn <member> | [reason]",
   "aliases": [],
   "role_requirements": [configuration.EVERYONE_ROLE]
 }
-'''
+
+async def warns(message, parameters):
+    member = member = await util.get_member_by_id_or_name(message, parameters)
+        
+    if member == None:
+        raise CommandSyntaxError('You must specify a valid user.')
+    
+    sqlite_client = sqlite3.connect('bot_database.db')
+    warn_list = sqlite_client.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id''',
+            {'member_id': member.id}).fetchall()
+    sqlite_client.close()
+        
+    await message.channel.send(warn_list)
+warns.command_data = {
+  "syntax": "warns <member>",
+  "aliases": [],
+  "role_requirements": [configuration.EVERYONE_ROLE]
+}
+
 async def mute(message, parameters):
-    pass
-pad.command_data = {
-  "syntax": "pad <message>",
+    formatted_parameters = await util.split_into_member_and_reason(message, parameters)
+    await warn(message, f'MUTE - {formatted_parameters[1]'}
+    #todo: mute
+mute.command_data = {
+  "syntax": "mute <member> | [reason]",
   "aliases": [],
   "role_requirements": [configuration.EVERYONE_ROLE]
 }
-'''
+
 async def kick(message, parameters):  
     formatted_parameters = await util.split_into_member_and_reason(message, parameters)
-    member = formatted_parameters[0]
     
-    if member == None:
+    if formatted_parameters[0] == None:
         raise CommandSyntaxError('You must specify a valid user.')
         
     try:     
         # await message.guild.kick(member, reason=formatted_parameters[1])
-        await message.channel.send(f"Kicked {member.name}#{member.discriminator} for {formatted_parameters[1]}")
+        await message.channel.send(f"Kicked {formatted_parameters[0].name}#{formatted_parameters[0].discriminator} for {formatted_parameters[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to kick")
                        
@@ -137,14 +168,13 @@ kick.command_data = {
 
 async def ban(message, parameters):  
     formatted_parameters = await util.split_into_member_and_reason(message, parameters)
-    member = formatted_parameters[0]
     
-    if member == None:
+    if formatted_parameters[0] == None:
         raise CommandSyntaxError('You must specify a valid user.')
         
     try:     
         await message.guild.ban(member, reason=formatted_parameters[1], delete_message_days=0)
-        await message.channel.send(f"Banned {member.name}#{member.discriminator} for {formatted_parameters[1]}")
+        await message.channel.send(f"Banned {formatted_parameters[0].name}#{formatted_parameters[0].discriminator} for {formatted_parameters[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to ban")        
                  
