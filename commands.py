@@ -1,8 +1,8 @@
 import configuration
-import main
 import util
 import discord
 import sqlite3
+import inspect
 
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception): pass
@@ -15,16 +15,10 @@ class CommandSyntaxError(Exception): pass
 async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""
     
-    if isinstance(parameters, str):
-        # Assume this means they requested an invalid command
-        await message.channel.send(f"Unknown command `{parameters}`.\nUse this command without any parameters for a list of valid commands.")
-    
-    elif isinstance(parameters, dict):
-        # Assume that the dict we've been given is the dictionary of all commands {name: function}
+    if parameters == None:
         # Therefore, send a list of every command...
-        command_dict = parameters
         # Get a string listing all commands
-        all_commands = "\n".join(command_dict)
+        all_commands = "\n".join([function.__name__ for function in command_list])
         # Make one of those fancy embed doohickies
         help_embed = discord.Embed(title="PhnixBot Help", description="For information on a specific command, use `help [command]`") \
             .add_field(name="Commands", value=all_commands)
@@ -33,7 +27,12 @@ async def help(message, parameters):
         
     else:
         # Assume that parameters is a function that the user wants information on
-        cmd = parameters
+        try:
+            cmd = command_aliases_dict[parameters]
+        except KeyError:
+            await message.channel.send(f"Unknown command `{parameters}`.\nUse this command without any parameters for a list of valid commands.")
+            return
+        
         # Get info
         cmd_name = cmd.__name__
         cmd_syntax = cmd.command_data["syntax"]
@@ -101,13 +100,14 @@ hug.command_data = {
 #--------------------------------------------------#
 # MODERATION COMMANDS #
 #--------------------------------------------------#
-'''async def warn(message, parameters):
+async def warn(message, parameters):
     pass
-pad.command_data = {
+warn.command_data = {
   "syntax": "pad <message>",
   "aliases": [],
   "role_requirements": [configuration.EVERYONE_ROLE]
 }
+'''
 async def mute(message, parameters):
     pass
 pad.command_data = {
@@ -184,3 +184,18 @@ rank.command_data = {
   "aliases": [],
   "role_requirements": [configuration.EVERYONE_ROLE]
 }
+
+command_list = []
+command_aliases_dict = {}
+
+_ = None # Fix to stop vars() size from changing in for loop
+for _ in vars():
+    if inspect.iscoroutinefunction(vars()[_]):
+        command_list.append(vars()[_])
+
+for function in command_list:
+    # Add the command's name itself as an alias
+    command_aliases_dict[function.__name__] = function
+    # Iterate through all aliases and add them as aliases
+    for alias in function.command_data["aliases"]:
+        command_aliases_dict[alias] = function

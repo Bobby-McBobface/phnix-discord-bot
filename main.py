@@ -4,20 +4,6 @@ import configuration
 import commands
 import levels
 import util
-    
-# Build a dictionary of all commands
-command_dict = dict(inspect.getmembers(commands, inspect.isfunction))
-
-command_aliases_dict = {}
-# Iterate through the commands to get aliases
-for name in command_dict:
-    # Get the value that we're setting them to from the other dict
-    function = command_dict[name]
-    # Add the command's name itself as an alias
-    command_aliases_dict[name] = function
-    # Iterate through all aliases and add them as aliases
-    for alias in function.command_data["aliases"]:
-        command_aliases_dict[alias] = function
         
 class PhnixBotClient(discord.Client):
     async def on_ready(self):
@@ -40,13 +26,10 @@ class PhnixBotClient(discord.Client):
             (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>") )
         
         # If there was a command prefix...
-        if command_text is not None:
+        if command_text is not None and command_text != '':
             
             # Split the command into 2 parts, command name and parameters
             split_command_text = command_text.split(maxsplit=1)
-            if split_command_text == []:
-                # Nothing specified...
-                return
             
             command_name = split_command_text[0].lower()
 
@@ -59,43 +42,33 @@ class PhnixBotClient(discord.Client):
             
             try:
                 # Get the command's function
-                command_function = command_aliases_dict[command_name]
+                command_function = commands.command_aliases_dict[command_name]
             except KeyError:
                 # There must not be a command by that name.
-                pass
-            else:
-                # We got the command's function!
+                return
+            
+            # We got the command's function!
                 
-                # SPECIAL CASE: help command paramaters
-                if command_function == commands.help:
-                    if parameters is None:
-                        parameters = command_dict
-                    else:
-                        try:
-                            parameters = command_aliases_dict[parameters]
-                        except KeyError:
-                            pass
+            # Do role checks
+            for role in message.author.roles:
+                 if role.id in command_function.command_data['role_requirements']:
+                        
+                     # Run the found function
+                    try:
+                        await command_function(message, parameters)
+                        
+                    except commands.CommandSyntaxError as err:
+                        # If the command raised CommandSyntaxError, send some information to the user:
+                        error_details = f": {str(err)}\n" if str(err) != "" else ". " # Get details from the exception, and format it
+                        error_syntax = command_function.command_data['syntax'] # Get command syntax from the function
+                        error_message = f"Invalid syntax{error_details}Usage: `{error_syntax}`" # Put it all together
+                        await message.channel.send(error_message)
+                    
+                    return # So we don't run it more than once
                 
-                # Do role checks
-                for role in message.author.roles:
-                    if role.id in command_function.command_data['role_requirements']:
-                        
-                        # Run the found function
-                        try:
-                            await command_function(message, parameters)
-                        
-                        except commands.CommandSyntaxError as err:
-                            # If the command raised CommandSyntaxError, send some information to the user:
-                            error_details = f": {str(err)}\n" if str(err) != "" else ". " # Get details from the exception, and format it
-                            error_syntax = command_function.command_data['syntax'] # Get command syntax from the function
-                            error_message = f"Invalid syntax{error_details}Usage: `{error_syntax}`" # Put it all together
-                            await message.channel.send(error_message)
-                        
-                        return # So we don't run it more than once
-                
-                # If we got here, then the user must not have permissions to do that command.
-                roles_string = " or ".join([f"`{message.guild.get_role(role_id).name}`" for role_id in command_function.command_data['role_requirements'] if message.guild.get_role(role_id) != None])
-                await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")
+            # User does not have permissions to execute that command.
+            roles_string = " or ".join([f"`{message.guild.get_role(role_id).name}`" for role_id in command_function.command_data['role_requirements'] if message.guild.get_role(role_id) != None])
+            await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")
 
 if __name__ == '__main__':
 

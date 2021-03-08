@@ -12,7 +12,7 @@ sqlite_client.execute('''CREATE TABLE IF NOT EXISTS WARNS ( \
     REASON TEXT        NOT NULL  \
     );''')
 sqlite_client.execute('''CREATE TABLE IF NOT EXISTS MUTES ( \
-    ID INT             NOT NULL, \
+    ID INT PRIMARY KEY NOT NULL, \
     TIMESTAMP NUMERIC  NOT NULL, \
     ROLES TEXT         NOT NULL  \
     );''')
