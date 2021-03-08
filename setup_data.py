@@ -1,6 +1,8 @@
 import sqlite3
 
 sqlite_client = sqlite3.connect('bot_database.db')
+sqlite_client.execute('''DROP TABLE WARNS''')
+#sqlite_client.execute('''DROP TABLE MUTES''')
 sqlite_client.execute('''CREATE TABLE IF NOT EXISTS LEVELS ( \
     ID INT PRIMARY KEY NOT NULL, \
     XP INT             NOT NULL \
