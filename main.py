@@ -11,6 +11,10 @@ class PhnixBotClient(discord.Client):
         print('PhnixBot is ready')
         await levels.clear_chatted_loop()
         
+    async def on_member_join(self, member):
+        pass
+        #todo: welcome message and check mute
+        
     async def on_message(self, message):
         """Runs every time the bot notices a message being sent anywhere."""
         
