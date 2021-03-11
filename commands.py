@@ -125,7 +125,7 @@ async def replytome(message, parameters):
         text = parameters
     await message.channel.send(content=text, reference=message)
 
-    replytome.command_data = {
+replytome.command_data = {
   "syntax": "replytome [text to echo]",
   "aliases": [],
   "role_requirements": [configuration.EVERYONE_ROLE]
