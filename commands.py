@@ -52,8 +52,10 @@ async def help(message, parameters):
         cmd_roles = cmd.command_data["role_requirements"]
         cmd_roles_str = ", ".join([f"<@&{role_id}>" for role_id in cmd_roles])
         
+        cmd_desc = cmd.command_data.get("description") # Will default to None if not present
+        
         # Build embed
-        help_embed = discord.Embed(title=cmd_name) \
+        help_embed = discord.Embed(title=cmd_name, description=cmd_desc) \
             .add_field(name="Syntax", value=cmd_syntax) \
             .add_field(name="Aliases", value=cmd_aliases_str) \
             .add_field(name="Roles", value=cmd_roles_str)
