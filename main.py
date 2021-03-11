@@ -96,8 +96,16 @@ if __name__ == '__main__':
     intents.members = True
     intents.typing = False
     intents.presences = False
+    
+    allowed_mentions = discord.AllowedMentions(
+        everyone = False,
+        roles = False,
+        users = True
+    )
 
-    client = PhnixBotClient(intents=intents)
+
+    client = PhnixBotClient(intents=intents, allowed_mentions=allowed_mentions)
+
     client.run(token)
 
     print('PhnixBot killed')
