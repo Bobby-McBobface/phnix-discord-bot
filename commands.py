@@ -21,8 +21,7 @@ class CommandSyntaxError(Exception): pass
 async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""
 
-    if parameters == None:
-        # Therefore, send a list of every command...
+    if parameters is None:
         # Get a string listing all commands
         all_commands = "\n".join([function.__name__ for function in command_list])
         # Make one of those fancy embed doohickies
@@ -33,7 +32,7 @@ async def help(message, parameters):
         await message.channel.send(embed=help_embed)
 
     else:
-        # Assume that parameters is a function that the user wants information on
+        # Try getting information on a specified command
         try:
             cmd = command_aliases_dict[parameters]
         except KeyError:
@@ -43,19 +42,24 @@ async def help(message, parameters):
 
         # Get info
         cmd_name = cmd.__name__
-        cmd_syntax = cmd.command_data["syntax"]
+        
+        cmd_syntax = "`" + cmd.command_data["syntax"] + "`"
+        
         cmd_aliases_list = cmd.command_data["aliases"]
         cmd_aliases_str = "None" if len(cmd_aliases_list) == 0 else \
-            "`, `".join(cmd_aliases_list)
+            "`" + "`, `".join(cmd_aliases_list) + "`"
+        
         cmd_roles = cmd.command_data["role_requirements"]
+        cmd_roles_str = ", ".join([f"<@&{role_id}>" for role_id in cmd_roles])
+        
         # Build embed
         help_embed = discord.Embed(title=cmd_name) \
-            .add_field(name="Syntax", value=f"`{cmd_syntax}`") \
-            .add_field(name="Aliases", value=f"`{cmd_aliases_str}`") \
-            .add_field(name="Roles", value=f"`{cmd_roles}`")
+            .add_field(name="Syntax", value=cmd_syntax) \
+            .add_field(name="Aliases", value=cmd_aliases_str) \
+            .add_field(name="Roles", value=cmd_roles_str)
+        
         # Send
         await message.channel.send(embed=help_embed)
-
 
 help.command_data = {
     "syntax": "help [command]",
@@ -72,7 +76,6 @@ async def test(message, parameters):
     result = 2 + 2
     await message.channel.send(f"Two plus two is {result}")
 
-
 test.command_data = {
     "syntax": "test",
     "aliases": ["twoplustwo"],
@@ -86,7 +89,6 @@ async def pad(message, parameters):
         raise CommandSyntaxError
     else:
         await message.channel.send(" ".join(parameters))
-
 
 pad.command_data = {
     "syntax": "pad <message>",
@@ -109,7 +111,6 @@ async def hug(message, parameters):
         # Done
         await message.channel.send(reply)
 
-
 hug.command_data = {
     "syntax": "hug <target>",
     "aliases": [],
@@ -117,9 +118,35 @@ hug.command_data = {
 }
 
 
+async def replytome(message, parameters):
+    if parameters == None:
+        text = util.choose_random(("ok", "no"))
+    else:
+        text = parameters
+    await message.channel.send(content=text, reference=message)
+
+    replytome.command_data = {
+  "syntax": "replytome [text to echo]",
+  "aliases": [],
+  "role_requirements": [configuration.EVERYONE_ROLE]
+}
+
+
+async def aa(message, parameters):
+    await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAA", reference=message)
+
+aa.command_data = {
+  "syntax": "AAAAAAAAAAAAAAAAAAAAAA",
+  "aliases": ["a"*a for a in range(1, 12)],
+  "role_requirements": [configuration.EVERYONE_ROLE],
+  "description": "AAAAAAAAAAAAAAAAAA"
+}
+
+
 # --------------------------------------------------#
 # MODERATION COMMANDS #
 # --------------------------------------------------#
+
 async def warn(message, parameters):
     formatted_parameters = await util.split_into_member_and_reason(message, parameters)
 
@@ -134,7 +161,6 @@ async def warn(message, parameters):
     sqlite_client.close()
     await message.channel.send(
         f"Warned {formatted_parameters[0].name}#{formatted_parameters[0].discriminator} for {formatted_parameters[1]}")
-
 
 warn.command_data = {
     "syntax": "warn <member> | [reason]",
@@ -155,7 +181,6 @@ async def warns(message, parameters):
     sqlite_client.close()
 
     await message.channel.send(warn_list)
-
 
 warns.command_data = {
     "syntax": "warns <member>",
@@ -200,7 +225,6 @@ async def mute(message, parameters):
     await asyncio.sleep(mute_time)
     await unmute(message, str(formatted_parameters[0].id))
 
-
 mute.command_data = {
     "syntax": "mute <member> | [reason]",
     "aliases": [],
@@ -237,7 +261,6 @@ async def unmute(message, parameters):
 
         await member.add_roles(role)
 
-
 unmute.command_data = {
     "syntax": "kick <member>",
     "aliases": [],
@@ -258,10 +281,9 @@ async def kick(message, parameters):
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to kick")
 
-
 kick.command_data = {
     "syntax": "kick <member> | [reason]",
-    "aliases": [],
+    "aliases": ["kcik"],
     "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
 }
 
@@ -278,7 +300,6 @@ async def ban(message, parameters):
             f"Banned {formatted_parameters[0].name}#{formatted_parameters[0].discriminator} for {formatted_parameters[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to ban")
-
 
 ban.command_data = {
     "syntax": "ban <member> | [reason]",
@@ -312,12 +333,12 @@ async def rank(message, parameters):
 
     await message.channel.send(f'XP: {user_xp} \nRank: {user_rank[0]}')
 
-
 rank.command_data = {
     "syntax": "rank",
     "aliases": [],
     "role_requirements": [configuration.EVERYONE_ROLE]
 }
+
 
 command_list = []
 command_aliases_dict = {}
