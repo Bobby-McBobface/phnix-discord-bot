@@ -1,6 +1,7 @@
 import asyncio
 import configuration
 import sqlite3
+import random
 
 chatted = []
 
@@ -8,6 +9,8 @@ async def add_exp(member:int):
   global chatted
   
   if member not in chatted:
+    xp_gain = random.randint(15, 25)
+    
     chatted.append(member)
 
     sqlite_client = sqlite3.connect('bot_database.db')
@@ -19,7 +22,7 @@ async def add_exp(member:int):
     else:
       user_xp = user_xp[0]
       
-    user_xp += configuration.XP_GAIN_PER_MESSAGE
+    user_xp += xp_gain
 
     sqlite_client.execute('''INSERT INTO LEVELS (ID, XP) \
         VALUES(:member, :user_xp) \

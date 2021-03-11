@@ -4,6 +4,8 @@ import discord
 import sqlite3
 import inspect
 import time
+import asyncio
+import ast
 
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception): pass
@@ -109,7 +111,7 @@ async def warn(message, parameters):
     sqlite_client = sqlite3.connect('bot_database.db')
     sqlite_client.execute('''INSERT INTO WARNS (ID, REASON, TIMESTAMP) \
         VALUES(:member_id, :reason, :time)''',
-        {'member_id': member.id, 'reason': str(formatted_parameters[1]), 'time': round(time.time())})
+        {'member_id': formatted_parameters[0].id, 'reason': str(formatted_parameters[1]), 'time': round(time.time())})
     sqlite_client.commit()
     sqlite_client.close()
     await message.channel.send(f"Warned {formatted_parameters[0].name}#{formatted_parameters[0].discriminator} for {formatted_parameters[1]}")
@@ -121,7 +123,7 @@ warn.command_data = {
 }
 
 async def warns(message, parameters):
-    member = member = await util.get_member_by_id_or_name(message, parameters)
+    member = await util.get_member_by_id_or_name(message, parameters)
         
     if member == None:
         raise CommandSyntaxError('You must specify a valid user.')
@@ -140,14 +142,79 @@ warns.command_data = {
 
 async def mute(message, parameters):
     formatted_parameters = await util.split_into_member_and_reason(message, parameters)
-    await warn(message, f'MUTE - {formatted_parameters[1]'}
-    #todo: mute
+    if formatted_parameters == (None, None):
+        raise CommandSyntaxError('You must specify a valid user/duration.')
+    
+    time_reason = formatted_parameters[1].split(maxsplit=1)
+    try:
+        multiplier = configuration.TIME_MULIPLIER[time_reason[0][-1]]
+        mute_time = int(time_reason[0][:-1]) * multiplier
+    except:
+        raise CommandSyntaxError('You must specify a valid duration.')
+
+    await warn(message, f'{formatted_parameters[0].id} MUTE - {formatted_parameters[1]}')
+
+    roles = formatted_parameters[0].roles
+    
+    try:
+        for role in roles[1:]:
+            print(role)
+            await formatted_parameters[0].remove_roles(role)
+        await formatted_parameters[0].add_roles(message.guild.get_role(configuration.MUTED_ROLE))
+    except discord.errors.Forbidden:
+        await message.channel.send("I don't have perms to give mute role/remove all their roles")
+
+    sqlite_client = sqlite3.connect('bot_database.db')
+
+    sqlite_client.execute('''INSERT INTO MUTES (ID, TIMESTAMP, ROLES) \
+        VALUES(:member_id, :timestamp, :roles) ''',
+        {'member_id': formatted_parameters[0].id, 'timestamp': round(time.time()) + mute_time, 'roles': str([role.id for role in roles[1:]])})
+
+    sqlite_client.commit()
+    sqlite_client.close()
+    await asyncio.sleep(mute_time)
+    await unmute(message, str(formatted_parameters[0].id))
+    
 mute.command_data = {
   "syntax": "mute <member> | [reason]",
   "aliases": [],
   "role_requirements": [configuration.EVERYONE_ROLE]
 }
 
+async def unmute(message, parameters):
+    member = await util.get_member_by_id_or_name(message, parameters)
+        
+    if member == None:
+        raise CommandSyntaxError('You must specify a valid user.')
+    
+    sqlite_client = sqlite3.connect('bot_database.db')
+    roles = sqlite_client.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
+                      {'member_id':member.id}).fetchone()
+    sqlite_client.execute('''DELETE FROM MUTES WHERE ID=:member_id''',
+                        {'member_id':member.id})
+    sqlite_client.commit()
+    sqlite_client.close()
+
+    if roles == None:
+        await message.channel.send('User is not muted')
+        return
+
+    roles = ast.literal_eval(roles[0])
+
+    await member.remove_roles(message.guild.get_role(configuration.MUTED_ROLE))
+    for role in roles:
+        role = message.guild.get_role(role)
+        print(role)
+        if role == None:
+            continue
+        
+        await member.add_roles(role)
+                        
+unmute.command_data = {
+  "syntax": "kick <member>",
+  "aliases": [],
+  "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
+}
 async def kick(message, parameters):  
     formatted_parameters = await util.split_into_member_and_reason(message, parameters)
     
