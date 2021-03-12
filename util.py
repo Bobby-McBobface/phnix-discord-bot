@@ -68,9 +68,9 @@ def choose_random(choices: list):
     return random.choice(choices)
 
 
-def muted(member: discord.Member):
+async def check_if_muted(member: discord.Member):
     import sqlite3
     sqlite_client = sqlite3.connect('bot_database.db')
-    result = sqlite_client.execute('''SELECT :member_id FROM MUTES WHERE ID=:member_id''',
-                                   {'member_id': member.id}).fetchone() is not None
+    result = sqlite_client.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
+                                   {'member_id': member.id, }).fetchone()
     return result

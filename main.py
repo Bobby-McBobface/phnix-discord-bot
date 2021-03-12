@@ -1,5 +1,6 @@
 import discord
-
+import time
+import asyncio
 import commands
 import configuration
 import levels
@@ -17,8 +18,13 @@ class PhnixBotClient(discord.Client):
         await welcome_channel.send(configuration.welcome_msg.format("<@" + str(member.id) + ">"))
 
         # Check if member is muted and give appropriate role:
-        if util.muted(member):
+        muted = await util.check_if_muted(member)
+        
+        if muted and muted[1] - time.time() > 0:
             await member.add_roles(member.guild.get_role(configuration.MUTED_ROLE))
+            await asyncio.sleep(muted[1] - time.time())
+            await commands.unmute(member.guild, muted[0], guild=True)
+            
 
     async def on_member_remove(self, member):
         farewell_channel = self.get_channel(configuration.FAREWELL_CHANNEL)
