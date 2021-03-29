@@ -11,7 +11,8 @@ import util
 
 
 # Custom exceptions we can raise
-class CommandSyntaxError(Exception): pass
+class CommandSyntaxError(Exception):
+    pass
 
 
 # --------------------------------------------------#
@@ -23,7 +24,8 @@ async def help(message, parameters):
 
     if parameters is None:
         # Get a string listing all commands
-        all_commands = "\n".join([function.__name__ for function in command_list])
+        all_commands = "\n".join(
+            [function.__name__ for function in command_list])
         # Make one of those fancy embed doohickies
         help_embed = discord.Embed(title="PhnixBot Help",
                                    description="For information on a specific command, use `help [command]`") \
@@ -42,24 +44,25 @@ async def help(message, parameters):
 
         # Get info
         cmd_name = cmd.__name__
-        
+
         cmd_syntax = "`" + cmd.command_data["syntax"] + "`"
-        
+
         cmd_aliases_list = cmd.command_data["aliases"]
         cmd_aliases_str = "None" if len(cmd_aliases_list) == 0 else \
             "`" + "`, `".join(cmd_aliases_list) + "`"
-        
+
         cmd_roles = cmd.command_data["role_requirements"]
         cmd_roles_str = ", ".join([f"<@&{role_id}>" for role_id in cmd_roles])
-        
-        cmd_desc = cmd.command_data.get("description") # Will default to None if not present
-        
+
+        # Will default to None if not present
+        cmd_desc = cmd.command_data.get("description")
+
         # Build embed
         help_embed = discord.Embed(title=cmd_name, description=cmd_desc) \
             .add_field(name="Syntax", value=cmd_syntax) \
             .add_field(name="Aliases", value=cmd_aliases_str) \
             .add_field(name="Roles", value=cmd_roles_str)
-        
+
         # Send
         await message.channel.send(embed=help_embed)
 
@@ -128,9 +131,9 @@ async def replytome(message, parameters):
     await message.channel.send(content=text, reference=message)
 
 replytome.command_data = {
-  "syntax": "replytome [text to echo]",
-  "aliases": [],
-  "role_requirements": [configuration.EVERYONE_ROLE]
+    "syntax": "replytome [text to echo]",
+    "aliases": [],
+    "role_requirements": [configuration.EVERYONE_ROLE]
 }
 
 
@@ -138,10 +141,10 @@ async def aa(message, parameters):
     await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAA", reference=message)
 
 aa.command_data = {
-  "syntax": "AAAAAAAAAAAAAAAAAAAAAA",
-  "aliases": ["a"*a for a in range(1, 12)],
-  "role_requirements": [configuration.EVERYONE_ROLE],
-  "description": "AAAAAAAAAAAAAAAAAA"
+    "syntax": "AAAAAAAAAAAAAAAAAAAAAA",
+    "aliases": ["a"*a for a in range(1, 12)],
+    "role_requirements": [configuration.EVERYONE_ROLE],
+    "description": "AAAAAAAAAAAAAAAAAA"
 }
 
 
@@ -211,7 +214,7 @@ async def mute(message, parameters):
     except:
         await message.channel.send("I don't have perms to give mute role")
         return
-    
+
     try:
         for role in roles[1:]:
             print(role)
@@ -223,8 +226,8 @@ async def mute(message, parameters):
     try:
         sqlite_client.execute('''INSERT INTO MUTES (ID, TIMESTAMP, ROLES) \
             VALUES(:member_id, :timestamp, :roles) ''',
-            {'member_id': member_reason[0].id, 'timestamp': round(time.time()) + mute_time,
-            'roles': str([role.id for role in roles[1:]])})
+                              {'member_id': member_reason[0].id, 'timestamp': round(time.time()) + mute_time,
+                               'roles': str([role.id for role in roles[1:]])})
     except sqlite3.IntegrityError:
         await message.channel.send('User is already muted')
 
@@ -240,21 +243,22 @@ mute.command_data = {
 }
 
 
-async def unmute(message, parameters, guild=False):
+async def unmute(message, parameters, guild=False, silenced=False):
     """
     Unmutes member
     Params:
     message: discord.message/guild object
     parameters: Parameters
     guild: if the message parameter is a guild object"""
-    
+
     if guild:
         member = message.get_member(parameters)
     else:
         member = await util.get_member_by_id_or_name(message, parameters)
 
     if member == None:
-        raise CommandSyntaxError('You must specify a valid user.')
+        if not silenced:
+            raise CommandSyntaxError('You must specify a valid user.')
 
     sqlite_client = sqlite3.connect('bot_database.db')
     roles = sqlite_client.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
@@ -265,19 +269,22 @@ async def unmute(message, parameters, guild=False):
     sqlite_client.close()
 
     if roles == None and not guild:
-        await message.channel.send('User is not muted')
+        if not silenced:
+            await message.channel.send('User is not muted')
         return
 
     roles = ast.literal_eval(roles[0])
-
-    await member.remove_roles(message.guild.get_role(configuration.MUTED_ROLE))
+    if guild:
+        await member.remove_roles(message.get_role(configuration.MUTED_ROLE))
+    else:
+        await member.remove_roles(message.guild.get_role(configuration.MUTED_ROLE))
+        
     try:
         for role in roles:
             if guild:
                 message.get_role(role)
             else:
                 role = message.guild.get_role(role)
-            print(role)
             if role == None:
                 continue
 
@@ -299,7 +306,7 @@ async def kick(message, parameters):
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
-        # await message.guild.kick(member, reason=member_reason[1])
+        # await message.guild.kick(member_reason[0], reason=member_reason[1])
         await message.channel.send(
             f"Kicked {member_reason[0].name}#{member_reason[0].discriminator} for {member_reason[1]}")
     except discord.errors.Forbidden:
@@ -319,7 +326,7 @@ async def ban(message, parameters):
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
-        await message.guild.ban(member, reason=member_reason[1], delete_message_days=0)
+        await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
         await message.channel.send(
             f"Banned {member_reason[0].name}#{member_reason[0].discriminator} for {member_reason[1]}")
     except discord.errors.Forbidden:
