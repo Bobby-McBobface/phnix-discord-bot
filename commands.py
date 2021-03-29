@@ -170,7 +170,7 @@ async def warn(message, parameters):
 warn.command_data = {
     "syntax": "warn <member> | [reason]",
     "aliases": [],
-    "role_requirements": [configuration.EVERYONE_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
 }
 
 
@@ -190,7 +190,7 @@ async def warns(message, parameters):
 warns.command_data = {
     "syntax": "warns <member>",
     "aliases": [],
-    "role_requirements": [configuration.EVERYONE_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
 }
 
 
@@ -237,9 +237,9 @@ async def mute(message, parameters):
     await unmute(message, str(member_reason[0].id))
 
 mute.command_data = {
-    "syntax": "mute <member> | [reason]",
+    "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",
     "aliases": [],
-    "role_requirements": [configuration.EVERYONE_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
 }
 
 
@@ -292,8 +292,11 @@ async def unmute(message, parameters, guild=False, silenced=False):
     except:
         pass
 
+    if not silenced:
+        await message.channel.send(f'Unmuted {member.name}#{member.discriminator} ({member.id})')
+
 unmute.command_data = {
-    "syntax": "kick <member>",
+    "syntax": "unmute <member>",
     "aliases": [],
     "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
 }
@@ -308,7 +311,7 @@ async def kick(message, parameters):
     try:
         # await message.guild.kick(member_reason[0], reason=member_reason[1])
         await message.channel.send(
-            f"Kicked {member_reason[0].name}#{member_reason[0].discriminator} for {member_reason[1]}")
+            f"Kicked {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to kick")
 
@@ -328,7 +331,7 @@ async def ban(message, parameters):
     try:
         await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
         await message.channel.send(
-            f"Banned {member_reason[0].name}#{member_reason[0].discriminator} for {member_reason[1]}")
+            f"Banned {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to ban")
 
