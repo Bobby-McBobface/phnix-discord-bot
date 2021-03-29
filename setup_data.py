@@ -20,7 +20,7 @@ sqlite_client.execute('''CREATE TABLE IF NOT EXISTS MUTES ( \
     );''')
 sqlite_client.commit()
 sqlite_client.close()
-    
+
 '''sqlite_client = sqlite3.connect('bot_database.db')
 sqlite_client.execute(f''''''INSERT INTO LEVELS (ID, XP) \
             VALUES(381634036357136391, 5) \
