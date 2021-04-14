@@ -24,12 +24,12 @@ class CommandSyntaxError(Exception):
     with open("file.png", 'rb') as pic:
         arole=message.guild.get_role(int(parameters))
         await message.guild.create_custom_emoji(name='netherite', image=pic.read(), roles=[arole], reason="suggestion 371")
-'''
+
 _supersecretcommand.command_data = {
     "syntax": "_a",
     "aliases": ["_aaaa"],
     "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
-}
+}'''
 
 async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""

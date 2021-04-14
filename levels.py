@@ -23,13 +23,17 @@ async def add_exp(member: int):
             user_xp = (0,0)
 
         xp = user_xp[0] + xp_gain
+        level = user_xp[1]
 
-        if user_xp[1] > math.floor(5/6*((2*xp**3)+(27*xp**2)+(91*xp))):
-            level = user_xp[1]
+        print(level)
+        print(math.floor(5/6*((2*level**3)+(27*level**2)+(91*level))))
+        print(level >= math.floor(5/6*((2*level**3)+(27*level**2)+(91*level))))
+
+        if xp >= math.floor(5/6*((2*level**3)+(27*level**2)+(91*level))):
             level += 1
             #level up
         else:
-            level = user_xp[1]
+            pass
 
         sqlite_client.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
         VALUES(:member, :user_xp, :level) \
