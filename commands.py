@@ -19,6 +19,18 @@ class CommandSyntaxError(Exception):
 # SYSTEM COMMANDS #
 # --------------------------------------------------#
 
+'''async def _supersecretcommand(message, parameters):
+    """adds role specific emotes"""
+    with open("file.png", 'rb') as pic:
+        arole=message.guild.get_role(int(parameters))
+        await message.guild.create_custom_emoji(name='netherite', image=pic.read(), roles=[arole], reason="suggestion 371")
+'''
+_supersecretcommand.command_data = {
+    "syntax": "_a",
+    "aliases": ["_aaaa"],
+    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
+}
+
 async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""
 
@@ -354,22 +366,20 @@ async def rank(message, parameters):
         member = message.author
 
     sqlite_client = sqlite3.connect('bot_database.db')
-    user_xp = sqlite_client.execute('''SELECT XP FROM LEVELS WHERE ID=:user_id''',
+    user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
                                     {'user_id': member.id}).fetchone()
     if user_xp == None:
         await message.channel.send("The user isn't ranked yet.")
         return
 
-    user_xp = user_xp[0]
-
     user_rank = sqlite_client.execute('''SELECT COUNT(*)+1 FROM LEVELS WHERE XP > :user_xp''',
-                                      {'user_xp': user_xp}).fetchone()
+                                      {'user_xp': user_xp[0]}).fetchone()
 
-    await message.channel.send(f'XP: {user_xp} \nRank: {user_rank[0]}')
+    await message.channel.send(f'XP: {user_xp[0]} \nRank: {user_rank[0]} \nLevel: {user_xp[1]}')
 
 rank.command_data = {
     "syntax": "rank",
-    "aliases": [],
+    "aliases": ["wank"],
     "role_requirements": [configuration.EVERYONE_ROLE]
 }
 

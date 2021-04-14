@@ -2,6 +2,7 @@ import asyncio
 import configuration
 import sqlite3
 import random
+import math
 
 chatted = []
 
@@ -15,22 +16,28 @@ async def add_exp(member: int):
         chatted.append(member)
 
         sqlite_client = sqlite3.connect('bot_database.db')
-        user_xp = sqlite_client.execute('''SELECT XP FROM LEVELS WHERE ID=:user_id''',
+        user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
                                         {'user_id': member}).fetchone()
 
         if user_xp == None:
-            user_xp = 0
+            user_xp = (0,0)
+
+        xp = user_xp[0] + xp_gain
+
+        if user_xp[1] > math.floor(5/6*((2*xp**3)+(27*xp**2)+(91*xp))):
+            level = user_xp[1]
+            level += 1
+            #level up
         else:
-            user_xp = user_xp[0]
+            level = user_xp[1]
 
-        user_xp += xp_gain
-
-        sqlite_client.execute('''INSERT INTO LEVELS (ID, XP) \
-        VALUES(:member, :user_xp) \
+        sqlite_client.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
+        VALUES(:member, :user_xp, :level) \
         ON CONFLICT(ID) \
-        DO UPDATE SET XP=:user_xp''',
+        DO UPDATE SET XP=:user_xp, LEVEL=:level''',
                               {'member': member,
-                               'user_xp': user_xp}
+                               'user_xp': xp,
+                               'level': level}
                               )
         sqlite_client.commit()
         sqlite_client.close()
