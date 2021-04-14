@@ -25,10 +25,6 @@ async def add_exp(member: int):
         xp = user_xp[0] + xp_gain
         level = user_xp[1]
 
-        print(level)
-        print(math.floor(5/6*((2*level**3)+(27*level**2)+(91*level))))
-        print(level >= math.floor(5/6*((2*level**3)+(27*level**2)+(91*level))))
-
         if xp >= math.floor(5/6*((2*level**3)+(27*level**2)+(91*level))):
             level += 1
             #level up
