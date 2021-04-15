@@ -51,5 +51,4 @@ async def clear_chatted_loop():
         chatted = []
 
 async def xp_needed_for_level(level: int):
-    level = level - 1
-    return int(5/6*((2*level**3)+(27*level**2)+(91*level)))
+    return int(5/6*((2*(level-1)**3)+(27*(level-1)**2)+(91*(level-1))))
