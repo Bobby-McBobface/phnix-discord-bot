@@ -391,7 +391,7 @@ async def rank(message, parameters):
         .add_field(name="Total XP:", value=user_xp[0]) \
         .add_field(name="Level:", value=user_xp[1]) \
         .add_field(name="Rank:", value="#" + str(user_rank[0])) \
-        .add_field(name="XP until level up:", value=await levels.xp_needed_for_level(user_xp[1]+1) - user_xp[0])
+        .add_field(name="XP until level up:", value=await levels.xp_needed_for_level(user_xp[1]) - user_xp[0])
         
     await message.channel.send(embed=rank_embed)
 
