@@ -241,11 +241,15 @@ async def mute(message, parameters):
         await message.channel.send("I don't have perms to give mute role")
         return
 
-    try:
-        for role in roles[1:]:
-            print(role)
+    forbidden_role_flag = False
+
+    for role in roles[1:]:
+        try:
             await member_reason[0].remove_roles(role)
-    except discord.errors.Forbidden:
+        except discord.errors.Forbidden:
+            forbidden_role_flag = True
+
+    if forbidden_role_flag:
         await message.channel.send("I don't have perms to give remove all their roles")
 
     await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}')
