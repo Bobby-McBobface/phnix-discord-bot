@@ -237,7 +237,7 @@ async def mute(message, parameters):
     roles = member_reason[0].roles
     try:
         await member_reason[0].add_roles(message.guild.get_role(configuration.MUTED_ROLE))
-    except:
+    except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to give mute role")
         return
 
@@ -266,7 +266,7 @@ async def mute(message, parameters):
     sqlite_client.commit()
     sqlite_client.close()
     await asyncio.sleep(mute_time)
-    await unmute(message, str(member_reason[0].id))
+    await unmute(message, str(member_reason[0].id), silenced=True)
 
 mute.command_data = {
     "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",
