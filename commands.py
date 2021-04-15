@@ -198,6 +198,9 @@ async def warns(message, parameters):
                                       {'member_id': member.id}).fetchall()
     sqlite_client.close()
 
+    if warn_list = None:
+        await message.channel.send("User has no warns")
+
     warn_text = ''
     timestamp_text = ''
 
