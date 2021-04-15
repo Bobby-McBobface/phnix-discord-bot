@@ -197,7 +197,18 @@ async def warns(message, parameters):
                                       {'member_id': member.id}).fetchall()
     sqlite_client.close()
 
-    await message.channel.send(warn_list)
+    warn_text = ''
+    timestamp_text = ''
+
+    for warn in warn_list:
+        warn_text += str(warn[0]) + '\n'
+        timestamp_text += str(warn[1]) + '\n'
+
+    warn_embed = discord.Embed(title="Warns", description=f"<@{member.id}>") \
+        .add_field(name="Reason", value=warn_text) \
+        .add_field(name="Timestamp", value=timestamp_text)
+
+    await message.channel.send(embed=warn_embed)
 
 warns.command_data = {
     "syntax": "warns <member>",
