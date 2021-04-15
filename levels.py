@@ -11,7 +11,7 @@ async def add_exp(member: int):
     global chatted
 
     if member not in chatted:
-        xp_gain = random.randint(15, 25)
+        xp_gain = random.randint(configuration.XP_GAIN_MIN, configuration.XP_GAIN_MAX)
 
         chatted.append(member)
 
