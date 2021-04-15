@@ -221,6 +221,31 @@ warns.command_data = {
     "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
+async def delwarn(message, parameters):
+    member_reason = await util.split_into_member_and_reason(message, parameters)
+    if member_reason == (None, None):
+        raise CommandSyntaxError('You must specify a valid user')
+
+    sqlite_client = sqlite3.connect('bot_database.db')
+    warn = sqlite_client.execute('''SELECT REASON FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
+    {"timestamp": member_reason[1], "id": member_reason[0].id}).fetchone()
+
+    if warn is not None:
+        await message.channel.send(f"Deleting warn from {member_reason[0].name}#{member_reason[0].discriminator} about {warn[0]}")
+    else:
+        await message.channel.send("No warn found")
+        return
+
+    sqlite_client.execute('''DELETE FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
+    {"timestamp": member_reason[1], "id": member_reason[0].id})
+    sqlite_client.commit()
+    sqlite_client.close()
+
+delwarn.command_data = {
+    "syntax": "delwarn <member> <timestamp of warn>",
+    "aliases": [],
+    "role_requirements": [configuration.MODERATOR_ROLE]
+}
 
 async def mute(message, parameters):
     member_reason = await util.split_into_member_and_reason(message, parameters)

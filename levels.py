@@ -27,8 +27,6 @@ async def add_exp(member: int):
         if xp >= await xp_needed_for_level(level):
             level += 1
             #level up
-        else:
-            pass
 
         sqlite_client.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
         VALUES(:member, :user_xp, :level) \
