@@ -71,6 +71,8 @@ class PhnixBotClient(discord.Client):
             if len(split_command_text) == 2:
                 # Theres 2 elements, so there must be a name and parameters
                 parameters = split_command_text[1]
+                # Remove trailing whitespaces
+                parameters = parameters.strip()
             else:
                 # No paramaters specified
                 parameters = None
