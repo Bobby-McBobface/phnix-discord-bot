@@ -28,7 +28,7 @@ class CommandSyntaxError(Exception):
 _supersecretcommand.command_data = {
     "syntax": "_a",
     "aliases": ["_aaaa"],
-    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE]
 }'''
 
 async def help(message, parameters):
@@ -96,7 +96,7 @@ async def test(message, parameters):
 test.command_data = {
     "syntax": "test",
     "aliases": ["twoplustwo"],
-    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
 
@@ -182,7 +182,7 @@ async def warn(message, parameters):
 warn.command_data = {
     "syntax": "warn <member> | [reason]",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
 
@@ -202,7 +202,7 @@ async def warns(message, parameters):
 warns.command_data = {
     "syntax": "warns <member>",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
 
@@ -251,7 +251,7 @@ async def mute(message, parameters):
 mute.command_data = {
     "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
 
@@ -310,7 +310,7 @@ async def unmute(message, parameters, guild=False, silenced=False):
 unmute.command_data = {
     "syntax": "unmute <member>",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
 
@@ -330,7 +330,7 @@ async def kick(message, parameters):
 kick.command_data = {
     "syntax": "kick <member> | [reason]",
     "aliases": ["kcik"],
-    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
 
@@ -350,7 +350,7 @@ async def ban(message, parameters):
 ban.command_data = {
     "syntax": "ban <member> | [reason]",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE, configuration.COOL_ROLE]
+    "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
 
