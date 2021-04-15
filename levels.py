@@ -2,7 +2,6 @@ import asyncio
 import configuration
 import sqlite3
 import random
-import math
 
 chatted = []
 
@@ -25,7 +24,7 @@ async def add_exp(member: int):
         xp = user_xp[0] + xp_gain
         level = user_xp[1]
 
-        if xp >= math.floor(5/6*((2*level**3)+(27*level**2)+(91*level))):
+        if xp >= await xp_needed_for_level(level):
             level += 1
             #level up
         else:
@@ -50,3 +49,7 @@ async def clear_chatted_loop():
     while True:
         await asyncio.sleep(configuration.XP_MESSAGE_INTERVAL)
         chatted = []
+
+async def xp_needed_for_level(level: int):
+    level = level - 1
+    return int(5/6*((2*level**3)+(27*level**2)+(91*level)))

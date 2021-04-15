@@ -3,6 +3,7 @@ import asyncio
 import inspect
 import sqlite3
 import time
+import levels
 
 import discord
 
@@ -386,7 +387,13 @@ async def rank(message, parameters):
     user_rank = sqlite_client.execute('''SELECT COUNT(*)+1 FROM LEVELS WHERE XP > :user_xp''',
                                       {'user_xp': user_xp[0]}).fetchone()
 
-    await message.channel.send(f'XP: {user_xp[0]} \nRank: {user_rank[0]} \nLevel: {user_xp[1]}')
+    rank_embed = discord.Embed(title="Rank", description=f"<@{member.id}>") \
+        .add_field(name="Total XP:", value=user_xp[0]) \
+        .add_field(name="Level:", value=user_xp[1]) \
+        .add_field(name="Rank:", value="#" + str(user_rank[0])) \
+        .add_field(name="XP until level up:", value=await levels.xp_needed_for_level(user_xp[1]+1) - user_xp[0])
+        
+    await message.channel.send(embed=rank_embed)
 
 rank.command_data = {
     "syntax": "rank",
