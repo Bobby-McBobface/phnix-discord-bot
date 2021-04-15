@@ -218,8 +218,6 @@ async def mute(message, parameters):
     except:
         raise CommandSyntaxError('You must specify a valid duration.')
 
-    await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}')
-
     roles = member_reason[0].roles
     try:
         await member_reason[0].add_roles(message.guild.get_role(configuration.MUTED_ROLE))
@@ -233,6 +231,8 @@ async def mute(message, parameters):
             await member_reason[0].remove_roles(role)
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to give remove all their roles")
+
+    await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}')
 
     sqlite_client = sqlite3.connect('bot_database.db')
     try:
