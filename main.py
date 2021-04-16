@@ -53,7 +53,7 @@ class PhnixBotClient(discord.Client):
             return
 
         # EXP/leveling system
-        await levels.add_exp(message.author.id)
+        await levels.add_exp(message.author, message)
 
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
         command_text = await util.check_for_and_strip_prefixes(
