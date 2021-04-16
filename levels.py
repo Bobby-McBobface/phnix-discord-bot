@@ -30,7 +30,7 @@ async def add_exp(member: int, message: discord.Message):
 
             level += 1
 
-            await message.channel.send(f"You reached level {level-1}! :poglin:")
+            await message.channel.send(f"You reached level {level-1}! <:poglin:798531675634139176>")
             # Give level roles
             # Internally, levels are one more than MEE6 was, so there is a compensation
             if level - 1 == 55:
