@@ -181,7 +181,7 @@ async def warn(message, parameters):
     sqlite_client.commit()
     sqlite_client.close()
     await message.channel.send(
-        f"Warned {member_reason[0].name}#{member_reason[0].discriminator} for {member_reason[1]}")
+        f"Warned {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
 
 warn.command_data = {
     "syntax": "warn <member> | [reason]",
@@ -200,6 +200,8 @@ async def warns(message, parameters):
             user_id = int(user_id)
         except:
             raise CommandSyntaxError('You must specify a valid user.')
+    else:
+        user_id = member.id
 
     sqlite_client = sqlite3.connect('bot_database.db')
     warn_list = sqlite_client.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id''',
@@ -239,7 +241,7 @@ async def delwarn(message, parameters):
     {"timestamp": member_reason[1], "id": member_reason[0].id}).fetchone()
 
     if warn is not None:
-        await message.channel.send(f"Deleting warn from {member_reason[0].name}#{member_reason[0].discriminator} about {warn[0]}")
+        await message.channel.send(f"Deleting warn from {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) about {warn[0]}")
     else:
         await message.channel.send("No warn found")
         return
