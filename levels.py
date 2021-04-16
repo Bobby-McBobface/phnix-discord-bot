@@ -35,31 +35,31 @@ async def add_exp(member: int, message: discord.Message):
             # Internally, levels are one more than MEE6 was, so there is a compensation
             if level - 1 == 55:
                 member.add_roles(member.guild.get_role(configuration.NETHERITE), reason="Level up!")
-                member.remove_roles(member.guild.get_role(configuration.EMERALD, reason="Level up!"))
+                member.remove_roles(member.guild.get_role(configuration.EMERALD), reason="Level up!")
             elif level - 1 == 45:
                 member.add_roles(member.guild.get_role(configuration.EMERALD), reason="Level up!")
-                member.remove_roles(member.guild.get_role(configuration.OBSIDIAN, reason="Level up!"))
+                member.remove_roles(member.guild.get_role(configuration.OBSIDIAN), reason="Level up!")
             elif level - 1 == 40:
                 member.add_roles(member.guild.get_role(configuration.OBSIDIAN), reason="Level up!")
-                member.remove_roles(member.guild.get_role(configuration.DIAMOND, reason="Level up!"))
+                member.remove_roles(member.guild.get_role(configuration.DIAMOND), reason="Level up!")
             elif level - 1 == 35:
                 member.add_roles(member.guild.get_role(configuration.DIAMOND), reason="Level up!")
-                member.remove_roles(member.guild.get_role(configuration.GOLD, reason="Level up!"))
+                member.remove_roles(member.guild.get_role(configuration.GOLD), reason="Level up!")
             elif level - 1 == 30:
                 member.add_roles(member.guild.get_role(configuration.GOLD), reason="Level up!")
-                member.remove_roles(member.guild.get_role(configuration.LAPIS, reason="Level up!"))
+                member.remove_roles(member.guild.get_role(configuration.LAPIS), reason="Level up!")
             elif level - 1 == 25:
                 member.add_roles(member.guild.get_role(configuration.LAPIS), reason="Level up!")
-                member.remove_roles(member.guild.get_role(configuration.COPPER, reason="Level up!"))
+                member.remove_roles(member.guild.get_role(configuration.COPPER), reason="Level up!")
             elif level - 1 == 20:
                 member.add_roles(member.guild.get_role(configuration.COPPER), reason="Level up!")
-                member.remove_roles(member.guild.get_role(configuration.IRON, reason="Level up!"))
+                member.remove_roles(member.guild.get_role(configuration.IRON), reason="Level up!")
             elif level - 1 == 15:
                 member.add_roles(member.guild.get_role(configuration.IRON), reason="Level up!")
-                member.remove_roles(member.guild.get_role(configuration.STONE, reason="Level up!"))
+                member.remove_roles(member.guild.get_role(configuration.STONE), reason="Level up!")
             elif level - 1 == 10:
                 member.add_roles(member.guild.get_role(configuration.STONE), reason="Level up!")
-                member.remove_roles(member.guild.get_role(configuration.WOOD, reason="Level up!"))
+                member.remove_roles(member.guild.get_role(configuration.WOOD), reason="Level up!")
             elif level - 1 == 5:
                 member.add_roles(member.guild.get_role(configuration.WOOD), reason="Level up!")
                      
