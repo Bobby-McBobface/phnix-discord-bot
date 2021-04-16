@@ -200,6 +200,8 @@ async def warns(message, parameters):
             user_id = int(user_id)
         except:
             raise CommandSyntaxError('You must specify a valid user.')
+        if len(str(user_id)) != 18:
+            raise CommandSyntaxError('You must specify a valid user.')
     else:
         user_id = member.id
 
