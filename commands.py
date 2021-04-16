@@ -194,11 +194,16 @@ async def warns(message, parameters):
     member = await util.get_member_by_id_or_name(message, parameters)
 
     if member == None:
-        raise CommandSyntaxError('You must specify a valid user.')
+        # See if it is a member ID (for banned/kicked users)
+        user_id = parameters.strip("<@!>")
+        try:
+            used_id = int(user_id)
+        except:
+            raise CommandSyntaxError('You must specify a valid user.')
 
     sqlite_client = sqlite3.connect('bot_database.db')
     warn_list = sqlite_client.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id''',
-                                      {'member_id': member.id}).fetchall()
+                                      {'member_id': user_id}).fetchall()
     sqlite_client.close()
 
     if warn_list == []:
