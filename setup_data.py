@@ -9,7 +9,8 @@ print("Setting up data...")
 
 sqlite_client = sqlite3.connect('bot_database.db')
 #sqlite_client.execute('''DROP TABLE LEVELS''')
-sqlite_client.execute('''DROP TABLE WARNS''')
+#sqlite_client.commit()
+#sqlite_client.execute('''DROP TABLE WARNS''')
 #sqlite_client.execute('''DROP TABLE MUTES''')
 sqlite_client.execute('''CREATE TABLE IF NOT EXISTS LEVELS ( \
     ID INT PRIMARY KEY NOT NULL, \
@@ -29,7 +30,7 @@ sqlite_client.execute('''CREATE TABLE IF NOT EXISTS MUTES ( \
     ROLES TEXT         NOT NULL  \
     );''')
 sqlite_client.commit()
-'''
+
 import urllib3
 import json
 http = urllib3.PoolManager()
@@ -37,14 +38,15 @@ r = http.request("GET", "https://mee6.xyz/api/plugins/levels/leaderboard/3292262
 data = json.loads(r.data.decode('utf-8'))
 users = data["players"]
 for user in users:
-    sqlite_client.execute(f''''''INSERT INTO LEVELS (ID, XP, LEVEL) \
+    sqlite_client.execute(f'''INSERT INTO LEVELS (ID, XP, LEVEL) \
             VALUES(:id, :xp, :level) \
             ON CONFLICT(ID) \
-            DO UPDATE SET XP=:xp, LEVEL=:level'''''',
+            DO UPDATE SET XP=:xp, LEVEL=:level''',
             {'id': user["id"],
             'xp': user["xp"],
             'level': user["level"]})
-    print(user["id"],user["xp"],user["level"])'''
+    print(user["id"],user["xp"],user["level"])
+    sqlite_client.commit()
 
 sqlite_client.close()
 
