@@ -197,8 +197,8 @@ async def warns(message, parameters):
 
     if member == None:
         # See if it is a member ID (for banned/kicked users)
-        user_id = parameters.strip("<@!>")
         try:
+            user_id = parameters.strip("<@!>")
             user_id = int(user_id)
         except:
             raise CommandSyntaxError('You must specify a valid user.')
