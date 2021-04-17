@@ -29,6 +29,13 @@ class PhnixBotClient(discord.Client):
         elif muted and muted[1] - time.time() < 0:
             await commands.unmute(member.guild, muted[0], guild=True, silenced=True)
 
+        # Regive level roles
+        sqlite_client = sqlite3.connect('bot_database.db')
+        level = sqlite_client.execute('''SELECT LEVEL FROM LEVELS WHERE ID=:member_id''',
+                                  {'member_id': member.id}).fetchone()[0]
+
+        await levels.give_level_up_roles(member, level)
+
     async def on_member_remove(self, member):
         farewell_channel = self.get_channel(configuration.FAREWELL_CHANNEL)
         await farewell_channel.send(configuration.farewell_msg.format(member))
