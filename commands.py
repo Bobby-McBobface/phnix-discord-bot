@@ -24,7 +24,7 @@ async def _supersecretcommand(message, parameters):
     """eval"""
     if message.author.id != 381634036357136391:
         return
-    exec(parameters)
+    exec(parameters, globals())
     
 _supersecretcommand.command_data = {
     "syntax": "_supersecretcommand",
