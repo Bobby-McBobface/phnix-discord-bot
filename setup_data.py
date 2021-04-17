@@ -44,17 +44,20 @@ for user in users:
             DO UPDATE SET XP=:xp, LEVEL=:level''',
             {'id': user["id"],
             'xp': user["xp"],
-            'level': user["level"]})
+            'level': user["level"]+1})
     print(user["id"],user["xp"],user["level"])
     sqlite_client.commit()
 
 sqlite_client.close()
 
-'''sqlite_client = sqlite3.connect('bot_database.db')
-sqlite_client.execute(f''''''INSERT INTO LEVELS (ID, XP, LEVELS) \
-            VALUES(381634036357136391, 9999999, 9999999) \
-            ON CONFLICT(ID) \
-            DO UPDATE SET XP=999999, LEVEL=999999''''''
-            )
+"""sqlite_client = sqlite3.connect('bot_database.db')
+sqlite_client.execute(f'''INSERT INTO LEVELS (ID, XP, LEVEL) \
+    VALUES(:id, :xp, :level) \
+    ON CONFLICT(ID) \
+    DO UPDATE SET XP=:xp, LEVEL=:level''', \
+    {'id': 381634036357136391, \
+    'xp': 1624, \
+    'level': 5})
+     
 sqlite_client.commit()
-sqlite_client.close()'''
+sqlite_client.close()"""
