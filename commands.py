@@ -129,8 +129,14 @@ async def hug(message, parameters):
         # Get a random message and fill it in
         choice = util.choose_random(configuration.STRINGS_HUG)
         reply = choice.format(hugger=hugger, target=target)
+        # Make a fancy embed so people don't complain about getting pinged twice
+        R, G, B = 256 * 256, 256, 1
+        embed = discord.Embed(
+            description=reply,
+            colour=(46*R + 204*G + 113*B)
+        )
         # Done
-        await message.channel.send(reply)
+        await message.channel.send(embed=embed)
 
 hug.command_data = {
     "syntax": "hug <target>",
