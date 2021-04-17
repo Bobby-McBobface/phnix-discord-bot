@@ -99,7 +99,7 @@ class PhnixBotClient(discord.Client):
                 and message.guild != configuration.GUILD_ID:
                 # Mod bypass and other server bypass
 
-                if message.channel.id not in message.guild.get_channel(configuration.COMMAND_CHANNELS):
+                if message.channel.id not in configuration.COMMAND_CHANNELS:
                     await message.channel.send(f"Please use <#{configuration.COMMAND_CHANNELS[0]}> for bot commands!")
                     return
 
