@@ -33,7 +33,7 @@ async def add_exp(member: discord.User, message: discord.Message):
             await message.channel.send(f"<@!{member.id}> reached level {level-1}! <:poglin:798531675634139176>")
             # Give level roles
             # Internally, levels are one more than MEE6 was, so there is a compensation  
-            give_level_up_roles(member, level)                 
+            await give_level_up_roles(member, level)                 
         
         sqlite_client.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
         VALUES(:member, :user_xp, :level) \
