@@ -95,4 +95,4 @@ async def postvid(title, url, channel, client):  # function that handles video p
     guild = client.get_guild(configuration.GUILD_ID)
     channel = guild.get_channel(configuration.FEED_CHANNEL)
 
-    await channel.send(f"{title} at {url}!", allowed_mentions=discord.AllowedMentions(roles=True))
+    await channel.send(f"Hey <@{configuration.YOUTUBE_PING}>, {title} at {url}!", allowed_mentions=discord.AllowedMentions(roles=True))
