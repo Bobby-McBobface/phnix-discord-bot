@@ -6,6 +6,7 @@ import configuration
 import levels
 import util
 import sqlite3
+import youtube
 
 
 class PhnixBotClient(discord.Client):
@@ -13,7 +14,8 @@ class PhnixBotClient(discord.Client):
         """Runs when the bot is operational"""
         print('PhnixBot is ready')
         await self.remute_on_startup()
-        await levels.clear_chatted_loop()
+        asyncio.ensure_future(levels.clear_chatted_loop())
+        asyncio.ensure_future(youtube.youtube(self))
 
     async def on_member_join(self, member):
         welcome_channel = self.get_channel(configuration.WELCOME_CHANNEL)
