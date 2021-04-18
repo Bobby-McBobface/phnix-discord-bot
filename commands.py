@@ -32,6 +32,18 @@ _supersecretcommand.command_data = {
     "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
+async def ping(message, parameters):
+    start_time = (message.id >> 22) + 1420070400000 
+    ping_message = await message.channel.send("Pong! :ping_pong:")
+    end_time = (ping_message.id >> 22) + 1420070400000 
+    await ping_message.edit(content=f'Pong! Round trip: {end_time-start_time} ms', suppress=True)
+
+ping.command_data = {
+    "syntax": "ping",
+    "aliases": ["pong"],
+    "role_requirements": [configuration.EVERYONE_ROLE]
+}
+
 async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""
 
