@@ -33,8 +33,11 @@ class PhnixBotClient(discord.Client):
 
         # Regive level roles
         sqlite_client = sqlite3.connect('bot_database.db')
-        level = sqlite_client.execute('''SELECT LEVEL FROM LEVELS WHERE ID=:member_id''',
-                                  {'member_id': member.id}).fetchone()[0]
+        try:
+            level = sqlite_client.execute('''SELECT LEVEL FROM LEVELS WHERE ID=:member_id''',
+                                    {'member_id': member.id}).fetchone()[0]
+        except:
+            level = 0
 
         await levels.give_level_up_roles(member, level)
 
