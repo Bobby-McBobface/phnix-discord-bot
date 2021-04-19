@@ -1,6 +1,7 @@
 import random
-
 import discord
+
+import configuration
 
 
 async def get_member_by_id_or_name(message, user: str) -> discord.Member:
@@ -74,3 +75,13 @@ async def check_if_muted(member: discord.Member):
     result = sqlite_client.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
                                    {'member_id': member.id, }).fetchone()
     return result
+
+
+async def check_if_string_invisible(string: str) -> bool:
+    """Returns True if the string is comprised entirely of non-visible characters."""
+    for char in string:
+        if char not in configuration.INVISABLE_CHARACTERS:
+            # String must be visible if this is the case
+            return False
+    # If the for loop ended, then every character must be invisible.
+    return True
