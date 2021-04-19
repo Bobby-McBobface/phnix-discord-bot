@@ -2,14 +2,29 @@ import discord
 import urllib3
 import json
 import configuration
+import asyncio
 
 http = urllib3.PoolManager()
 
-def refresh_token():
-    '''
-    Args:
-    client: discord.Client
-    '''
+async def twitch(client):
+    """
+    Gets a list of new twich videos from an RSS feed and posts them to a
+    configured subreddit.
+    As this is designed for Phoenix SC's channel, this assumes all livestreams
+    include the text ``LIVE //`` in the video title.
+    Arguments:
+        sub (str): The subreddit name (without the r/) that you wish to
+            post new videos to.
+        reddit (praw.Reddit): The Reddit connection to use to process the check
+        debug (bool): Used for testing purposes. Currently does nothing.
+    """
+
+    # Get RSS feeds #
+    while True:
+        await get_stream(client)
+        await asyncio.sleep(60 * 3) # seconds
+
+async def refresh_token():
     with open("env/twitch_client_id") as file:
         client_id = file.read()
 
@@ -25,7 +40,12 @@ def refresh_token():
     with open("env/twitch_auth_token", "w") as file:
         file.write(data["access_token"])
 
-def get_stream():
+async def get_stream(client):
+    '''
+    Args:
+    client: discord.Client
+    '''
+
     with open("env/twitch_client_id") as file:
         client_id = file.read()
 
@@ -36,8 +56,22 @@ def get_stream():
     headers={'client-id': client_id, 'Authorization': f'Bearer {auth_token}'})
 
     if r.status == 401:
-        refresh_token()
+        await refresh_token()
 
-    print(r.data)
+    data = json.loads(r.data.decode('utf-8'))["data"]
 
-get_stream()
+    if data != []:
+        stream_id = data[0]["id"]
+
+        with open("last_stream", "r+") as file:
+            if file.read() != stream_id:
+                # New stream
+                file.write(data[0]["id"])
+                await post_stream(client)
+
+async def post_stream(client):
+    title = "Phoenix has started a new stream!"
+    guild = client.get_guild(configuration.GUILD_ID)
+    channel = guild.get_channel(configuration.FEED_CHANNEL)
+
+    await channel.send(f"Hey <@&{configuration.TWITCH_PING}>, {title}", allowed_mentions=discord.AllowedMentions(roles=True))

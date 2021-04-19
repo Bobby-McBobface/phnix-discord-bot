@@ -25,7 +25,7 @@ async def youtube(client):
     while True:
         await handle_feed(main_channel, client)
         await handle_feed(sucks_at, client)
-        await asyncio.sleep(60 * 5) # seconds
+        await asyncio.sleep(60 * 3) # seconds
 
 
 async def handle_feed(channel_id, client):
@@ -95,4 +95,4 @@ async def postvid(title, url, channel, client):  # function that handles video p
     guild = client.get_guild(configuration.GUILD_ID)
     channel = guild.get_channel(configuration.FEED_CHANNEL)
 
-    await channel.send(f"Hey <@{configuration.YOUTUBE_PING}>, {title} at {url}!", allowed_mentions=discord.AllowedMentions(roles=True))
+    await channel.send(f"Hey <@&{configuration.YOUTUBE_PING}>, {title} at {url}!", allowed_mentions=discord.AllowedMentions(roles=True))
