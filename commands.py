@@ -200,7 +200,11 @@ async def warn(message, parameters):
     sqlite_client.close()
     await message.channel.send(
         f"Warned {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
-
+    try: 
+        # DM user
+        await member_reason[0].send(content=f"{message.guild.name}: {member_reason[1]}")
+    except discord.errors.Forbidden:
+        await message.channel.send("Unable to DM user")
 warn.command_data = {
     "syntax": "warn <member> | [reason]",
     "aliases": [],
@@ -346,6 +350,8 @@ async def unmute(message, parameters, guild=False, silenced=False):
     if member == None:
         if not silenced:
             raise CommandSyntaxError('You must specify a valid user.')
+        else:
+            return
 
     sqlite_client = sqlite3.connect('bot_database.db')
     roles = sqlite_client.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
