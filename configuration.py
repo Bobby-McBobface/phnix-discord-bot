@@ -31,13 +31,6 @@ STONE = 804093931397840906
 WOOD = 337151269523423236
 DISALLOWED_XP_GAIN = [329235461929435137, 334929304561647617]
 
-# Messages
-STRINGS_HUG = [
-    "{hugger} hugs {target}",
-    "{hugger} gives a big hug to {target}",
-    "{hugger} 🫂 {target}"
-]
-
 # Mute
 TIME_MULIPLIER = {
     's': 1,
@@ -47,6 +40,16 @@ TIME_MULIPLIER = {
     '_': 2635200,  # 30.5 days in a month
     'y': 31557600  # 365.25 days in a year
 }
+
+# sequence of characters that shouldn't be someone's entire nickname
+INVISIBLE_CHARACTERS = " ᲼"
+
+# Messages
+STRINGS_HUG = [
+    "{hugger} hugs {target}",
+    "{hugger} gives a big hug to {target}",
+    "{hugger} 🫂 {target}"
+]
 
 ########################
 # Preformatted Strings #
