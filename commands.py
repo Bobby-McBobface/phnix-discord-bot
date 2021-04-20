@@ -346,6 +346,8 @@ async def unmute(message, parameters, guild=False, silenced=False):
     if member == None:
         if not silenced:
             raise CommandSyntaxError('You must specify a valid user.')
+        else:
+            return
 
     sqlite_client = sqlite3.connect('bot_database.db')
     roles = sqlite_client.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
