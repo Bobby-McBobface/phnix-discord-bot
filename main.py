@@ -45,6 +45,14 @@ class PhnixBotClient(discord.Client):
         farewell_channel = self.get_channel(configuration.FAREWELL_CHANNEL)
         await farewell_channel.send(configuration.farewell_msg.format(member))
 
+    async def on_member_update(self, before, after):
+        # Check if their nick is invisible
+        if (await util.check_if_string_invisible(after.display_name)):
+            # Their nickname is invisible! Change it
+            new_nick = None if not (await util.check_if_string_invisible(after.name)) \
+                else str(after.id) # idk lol set it to their user id I guess
+            await after.edit(nick=new_nick, reason="Invisible nickname detected")
+
     async def remute_on_startup(self):
         sqlite_client = sqlite3.connect('bot_database.db')
         mute_list = sqlite_client.execute('''SELECT ID, TIMESTAMP FROM MUTES''').fetchall()
