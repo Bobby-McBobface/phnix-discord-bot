@@ -7,6 +7,7 @@ import levels
 import util
 import sqlite3
 import youtube
+import twitch
 
 
 class PhnixBotClient(discord.Client):
@@ -16,6 +17,7 @@ class PhnixBotClient(discord.Client):
         await self.remute_on_startup()
         asyncio.ensure_future(levels.clear_chatted_loop())
         asyncio.ensure_future(youtube.youtube(self))
+        asyncio.ensure_future(twitch.twitch(self))
 
     async def on_member_join(self, member):
         welcome_channel = self.get_channel(configuration.WELCOME_CHANNEL)
