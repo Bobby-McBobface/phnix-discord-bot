@@ -63,15 +63,17 @@ async def get_stream(client):
     if data != []:
         stream_id = data[0]["id"]
 
-        with open("last_stream", "r+") as file:
+        with open("last_stream.ini", "r+") as file:
             if file.read() != stream_id:
                 # New stream
+                file.seek(0)
+                file.truncate(0)
                 file.write(data[0]["id"])
                 await post_stream(client)
 
 async def post_stream(client):
-    title = "Phoenix has started a new stream!"
+    title = "Phoenix has started a new stream"
     guild = client.get_guild(configuration.GUILD_ID)
     channel = guild.get_channel(configuration.FEED_CHANNEL)
 
-    await channel.send(f"Hey <@&{configuration.TWITCH_PING}>, {title}", allowed_mentions=discord.AllowedMentions(roles=True))
+    await channel.send(f"Hey <@&{configuration.TWITCH_PING}>, {title} at https://twitch.tv/PhoenixSCLive !", allowed_mentions=discord.AllowedMentions(roles=True))
