@@ -57,6 +57,7 @@ async def get_stream(client):
 
     if r.status == 401:
         await refresh_token()
+        return
 
     data = json.loads(r.data.decode('utf-8'))["data"]
 
