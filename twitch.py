@@ -22,7 +22,7 @@ async def twitch(client):
     # Get RSS feeds #
     while True:
         await get_stream(client)
-        await asyncio.sleep(60 * 3) # seconds
+        await asyncio.sleep(configuration.TWITCH_SLEEP)
 
 async def refresh_token():
     with open("env/twitch_client_id") as file:

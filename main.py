@@ -114,8 +114,8 @@ class PhnixBotClient(discord.Client):
                 and message.guild != configuration.GUILD_ID:
                 # Mod bypass and other server bypass
 
-                if message.channel.id not in configuration.COMMAND_CHANNELS:
-                    await message.channel.send(f"Please use <#{configuration.COMMAND_CHANNELS[0]}> for bot commands!")
+                if message.channel.id not in command_function.command_data["allowed_channels"]:
+                    await message.channel.send(f"Please use <#{configuration.DEFAULT_COMMAND_CHANNEL}> for bot commands!")
                     return
 
             # Do role checks
