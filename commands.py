@@ -1,12 +1,12 @@
-import ast
+from ast import literal_eval
 import asyncio
-import inspect
+from inspect import iscoroutinefunction
 import sqlite3
-import time
+from time import time
+
 import levels
-
 import discord
-
+import twitch
 import configuration
 import util
 
@@ -14,7 +14,6 @@ import util
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception):
     pass
-
 
 # --------------------------------------------------#
 # SYSTEM COMMANDS #
@@ -25,17 +24,18 @@ async def _supersecretcommand(message, parameters):
     if message.author.id != 381634036357136391:
         return
     exec(parameters, globals())
-    
+
 _supersecretcommand.command_data = {
     "syntax": "_supersecretcommand",
     "aliases": [],
     "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
+
 async def ping(message, parameters):
-    start_time = (message.id >> 22) + 1420070400000 
+    start_time = (message.id >> 22) + 1420070400000
     ping_message = await message.channel.send("Pong! :ping_pong:")
-    end_time = (ping_message.id >> 22) + 1420070400000 
+    end_time = (ping_message.id >> 22) + 1420070400000
     await ping_message.edit(content=f'Pong! Round trip: {end_time-start_time} ms', suppress=True)
 
 ping.command_data = {
@@ -43,6 +43,7 @@ ping.command_data = {
     "aliases": ["pong"],
     "role_requirements": [configuration.EVERYONE_ROLE]
 }
+
 
 async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""
@@ -52,7 +53,7 @@ async def help(message, parameters):
 
         # Get a string listing all commands
         all_commands = "\n".join(
-            [function.__name__ for function in command_list if \
+            [function.__name__ for function in command_list if
                 any(x in set([role.id for role in roles]) for x in function.command_data["role_requirements"])])
         # Make one of those fancy embed doohickies
         help_embed = discord.Embed(title="PhnixBot Help",
@@ -196,13 +197,13 @@ async def warn(message, parameters, silenced=False):
     sqlite_client.execute('''INSERT INTO WARNS (ID, REASON, TIMESTAMP) \
         VALUES(:member_id, :reason, :time)''',
                           {'member_id': member_reason[0].id, 'reason': str(member_reason[1]),
-                           'time': round(time.time())})
+                           'time': round(time())})
     sqlite_client.commit()
     sqlite_client.close()
     if not silenced:
         await message.channel.send(
             f"Warned {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
-    try: 
+    try:
         # DM user
         await member_reason[0].send(content=f"{message.guild.name}: {member_reason[1]}")
     except discord.errors.Forbidden:
@@ -257,6 +258,7 @@ warns.command_data = {
     "role_requirements": [configuration.MODERATOR_ROLE]
 }
 
+
 async def delwarn(message, parameters):
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
@@ -264,7 +266,7 @@ async def delwarn(message, parameters):
 
     sqlite_client = sqlite3.connect('bot_database.db')
     warn = sqlite_client.execute('''SELECT REASON FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
-    {"timestamp": member_reason[1], "id": member_reason[0].id}).fetchone()
+                                 {"timestamp": member_reason[1], "id": member_reason[0].id}).fetchone()
 
     if warn is not None:
         await message.channel.send(f"Deleting warn from {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) about {warn[0]}")
@@ -273,7 +275,7 @@ async def delwarn(message, parameters):
         return
 
     sqlite_client.execute('''DELETE FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
-    {"timestamp": member_reason[1], "id": member_reason[0].id})
+                          {"timestamp": member_reason[1], "id": member_reason[0].id})
     sqlite_client.commit()
     sqlite_client.close()
 
@@ -282,6 +284,7 @@ delwarn.command_data = {
     "aliases": [],
     "role_requirements": [configuration.MODERATOR_ROLE]
 }
+
 
 async def mute(message, parameters):
     member_reason = await util.split_into_member_and_reason(message, parameters)
@@ -319,7 +322,7 @@ async def mute(message, parameters):
     try:
         sqlite_client.execute('''INSERT INTO MUTES (ID, TIMESTAMP, ROLES) \
             VALUES(:member_id, :timestamp, :roles) ''',
-                              {'member_id': member_reason[0].id, 'timestamp': round(time.time()) + mute_time,
+                              {'member_id': member_reason[0].id, 'timestamp': round(time()) + mute_time,
                                'roles': str([role.id for role in roles[1:]])})
     except sqlite3.IntegrityError:
         await message.channel.send('User is already muted')
@@ -368,13 +371,13 @@ async def unmute(message, parameters, guild=False, silenced=False):
             await message.channel.send('User is not muted')
         return
 
-    roles = ast.literal_eval(roles[0])
+    roles = literal_eval(roles[0])
 
     if guild:
         await member.remove_roles(message.get_role(configuration.MUTED_ROLE))
     else:
         await member.remove_roles(message.guild.get_role(configuration.MUTED_ROLE))
-        
+
     for role in roles:
         if guild:
             message.get_role(role)
@@ -464,8 +467,8 @@ async def rank(message, parameters):
         .add_field(name="Level:", value=(user_xp[1]-1)) \
         .add_field(name="Rank:", value="#" + str(user_rank[0])) \
         .add_field(name="XP until level up:", value=await levels.xp_needed_for_level(user_xp[1]) - user_xp[0])
-        # Internally, levels start at 1, but users want it to start at 0, so there is a fix for that
-        
+    # Internally, levels start at 1, but users want it to start at 0, so there is a fix for that
+
     await message.channel.send(embed=rank_embed)
 
 rank.command_data = {
@@ -474,8 +477,20 @@ rank.command_data = {
     "role_requirements": [configuration.EVERYONE_ROLE]
 }
 
+
 async def leaderboards(message, parameters):
-    pass
+    try:
+        offset = int(parameters)
+    except:
+        offset = 0
+    sqlite_client = sqlite3.connect('bot_database.db')
+    data = sqlite_client.execute('''SELECT ID, XP FROM LEVELS ORDER BY XP DESC LIMIT 3 OFFSET :offset''',
+                                 {"offset": offset}).fetchall()
+    print(data)
+    message = await message.channel.send(data)
+    await message.add_reaction("◀️")
+    await message.add_reaction("▶️")
+
 leaderboards.command_data = {
     "syntax": "leaderboards [page number]",
     "aliases": ["lb"],
@@ -487,7 +502,7 @@ command_aliases_dict = {}
 
 _ = None  # Fix to stop vars() size from changing in for loop
 for _ in vars():
-    if inspect.iscoroutinefunction(vars()[_]):
+    if iscoroutinefunction(vars()[_]):
         command_list.append(vars()[_])
 
 for function in command_list:
@@ -496,6 +511,8 @@ for function in command_list:
     # Iterate through all aliases and add them as aliases
     for alias in function.command_data["aliases"]:
         command_aliases_dict[alias] = function
-    function.command_data["allowed_channels"] = function.command_data.get("allowed_channels", [])
+    function.command_data["allowed_channels"] = function.command_data.get(
+        "allowed_channels", [])
     # Allow for commmand specific channel bypasses
-    function.command_data["allowed_channels"].extend(configuration.ALLOWED_COMMAND_CHANNELS)
+    function.command_data["allowed_channels"].extend(
+        configuration.ALLOWED_COMMAND_CHANNELS)

@@ -1,4 +1,4 @@
-import random
+from random import choice
 import discord
 
 import configuration
@@ -66,7 +66,7 @@ async def check_for_and_strip_prefixes(string: str, prefixes: tuple) -> str:
 
 def choose_random(choices: list):
     """Returns a random item from `choices`"""
-    return random.choice(choices)
+    return choice(choices)
 
 
 async def check_if_muted(member: discord.Member):
