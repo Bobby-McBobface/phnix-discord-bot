@@ -1,5 +1,5 @@
 # copied from reddit bot
-import feedparser
+from feedparser import parse
 from datetime import datetime
 import discord
 import configuration
@@ -33,7 +33,7 @@ async def handle_feed(channel_id, client):
     last_entry = open('last_video_' + channel_id + '.ini', 'r')
 
     feed_base_url = 'https://www.youtube.com/feeds/videos.xml?channel_id='
-    yt_feed = feedparser.parse(feed_base_url + channel_id)
+    yt_feed = parse(feed_base_url + channel_id)
 
     # This is commented out for archival purposes. #
     # if yt_feed == []: #Stops crash due to list index out of range

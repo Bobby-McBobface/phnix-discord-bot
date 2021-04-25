@@ -1,7 +1,7 @@
 import asyncio
 import configuration
 import sqlite3
-import random
+from random import randint
 import discord
 
 chatted = []
@@ -11,7 +11,7 @@ async def add_exp(member: discord.User, message: discord.Message):
     global chatted
 
     if member.id not in chatted:
-        xp_gain = random.randint(configuration.XP_GAIN_MIN, configuration.XP_GAIN_MAX)
+        xp_gain = randint(configuration.XP_GAIN_MIN, configuration.XP_GAIN_MAX)
 
         chatted.append(member.id)
 

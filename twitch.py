@@ -1,10 +1,10 @@
 import discord
-import urllib3
-import json
+from urllib3 import PoolManager
+from json import loads
 import configuration
 import asyncio
 
-http = urllib3.PoolManager()
+http = PoolManager()
 
 async def twitch(client):
     """
@@ -33,7 +33,7 @@ async def refresh_token():
 
     r = http.request("POST", f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={secret}&grant_type=client_credentials")
 
-    data = json.loads(r.data.decode('utf-8'))
+    data = loads(r.data.decode('utf-8'))
 
     print(data["access_token"])
 
@@ -59,7 +59,7 @@ async def get_stream(client):
         await refresh_token()
         return
 
-    data = json.loads(r.data.decode('utf-8'))["data"]
+    data = loads(r.data.decode('utf-8'))["data"]
 
     if data != []:
         stream_id = data[0]["id"]

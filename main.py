@@ -1,11 +1,12 @@
 import discord
-import time
+from time import time
 import asyncio
+import sqlite3
+
 import commands
 import configuration
 import levels
 import util
-import sqlite3
 import youtube
 import twitch
 
@@ -26,11 +27,11 @@ class PhnixBotClient(discord.Client):
         # Check if member is muted and give appropriate role:
         muted = await util.check_if_muted(member)
 
-        if muted and muted[1] - time.time() > 0:
+        if muted and muted[1] - time() > 0:
             await member.add_roles(member.guild.get_role(configuration.MUTED_ROLE))
-            await asyncio.sleep(muted[1] - time.time())
+            await asyncio.sleep(muted[1] - time())
             await commands.unmute(member.guild, muted[0], guild=True, silenced=True)
-        elif muted and muted[1] - time.time() < 0:
+        elif muted and muted[1] - time() < 0:
             await commands.unmute(member.guild, muted[0], guild=True, silenced=True)
 
         # Regive level roles
@@ -61,10 +62,10 @@ class PhnixBotClient(discord.Client):
 
         guild = self.get_guild(configuration.GUILD_ID) # Cheap fix for now since this is used in 1 server
         for mute in mute_list:
-            if mute[1] - time.time() > 0:
-                await asyncio.sleep(mute[1] - time.time())
+            if mute[1] - time() > 0:
+                await asyncio.sleep(mute[1] - time())
                 await commands.unmute(guild, mute[0], guild=True, silenced=True)
-            elif mute[1] - time.time() < 0:
+            elif mute[1] - time() < 0:
                 await commands.unmute(guild, mute[0], guild=True, silenced=True)
 
     async def on_message(self, message):
