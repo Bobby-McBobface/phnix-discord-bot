@@ -153,7 +153,8 @@ async def hug(message, parameters):
 hug.command_data = {
     "syntax": "hug <target>",
     "aliases": [],
-    "role_requirements": [configuration.EVERYONE_ROLE]
+    "role_requirements": [configuration.EVERYONE_ROLE],
+    "allowed_channels": [329226224759209985]
 }
 
 
@@ -487,3 +488,6 @@ for function in command_list:
     # Iterate through all aliases and add them as aliases
     for alias in function.command_data["aliases"]:
         command_aliases_dict[alias] = function
+    function.command_data["allowed_channels"] = function.command_data.get("allowed_channels", [])
+    # Allow for commmand specific channel bypasses
+    function.command_data["allowed_channels"].extend(configuration.ALLOWED_COMMAND_CHANNELS)

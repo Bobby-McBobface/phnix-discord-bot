@@ -25,7 +25,7 @@ async def youtube(client):
     while True:
         await handle_feed(main_channel, client)
         await handle_feed(sucks_at, client)
-        await asyncio.sleep(60 * 3) # seconds
+        await asyncio.sleep(configuration.YOUTUBE_SLEEP)
 
 
 async def handle_feed(channel_id, client):
