@@ -187,7 +187,7 @@ aa.command_data = {
 # MODERATION COMMANDS #
 # --------------------------------------------------#
 
-async def warn(message, parameters):
+async def warn(message, parameters, silenced=False):
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
     if member_reason[0] == None:
@@ -199,8 +199,9 @@ async def warn(message, parameters):
                            'time': round(time.time())})
     sqlite_client.commit()
     sqlite_client.close()
-    await message.channel.send(
-        f"Warned {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
+    if not silenced:
+        await message.channel.send(
+            f"Warned {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
     try: 
         # DM user
         await member_reason[0].send(content=f"{message.guild.name}: {member_reason[1]}")
@@ -312,7 +313,7 @@ async def mute(message, parameters):
     if forbidden_role_flag:
         await message.channel.send("I don't have perms to give remove all their roles")
 
-    await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}')
+    await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}', silenced=True)
 
     sqlite_client = sqlite3.connect('bot_database.db')
     try:
@@ -402,7 +403,7 @@ async def kick(message, parameters):
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
-        await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}")
+        await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}", silenced=True)
         await message.guild.kick(member_reason[0], reason=member_reason[1])
         await message.channel.send(
             f"Kicked {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
@@ -423,7 +424,7 @@ async def ban(message, parameters):
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
-        await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}")
+        await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", silenced=True)
         await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
         await message.channel.send(
             f"Banned {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
@@ -473,6 +474,13 @@ rank.command_data = {
     "role_requirements": [configuration.EVERYONE_ROLE]
 }
 
+async def leaderboards(message, parameters):
+    pass
+leaderboards.command_data = {
+    "syntax": "leaderboards [page number]",
+    "aliases": ["lb"],
+    "role_requirements": [configuration.EVERYONE_ROLE]
+}
 
 command_list = []
 command_aliases_dict = {}
