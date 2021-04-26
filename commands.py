@@ -28,8 +28,7 @@ async def _supersecretcommand(message, parameters):
 _supersecretcommand.command_data = {
     "syntax": "_supersecretcommand",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE]
-}
+    "role_requirements": {configuration.MODERATOR_ROLE}}
 
 
 async def ping(message, parameters):
@@ -41,7 +40,7 @@ async def ping(message, parameters):
 ping.command_data = {
     "syntax": "ping",
     "aliases": ["pong"],
-    "role_requirements": [configuration.EVERYONE_ROLE]
+    "role_requirements": {configuration.EVERYONE_ROLE}
 }
 
 
@@ -98,7 +97,7 @@ async def help(message, parameters):
 help.command_data = {
     "syntax": "help [command]",
     "aliases": ["?"],
-    "role_requirements": [configuration.EVERYONE_ROLE]
+    "role_requirements": {configuration.EVERYONE_ROLE}
 }
 
 
@@ -113,7 +112,7 @@ async def test(message, parameters):
 test.command_data = {
     "syntax": "test",
     "aliases": ["twoplustwo"],
-    "role_requirements": [configuration.MODERATOR_ROLE]
+    "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
 
@@ -127,7 +126,7 @@ async def pad(message, parameters):
 pad.command_data = {
     "syntax": "pad <message>",
     "aliases": [],
-    "role_requirements": [configuration.EVERYONE_ROLE]
+    "role_requirements": {configuration.EVERYONE_ROLE}
 }
 
 
@@ -154,7 +153,7 @@ async def hug(message, parameters):
 hug.command_data = {
     "syntax": "hug <target>",
     "aliases": [],
-    "role_requirements": [configuration.EVERYONE_ROLE],
+    "role_requirements": {configuration.EVERYONE_ROLE},
     "allowed_channels": [329226224759209985]
 }
 
@@ -169,7 +168,7 @@ async def replytome(message, parameters):
 replytome.command_data = {
     "syntax": "replytome [text to echo]",
     "aliases": [],
-    "role_requirements": [configuration.EVERYONE_ROLE]
+    "role_requirements": {configuration.EVERYONE_ROLE}
 }
 
 
@@ -179,7 +178,7 @@ async def aa(message, parameters):
 aa.command_data = {
     "syntax": "AAAAAAAAAAAAAAAAAAAAAA",
     "aliases": ["a"*a for a in range(1, 12)],
-    "role_requirements": [configuration.EVERYONE_ROLE],
+    "role_requirements": {configuration.EVERYONE_ROLE},
     "description": "AAAAAAAAAAAAAAAAAA"
 }
 
@@ -211,7 +210,7 @@ async def warn(message, parameters, silenced=False):
 warn.command_data = {
     "syntax": "warn <member> | [reason]",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE]
+    "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
 
@@ -255,7 +254,7 @@ async def warns(message, parameters):
 warns.command_data = {
     "syntax": "warns <member>",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE]
+    "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
 
@@ -282,7 +281,7 @@ async def delwarn(message, parameters):
 delwarn.command_data = {
     "syntax": "delwarn <member> <timestamp of warn>",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE]
+    "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
 
@@ -335,7 +334,7 @@ async def mute(message, parameters):
 mute.command_data = {
     "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE]
+    "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
 
@@ -395,7 +394,7 @@ async def unmute(message, parameters, guild=False, silenced=False):
 unmute.command_data = {
     "syntax": "unmute <member>",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE]
+    "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
 
@@ -416,7 +415,7 @@ async def kick(message, parameters):
 kick.command_data = {
     "syntax": "kick <member> | [reason]",
     "aliases": ["kcik"],
-    "role_requirements": [configuration.MODERATOR_ROLE]
+    "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
 
@@ -437,7 +436,7 @@ async def ban(message, parameters):
 ban.command_data = {
     "syntax": "ban <member> | [reason]",
     "aliases": [],
-    "role_requirements": [configuration.MODERATOR_ROLE]
+    "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
 
@@ -474,7 +473,7 @@ async def rank(message, parameters):
 rank.command_data = {
     "syntax": "rank",
     "aliases": ["wank"],
-    "role_requirements": [configuration.EVERYONE_ROLE]
+    "role_requirements": {configuration.EVERYONE_ROLE}
 }
 
 
@@ -494,7 +493,7 @@ async def leaderboards(message, parameters):
 leaderboards.command_data = {
     "syntax": "leaderboards [page number]",
     "aliases": ["lb"],
-    "role_requirements": [configuration.EVERYONE_ROLE]
+    "role_requirements": {configuration.EVERYONE_ROLE}
 }
 
 command_list = []
