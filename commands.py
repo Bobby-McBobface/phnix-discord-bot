@@ -46,16 +46,27 @@ async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""
 
     if parameters is None:
-        roles = message.author.roles
+        roles = [role.id for role in message.author.roles]
 
-        # Get a string listing all commands
-        all_commands = "\n".join(
+        all_commands = ""
+        for function in command_list:
+            requirements = function.command_data.get("role_requirements")
+            if requirements: # Everyone command
+                if not requirements.intersection(roles):
+                    # No perms to use, don't show
+                    continue
+
+            # Get a string listing all commands
+            all_commands += f"{function.__name__}\n"
+
+        '''all_commands = "\n".join( \
             [function.__name__ for function in command_list if
-                any(x in set([role.id for role in roles]) for x in function.command_data["role_requirements"])])
+                function.command_data.get("role_requirements", {}].intersection(roles)])'''
         # Make one of those fancy embed doohickies
         help_embed = discord.Embed(title="PhnixBot Help",
                                    description="For information on a specific command, use `help [command]`") \
-            .add_field(name="Commands", value=all_commands)
+            .add_field(name="Commands", value=all_commands) \
+            .set_footer(text=f"Version: {configuration.VERSION}")
         # Sent it
         await message.channel.send(embed=help_embed)
 

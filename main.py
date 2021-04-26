@@ -112,14 +112,14 @@ class PhnixBotClient(discord.Client):
 
             #bot-nether check
             if message.guild.get_role(configuration.MODERATOR_ROLE) not in message.author.roles \
-                and message.guild != configuration.GUILD_ID:
+                or message.guild.id != configuration.GUILD_ID:
                 # Mod bypass and other server bypass
 
                 if message.channel.id not in command_function.command_data["allowed_channels"]:
                     await message.channel.send(f"Please use <#{configuration.DEFAULT_COMMAND_CHANNEL}> for bot commands!")
                     return
 
-            requirements = command_function.command_data.get("role_requirements", False)
+            requirements = command_function.command_data.get("role_requirements")
 
             # Do role checks
             if requirements: 
