@@ -19,7 +19,6 @@ class CommandSyntaxError(Exception):
 # SYSTEM COMMANDS #
 # --------------------------------------------------#
 
-
 async def _supersecretcommand(message, parameters):
     """eval"""
     if message.author.id != 381634036357136391:
@@ -32,7 +31,6 @@ _supersecretcommand.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-
 async def ping(message, parameters):
     start_time = (message.id >> 22) + 1420070400000
     ping_message = await message.channel.send("Pong! :ping_pong:")
@@ -43,7 +41,6 @@ ping.command_data = {
     "syntax": "ping",
     "aliases": ["pong"],
 }
-
 
 async def help(message, parameters):
     """Help command - Lists all commands, or gives info on a specific command."""
@@ -100,7 +97,6 @@ help.command_data = {
     "aliases": ["?"],
 }
 
-
 # --------------------------------------------------#
 # MISC COMMANDS #
 # --------------------------------------------------#
@@ -115,7 +111,6 @@ test.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-
 async def pad(message, parameters):
     """Spaces out your text"""
     if parameters == None:
@@ -127,7 +122,6 @@ pad.command_data = {
     "syntax": "pad <message>",
     "aliases": [],
 }
-
 
 async def hug(message, parameters):
     # Make sure someone was specified
@@ -168,7 +162,6 @@ replytome.command_data = {
     "aliases": [],
 }
 
-
 async def aa(message, parameters):
     await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAA", reference=message)
 
@@ -177,7 +170,6 @@ aa.command_data = {
     "aliases": ["a"*a for a in range(1, 12)],
     "description": "AAAAAAAAAAAAAAAAAA"
 }
-
 
 # --------------------------------------------------#
 # MODERATION COMMANDS #
@@ -208,7 +200,6 @@ warn.command_data = {
     "aliases": [],
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
-
 
 async def warns(message, parameters):
     member = await util.get_member_by_id_or_name(message, parameters)
@@ -253,7 +244,6 @@ warns.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-
 async def delwarn(message, parameters):
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
@@ -279,7 +269,6 @@ delwarn.command_data = {
     "aliases": [],
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
-
 
 async def mute(message, parameters):
     member_reason = await util.split_into_member_and_reason(message, parameters)
@@ -332,7 +321,6 @@ mute.command_data = {
     "aliases": [],
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
-
 
 async def unmute(message, parameters, guild=False, silenced=False):
     """
@@ -393,7 +381,6 @@ unmute.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-
 async def kick(message, parameters):
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
@@ -414,7 +401,6 @@ kick.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-
 async def ban(message, parameters):
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
@@ -434,7 +420,6 @@ ban.command_data = {
     "aliases": [],
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
-
 
 # --------------------------------------------------#
 # LEVEL COMMANDS #
@@ -469,9 +454,7 @@ async def rank(message, parameters):
 rank.command_data = {
     "syntax": "rank",
     "aliases": ["wank"],
-
 }
-
 
 async def leaderboards(message, parameters):
     try:
@@ -489,7 +472,6 @@ async def leaderboards(message, parameters):
 leaderboards.command_data = {
     "syntax": "leaderboards [page number]",
     "aliases": ["lb"],
-
 }
 
 command_list = []
