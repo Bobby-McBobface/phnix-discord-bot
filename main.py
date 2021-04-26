@@ -120,30 +120,31 @@ class PhnixBotClient(discord.Client):
                     return
 
             # Do role checks
-            for role in message.author.roles:
-                if role.id in command_function.command_data['role_requirements']:
 
-                    # Run the found function
-                    try:
-                        await command_function(message, parameters)
+            roles = set([role.id for role in message.author.roles])
 
-                    except commands.CommandSyntaxError as err:
-                        # If the command raised CommandSyntaxError, send some information to the user:
-                        error_details = f": {str(err)}\n" if str(
-                            err) != "" else ". "  # Get details from the exception, and format it
-                        # Get command syntax from the function
-                        error_syntax = command_function.command_data['syntax']
-                        # Put it all together
-                        error_message = f"Invalid syntax{error_details}Usage: `{error_syntax}`"
-                        await message.channel.send(error_message)
+            if roles.intersection(command_function.command_data['role_requirements']):
 
-                    return  # So we don't run it more than once
+                # Run the found function
+                try:
+                    await command_function(message, parameters)
+
+                except commands.CommandSyntaxError as err:
+                    # If the command raised CommandSyntaxError, send some information to the user:
+                    error_details = f": {str(err)}\n" if str(
+                        err) != "" else ". "  # Get details from the exception, and format it
+                    # Get command syntax from the function
+                    error_syntax = command_function.command_data['syntax']
+                    # Put it all together
+                    error_message = f"Invalid syntax{error_details}Usage: `{error_syntax}`"
+                    await message.channel.send(error_message)
 
             # User does not have permissions to execute that command.
-            roles_string = " or ".join([f"`{message.guild.get_role(role_id).name}`" for role_id in
-                                        command_function.command_data['role_requirements'] if
-                                        message.guild.get_role(role_id) != None])
-            await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")
+            else:
+                roles_string = " or ".join([f"`{message.guild.get_role(role_id).name}`" for role_id in
+                                    command_function.command_data['role_requirements'] if
+                                    message.guild.get_role(role_id) != None])
+                await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")
 
 
 if __name__ == '__main__':
