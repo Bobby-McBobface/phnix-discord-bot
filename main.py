@@ -119,32 +119,32 @@ class PhnixBotClient(discord.Client):
                     await message.channel.send(f"Please use <#{configuration.DEFAULT_COMMAND_CHANNEL}> for bot commands!")
                     return
 
+            requirements = command_function.command_data.get("role_requirements", False)
+
             # Do role checks
-
-            roles = set([role.id for role in message.author.roles])
-
-            if roles.intersection(command_function.command_data['role_requirements']):
-
-                # Run the found function
-                try:
-                    await command_function(message, parameters)
-
-                except commands.CommandSyntaxError as err:
-                    # If the command raised CommandSyntaxError, send some information to the user:
-                    error_details = f": {str(err)}\n" if str(
-                        err) != "" else ". "  # Get details from the exception, and format it
-                    # Get command syntax from the function
-                    error_syntax = command_function.command_data['syntax']
-                    # Put it all together
-                    error_message = f"Invalid syntax{error_details}Usage: `{error_syntax}`"
-                    await message.channel.send(error_message)
-
-            # User does not have permissions to execute that command.
-            else:
-                roles_string = " or ".join([f"`{message.guild.get_role(role_id).name}`" for role_id in
+            if requirements: 
+                # its not an @everyone command..
+                if not requirements.intersection([role.id for role in message.author.roles]):
+                    # User does not have permissions to execute that command.
+                    roles_string = " or ".join([f"`{message.guild.get_role(role_id).name}`" for role_id in
                                     command_function.command_data['role_requirements'] if
                                     message.guild.get_role(role_id) != None])
-                await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")
+                    await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")
+                    return       
+
+            # Run the found function
+            try:
+                await command_function(message, parameters)
+
+            except commands.CommandSyntaxError as err:
+                # If the command raised CommandSyntaxError, send some information to the user:
+                error_details = f": {str(err)}\n" if str(
+                    err) != "" else ". "  # Get details from the exception, and format it
+                # Get command syntax from the function
+                error_syntax = command_function.command_data['syntax']
+                # Put it all together
+                error_message = f"Invalid syntax{error_details}Usage: `{error_syntax}`"
+                await message.channel.send(error_message)
 
 
 if __name__ == '__main__':
