@@ -19,6 +19,7 @@ class CommandSyntaxError(Exception):
 # SYSTEM COMMANDS #
 # --------------------------------------------------#
 
+
 async def _supersecretcommand(message, parameters):
     """eval"""
     if message.author.id != 381634036357136391:
@@ -28,7 +29,8 @@ async def _supersecretcommand(message, parameters):
 _supersecretcommand.command_data = {
     "syntax": "_supersecretcommand",
     "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}}
+    "role_requirements": {configuration.MODERATOR_ROLE}
+}
 
 
 async def ping(message, parameters):
@@ -40,7 +42,6 @@ async def ping(message, parameters):
 ping.command_data = {
     "syntax": "ping",
     "aliases": ["pong"],
-    "role_requirements": {configuration.EVERYONE_ROLE}
 }
 
 
@@ -97,7 +98,6 @@ async def help(message, parameters):
 help.command_data = {
     "syntax": "help [command]",
     "aliases": ["?"],
-    "role_requirements": {configuration.EVERYONE_ROLE}
 }
 
 
@@ -126,7 +126,6 @@ async def pad(message, parameters):
 pad.command_data = {
     "syntax": "pad <message>",
     "aliases": [],
-    "role_requirements": {configuration.EVERYONE_ROLE}
 }
 
 
@@ -153,8 +152,7 @@ async def hug(message, parameters):
 hug.command_data = {
     "syntax": "hug <target>",
     "aliases": [],
-    "role_requirements": {configuration.EVERYONE_ROLE},
-    "allowed_channels": [329226224759209985]
+    "allowed_channels": [329226224759209985],
 }
 
 
@@ -168,7 +166,6 @@ async def replytome(message, parameters):
 replytome.command_data = {
     "syntax": "replytome [text to echo]",
     "aliases": [],
-    "role_requirements": {configuration.EVERYONE_ROLE}
 }
 
 
@@ -178,7 +175,6 @@ async def aa(message, parameters):
 aa.command_data = {
     "syntax": "AAAAAAAAAAAAAAAAAAAAAA",
     "aliases": ["a"*a for a in range(1, 12)],
-    "role_requirements": {configuration.EVERYONE_ROLE},
     "description": "AAAAAAAAAAAAAAAAAA"
 }
 
@@ -473,7 +469,7 @@ async def rank(message, parameters):
 rank.command_data = {
     "syntax": "rank",
     "aliases": ["wank"],
-    "role_requirements": {configuration.EVERYONE_ROLE}
+
 }
 
 
@@ -493,7 +489,7 @@ async def leaderboards(message, parameters):
 leaderboards.command_data = {
     "syntax": "leaderboards [page number]",
     "aliases": ["lb"],
-    "role_requirements": {configuration.EVERYONE_ROLE}
+
 }
 
 command_list = []
