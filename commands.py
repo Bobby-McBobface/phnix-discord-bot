@@ -423,7 +423,7 @@ async def ban(message, parameters):
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
-        await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", silenced=True, action_name="ban")
+        await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", silenced=True, action_name="bann")
         await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
         await message.channel.send(
             f"Banned {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
