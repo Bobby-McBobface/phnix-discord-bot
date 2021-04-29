@@ -88,7 +88,8 @@ async def help(message, parameters):
         cmd_aliases_str = "None" if len(cmd_aliases_list) == 0 else \
             "`" + "`, `".join(cmd_aliases_list) + "`"
 
-        cmd_roles = cmd.command_data["role_requirements"]
+        cmd_roles = cmd.command_data.get("role_requirements", [configuration.EVERYONE_ROLE])
+        # If no requirements, assumme it's for everyone
         cmd_roles_str = ", ".join([f"<@&{role_id}>" for role_id in cmd_roles])
 
         # Will default to None if not present
