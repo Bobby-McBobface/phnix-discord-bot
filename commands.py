@@ -158,7 +158,7 @@ async def hug(message, parameters):
 hug.command_data = {
     "syntax": "hug <target>",
     "aliases": [],
-    "allowed_channels": [329226224759209985],
+    "allowed_channels": [329226224759209985, 827880703844286475],
 }
 
 
