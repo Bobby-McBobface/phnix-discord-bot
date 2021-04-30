@@ -64,7 +64,7 @@ async def help(message, parameters):
                 function.command_data.get("role_requirements", {}].intersection(roles)])'''
         # Make one of those fancy embed doohickies
         help_embed = discord.Embed(title="PhnixBot Help",
-                                   description="For information on a specific command, use `help [command]`") \
+                                   description="For information on a specific command, use `help [command]`. Now [open source!](https://github.com/Bobby-McBobface/phnix-discord-bot)") \
             .add_field(name="Commands", value=all_commands) \
             .set_footer(text=f"Version: {configuration.VERSION}")
         # Sent it
