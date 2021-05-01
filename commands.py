@@ -187,7 +187,7 @@ aa.command_data = {
 # MODERATION COMMANDS #
 # --------------------------------------------------#
 
-async def warn(message, parameters, silenced=False, action_name="warn"):
+async def warn(message, parameters, action_name="warned"):
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
     if member_reason[0] == None:
@@ -199,16 +199,15 @@ async def warn(message, parameters, silenced=False, action_name="warn"):
                            'time': round(time())})
     sqlite_client.commit()
     sqlite_client.close()
-    if not silenced:
-        # Send a message to the channel that the command was used in
-        warn_embed = discord.Embed(title=action_name.title(),
-                                   description=member_reason[0].mention) \
-            .add_field(name="Reason", value=member_reason[1])
+    # Send a message to the channel that the command was used in
+    warn_embed = discord.Embed(title=action_name.title(),
+                                description=member_reason[0].mention) \
+        .add_field(name="Reason", value=member_reason[1])
         
-        await message.channel.send(embed=warn_embed)
+    await message.channel.send(embed=warn_embed)
     try:
         # DM user
-        await member_reason[0].send(content=f"You have been {action_name}ed in {message.guild.name}!\nReason: {member_reason[1]}")
+        await member_reason[0].send(content=f"You have been {action_name} in {message.guild.name}!\nReason: {member_reason[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("Unable to DM user")
 warn.command_data = {
@@ -316,8 +315,6 @@ async def mute(message, parameters):
     if forbidden_role_flag:
         await message.channel.send("I don't have perms to give remove all their roles")
 
-    await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}', silenced=True, action_name="mute")
-
     sqlite_client = sqlite3.connect('bot_database.db')
     try:
         sqlite_client.execute('''INSERT INTO MUTES (ID, TIMESTAMP, ROLES) \
@@ -326,9 +323,14 @@ async def mute(message, parameters):
                                'roles': str([role.id for role in roles[1:]])})
     except sqlite3.IntegrityError:
         await message.channel.send('User is already muted')
+        sqlite_client.close()
+        return
 
     sqlite_client.commit()
     sqlite_client.close()
+
+    await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}', action_name="muted")
+
     await asyncio.sleep(mute_time)
     await unmute(message, str(member_reason[0].id), silenced=True)
 
@@ -404,10 +406,8 @@ async def kick(message, parameters):
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
-        await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}", silenced=True, action_name="kick")
+        await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}", action_name="kicked")
         await message.guild.kick(member_reason[0], reason=member_reason[1])
-        await message.channel.send(
-            f"Kicked {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to kick")
 
@@ -424,10 +424,8 @@ async def ban(message, parameters):
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
-        await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", silenced=True, action_name="bann")
+        await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", action_name="banned")
         await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
-        await message.channel.send(
-            f"Banned {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) for {member_reason[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to ban")
 
