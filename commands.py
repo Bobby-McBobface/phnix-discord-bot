@@ -259,6 +259,15 @@ warns.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
+async def mywarns(message, paramaters):
+    await warns(message, str(message.author.id))
+
+mywarns.command_data = {
+    "syntax": "mywarns",
+    "aliases": [],
+    "description": "See your own warns"
+}
+
 async def delwarn(message, parameters):
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
