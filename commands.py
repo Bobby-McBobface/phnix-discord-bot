@@ -374,21 +374,21 @@ async def unmute(message, parameters, guild=False, silenced=False):
 
     roles = literal_eval(roles[0])
 
+    for role in roles:
+        if guild:
+            role = message.get_role(role)
+        else:
+            role = message.guild.get_role(role)
+
+        try:
+            await member.add_roles(role)
+        except discord.errors.Forbidden:
+            pass
+
     if guild:
         await member.remove_roles(message.get_role(configuration.MUTED_ROLE))
     else:
         await member.remove_roles(message.guild.get_role(configuration.MUTED_ROLE))
-
-    for role in roles:
-        if guild:
-            message.get_role(role)
-        else:
-            role = message.guild.get_role(role)
-
-            try:
-                await member.add_roles(role)
-            except discord.errors.Forbidden:
-                pass
 
     if not silenced:
         await message.channel.send(f'Unmuted {member.name}#{member.discriminator} ({member.id})')
