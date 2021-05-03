@@ -5,10 +5,10 @@ import discord
 
 
 class Permission:
-    permissions: list[discord.Permissions] = []
-    requiredRoles: list[discord.Role] = []
+    permissions: discord.Permissions = discord.Permissions()
+    requiredRoles: list[str] = []
 
-    def __init__(self, permissions: list[discord.Permissions] = None, required_roles: list[discord.Role] = None):
+    def __init__(self, permissions: discord.Permissions = discord.Permissions(), required_roles: list[str] = []):
         self.permissions = permissions
         self.requiredRoles = required_roles
 
@@ -45,9 +45,9 @@ class Command(ABC):
     category: Category = Category.OTHER
     alias: list[str] = []
     parameters: list[Parameter] = []
-    required_permissions: list[Permission] = []
+    required_permissions: Permission = Permission()
 
-    def __init__(self, command: str, description: str, alias: list[str] = [], parameters: list[Parameter] = [], required_permissions: list[Permission] = [], category: Category = Category.OTHER):
+    def __init__(self, command: str, description: str, alias: list[str] = [], parameters: list[Parameter] = [], required_permissions: Permission = Permission(), category: Category = Category.OTHER):
         self.description = description
         self.category = category
         self.command = command

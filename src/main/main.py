@@ -17,8 +17,6 @@ import configuration
 import levels
 from util import youtube, twitch, util
 
-client = discord.Client()
-
 
 def sort_commands(commandClass):
     return [-commandClass().category.value.priority, commandClass().category.name]
@@ -32,8 +30,6 @@ class PhnixBotClient(discord.Client):
         asyncio.ensure_future(levels.clear_chatted_loop())
         asyncio.ensure_future(youtube.youtube(self))
         asyncio.ensure_future(twitch.twitch(self))
-        global client
-        client = self
 
     async def on_member_join(self, member):
         welcome_channel = self.get_channel(configuration.WELCOME_CHANNEL)
@@ -207,7 +203,14 @@ class PhnixBotClient(discord.Client):
         for cls in command.command.Command.__subclasses__():
             new_class = cls()
             if new_class.command == command_name or command_name in new_class.alias:
-                await new_class.execute(message, parameters, self)
+                user_permissions = message.channel.permissions_for(message.author)
+                roles = []
+                for role_id in new_class.required_permissions.requiredRoles:
+                    roles += self.get_guild(config['guildId']).get_role(role_id)
+                if new_class.required_permissions.permissions.is_subset(user_permissions) and set(roles).issubset(set(message.author.roles)):
+                    await new_class.execute(message, parameters, self)
+                else:
+                    await message.channel.send("You don't have permission to do this.")
 
     async def on_reaction_add(self, reaction: discord.Reaction, user: Union[discord.Member, discord.User]):
         from listener import messageReactionListener
@@ -222,7 +225,6 @@ if __name__ == '__main__':
     intents.reactions = True
     intents.typing = False
     intents.presences = False
-
     allowed_mentions = discord.AllowedMentions(
         everyone=False,
         roles=False,
