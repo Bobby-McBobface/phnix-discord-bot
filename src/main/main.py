@@ -3,8 +3,6 @@ import json
 import os
 from typing import Union
 
-import command.command
-
 with open("config.json") as config_file:
     config = json.load(config_file)
 
@@ -23,7 +21,7 @@ client = discord.Client()
 
 
 def sort_commands(commandClass):
-    return [commandClass().category.value.priority, commandClass().category.name]
+    return [-commandClass().category.value.priority, commandClass().category.name]
 
 
 class PhnixBotClient(discord.Client):
@@ -34,6 +32,8 @@ class PhnixBotClient(discord.Client):
         asyncio.ensure_future(levels.clear_chatted_loop())
         asyncio.ensure_future(youtube.youtube(self))
         asyncio.ensure_future(twitch.twitch(self))
+        global client
+        client = self
 
     async def on_member_join(self, member):
         welcome_channel = self.get_channel(configuration.WELCOME_CHANNEL)
@@ -164,6 +164,7 @@ class PhnixBotClient(discord.Client):
                 await message.channel.send(error_message)
 
     async def on_message(self, message: discord.Message):
+        import command.command
         if message.author.bot:
             return
 
@@ -206,7 +207,7 @@ class PhnixBotClient(discord.Client):
         for cls in command.command.Command.__subclasses__():
             new_class = cls()
             if new_class.command == command_name or command_name in new_class.alias:
-                await new_class.execute(message, parameters)
+                await new_class.execute(message, parameters, self)
 
     async def on_reaction_add(self, reaction: discord.Reaction, user: Union[discord.Member, discord.User]):
         from listener import messageReactionListener

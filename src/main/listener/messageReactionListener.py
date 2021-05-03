@@ -4,6 +4,7 @@ import discord
 
 
 async def on_reaction_add(reaction: discord.Reaction, user: Union[discord.Member, discord.User]):
+    return
     if user.bot:
         return
     emoji: Union[discord.Emoji, discord.PartialEmoji, str] = reaction.emoji

@@ -57,5 +57,5 @@ class Command(ABC):
 
     # noinspection PyMethodParameters
     @abstractmethod
-    async def execute(self, message: discord.Message, parameters: str):
+    async def execute(self, message: discord.Message, parameters: str, client: discord.Client):
         pass
