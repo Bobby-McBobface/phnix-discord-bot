@@ -1,11 +1,12 @@
 # copied from reddit bot
-from feedparser import parse
-from datetime import datetime
-import discord
-
-from main import config
-from src.main import configuration
 import asyncio
+from datetime import datetime
+
+import discord
+from feedparser import parse
+
+import main
+from main import config
 
 main_channel = "UCj4zC1Hfj-uc90FUXzRamNw"
 sucks_at = "UC9T9mnA5u12DlQjeywuonpw"
@@ -28,7 +29,7 @@ async def youtube(client):
     while True:
         await handle_feed(main_channel, client)
         await handle_feed(sucks_at, client)
-        await asyncio.sleep(configuration.YOUTUBE_SLEEP)
+        await asyncio.sleep(main.config['youtubeSleep'])
 
 
 async def handle_feed(channel_id, client):
@@ -99,5 +100,5 @@ async def postvid(title, url, channel, client):  # function that handles video p
     guild = client.get_guild(config['guildId'])
     channel = guild.get_channel(config['feedChannel'])
 
-    await channel.send(f"Hey <@&{configuration.YOUTUBE_PING}>, {title} at {url}!",
+    await channel.send(f"Hey <@&{main.config['youtubePing']}>, {title} at {url}!",
                        allowed_mentions=discord.AllowedMentions(roles=True))

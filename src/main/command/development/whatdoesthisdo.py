@@ -1,8 +1,5 @@
-from typing import Union
-
 import discord
 
-import main
 from command.command import Command, Category, Permission
 
 

@@ -1,9 +1,10 @@
 import asyncio
-import configuration
 import sqlite3
 from random import randint
+
 import discord
 
+import main
 from main import config
 
 chatted = []
@@ -13,7 +14,7 @@ async def add_exp(member: discord.User, message: discord.Message):
     global chatted
 
     if member.id not in chatted:
-        xp_gain = randint(configuration.XP_GAIN_MIN, configuration.XP_GAIN_MAX)
+        xp_gain = randint(main.config['levelSystem']['xpGainMin'], main.config['levelSystem']['xpGainMax'])
 
         chatted.append(member.id)
 
@@ -57,7 +58,7 @@ async def clear_chatted_loop():
     global chatted
 
     while True:
-        await asyncio.sleep(configuration.XP_MESSAGE_INTERVAL)
+        await asyncio.sleep(main.config['levelSystem']['xpMessageInterval'])
         chatted = []
 
 
@@ -68,37 +69,50 @@ async def xp_needed_for_level(level: int):
 async def give_level_up_roles(member, level):
     # Internally, levels are one more than MEE6 was, so there is a compensation
     ranks = config['levelSystem']['levelRoles']
+    index = 0
+
+    # I did NOT test this!
+    for rank in ranks:
+        if level - 1 >= rank[1]:
+            try:
+                await member.add_roles(member.guild.get_role(rank[0]), reason="Level up!")
+                await member.remove_roles(member.guild.get_role(ranks[index + 1][0]), reason="Level up!")
+            except:
+                # User probably has the role already
+                pass
+        index += 1
+
     print(ranks)
-    try:
-        if level - 1 >= 55:
-            await member.add_roles(member.guild.get_role(configuration.NETHERITE), reason="Level up!")
-            await member.remove_roles(member.guild.get_role(configuration.EMERALD), reason="Level up!")
-        elif level - 1 >= 45:
-            await member.add_roles(member.guild.get_role(configuration.EMERALD), reason="Level up!")
-            await member.remove_roles(member.guild.get_role(configuration.OBSIDIAN), reason="Level up!")
-        elif level - 1 >= 40:
-            await member.add_roles(member.guild.get_role(configuration.OBSIDIAN), reason="Level up!")
-            await member.remove_roles(member.guild.get_role(configuration.DIAMOND), reason="Level up!")
-        elif level - 1 >= 35:
-            await member.add_roles(member.guild.get_role(configuration.DIAMOND), reason="Level up!")
-            await member.remove_roles(member.guild.get_role(configuration.GOLD), reason="Level up!")
-        elif level - 1 >= 30:
-            await member.add_roles(member.guild.get_role(configuration.GOLD), reason="Level up!")
-            await member.remove_roles(member.guild.get_role(configuration.LAPIS), reason="Level up!")
-        elif level - 1 >= 25:
-            await member.add_roles(member.guild.get_role(configuration.LAPIS), reason="Level up!")
-            await member.remove_roles(member.guild.get_role(configuration.COPPER), reason="Level up!")
-        elif level - 1 >= 20:
-            await member.add_roles(member.guild.get_role(configuration.COPPER), reason="Level up!")
-            await member.remove_roles(member.guild.get_role(configuration.IRON), reason="Level up!")
-        elif level - 1 >= 15:
-            await member.add_roles(member.guild.get_role(configuration.IRON), reason="Level up!")
-            await member.remove_roles(member.guild.get_role(configuration.STONE), reason="Level up!")
-        elif level - 1 >= 10:
-            await member.add_roles(member.guild.get_role(configuration.STONE), reason="Level up!")
-            await member.remove_roles(member.guild.get_role(configuration.WOOD), reason="Level up!")
-        elif level - 1 >= 5:
-            await member.add_roles(member.guild.get_role(configuration.WOOD), reason="Level up!")
-    except:
-        # User probably has the role already
-        pass
+    # try:
+    #     if level - 1 >= 55:
+    #         await member.add_roles(member.guild.get_role(configuration.NETHERITE), reason="Level up!")
+    #         await member.remove_roles(member.guild.get_role(configuration.EMERALD), reason="Level up!")
+    #     elif level - 1 >= 45:
+    #         await member.add_roles(member.guild.get_role(configuration.EMERALD), reason="Level up!")
+    #         await member.remove_roles(member.guild.get_role(configuration.OBSIDIAN), reason="Level up!")
+    #     elif level - 1 >= 40:
+    #         await member.add_roles(member.guild.get_role(configuration.OBSIDIAN), reason="Level up!")
+    #         await member.remove_roles(member.guild.get_role(configuration.DIAMOND), reason="Level up!")
+    #     elif level - 1 >= 35:
+    #         await member.add_roles(member.guild.get_role(configuration.DIAMOND), reason="Level up!")
+    #         await member.remove_roles(member.guild.get_role(configuration.GOLD), reason="Level up!")
+    #     elif level - 1 >= 30:
+    #         await member.add_roles(member.guild.get_role(configuration.GOLD), reason="Level up!")
+    #         await member.remove_roles(member.guild.get_role(configuration.LAPIS), reason="Level up!")
+    #     elif level - 1 >= 25:
+    #         await member.add_roles(member.guild.get_role(configuration.LAPIS), reason="Level up!")
+    #         await member.remove_roles(member.guild.get_role(configuration.COPPER), reason="Level up!")
+    #     elif level - 1 >= 20:
+    #         await member.add_roles(member.guild.get_role(configuration.COPPER), reason="Level up!")
+    #         await member.remove_roles(member.guild.get_role(configuration.IRON), reason="Level up!")
+    #     elif level - 1 >= 15:
+    #         await member.add_roles(member.guild.get_role(configuration.IRON), reason="Level up!")
+    #         await member.remove_roles(member.guild.get_role(configuration.STONE), reason="Level up!")
+    #     elif level - 1 >= 10:
+    #         await member.add_roles(member.guild.get_role(configuration.STONE), reason="Level up!")
+    #         await member.remove_roles(member.guild.get_role(configuration.WOOD), reason="Level up!")
+    #     elif level - 1 >= 5:
+    #         await member.add_roles(member.guild.get_role(configuration.WOOD), reason="Level up!")
+    # except:
+    #     # User probably has the role already
+    #     pass

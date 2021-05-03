@@ -1,9 +1,11 @@
+import asyncio
+from json import loads
+
 import discord
 import dotenv
 from urllib3 import PoolManager
-from json import loads
-from src.main import configuration
-import asyncio
+
+import main
 
 http = PoolManager()
 
@@ -24,7 +26,7 @@ async def twitch(client):
     # Get RSS feeds #
     while True:
         await get_stream(client)
-        await asyncio.sleep(configuration.TWITCH_SLEEP)
+        await asyncio.sleep(main.config['twitchSleep'])
 
 
 async def refresh_token():
@@ -50,7 +52,7 @@ async def get_stream(client):
     client_id = dotenv.get_key(".env", "TWITCH_CLIENT_ID")
     auth_token = dotenv.get_key(".env", "TWITCH_AUTH_TOKEN")
 
-    r = http.request("GET", f"https://api.twitch.tv/helix/streams?user_id={configuration.TWITCH_CHANNEL_ID}",
+    r = http.request("GET", f"https://api.twitch.tv/helix/streams?user_id={main.config['twitchChannelId']}",
                      headers={'client-id': client_id, 'Authorization': f'Bearer {auth_token}'})
 
     if r.status == 401:
@@ -73,8 +75,8 @@ async def get_stream(client):
 
 async def post_stream(client):
     title = "Phoenix has started a new stream"
-    guild = client.get_guild(configuration.GUILD_ID)
-    channel = guild.get_channel(configuration.FEED_CHANNEL)
+    guild = client.get_guild(main.config['guildId'])
+    channel = guild.get_channel(main.config['feedChannel'])
 
-    await channel.send(f"Hey <@&{configuration.TWITCH_PING}>, {title} at https://twitch.tv/PhoenixSCLive !",
+    await channel.send(f"Hey <@&{main.config['twitchPing']}>, {title} at https://twitch.tv/PhoenixSCLive !",
                        allowed_mentions=discord.AllowedMentions(roles=True))

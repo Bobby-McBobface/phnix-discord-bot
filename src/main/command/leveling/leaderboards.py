@@ -2,9 +2,7 @@ import asyncio
 import sqlite3
 
 import discord
-from discord.ext import commands
 
-import main
 from command.command import Command, Parameter, Category
 
 

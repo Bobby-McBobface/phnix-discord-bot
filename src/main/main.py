@@ -13,7 +13,6 @@ import sqlite3
 import dotenv
 
 from command import commands
-import configuration
 import levels
 from util import youtube, twitch, util
 
@@ -32,14 +31,14 @@ class PhnixBotClient(discord.Client):
         asyncio.ensure_future(twitch.twitch(self))
 
     async def on_member_join(self, member):
-        welcome_channel = self.get_channel(configuration.WELCOME_CHANNEL)
-        await welcome_channel.send(configuration.welcome_msg.format("<@" + str(member.id) + ">"))
+        welcome_channel = self.get_channel(config['welcomeChannel'])
+        await welcome_channel.send(config['messages']['welcomeMsg'].format("<@" + str(member.id) + ">"))
 
         # Check if member is muted and give appropriate role:
         muted = await util.check_if_muted(member)
 
         if muted and muted[1] - time() > 0:
-            await member.add_roles(member.guild.get_role(configuration.MUTED_ROLE))
+            await member.add_roles(member.guild.get_role(config['mutedRole']))
             await asyncio.sleep(muted[1] - time())
             await commands.unmute(member.guild, muted[0], guild=True, silenced=True)
         elif muted and muted[1] - time() < 0:
@@ -56,8 +55,8 @@ class PhnixBotClient(discord.Client):
         await levels.give_level_up_roles(member, level)
 
     async def on_member_remove(self, member):
-        farewell_channel = self.get_channel(configuration.FAREWELL_CHANNEL)
-        await farewell_channel.send(configuration.farewell_msg.format(member))
+        farewell_channel = self.get_channel(config['farewellChannel'])
+        await farewell_channel.send(config['messages']['farewellMsg'].format(member))
 
     # noinspection PyMethodMayBeStatic
     async def on_member_update(self, before, after):
@@ -72,7 +71,7 @@ class PhnixBotClient(discord.Client):
         sqlite_client = sqlite3.connect('bot_database.db')
         mute_list = sqlite_client.execute('''SELECT ID, TIMESTAMP FROM MUTES''').fetchall()
 
-        guild = self.get_guild(configuration.GUILD_ID)  # Cheap fix for now since this is used in 1 server
+        guild = self.get_guild(config['guildId'])  # Cheap fix for now since this is used in 1 server
         for mute in mute_list:
             if mute[1] - time() > 0:
                 await asyncio.sleep(mute[1] - time())
@@ -88,13 +87,13 @@ class PhnixBotClient(discord.Client):
             return
 
         # EXP/leveling system
-        if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
+        if message.channel.id not in config['disallowedXpGain']:
             await levels.add_exp(message.author, message)
 
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
         command_text = await util.check_for_and_strip_prefixes(
             message.content,
-            (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>"))
+            (config['prefix'], self.user.mention, f"<@!{self.user.id}>"))
 
         # If there was a command prefix...
         if command_text is not None and command_text != '':
@@ -123,13 +122,13 @@ class PhnixBotClient(discord.Client):
             # We got the command's function!
 
             # bot-nether check
-            if message.guild.get_role(configuration.MODERATOR_ROLE) not in message.author.roles \
-                    and message.guild.id == configuration.GUILD_ID:
+            if message.guild.get_role(config['moderatorRole']) not in message.author.roles \
+                    and message.guild.id == config['guildId']:
                 # Mod bypass and other server bypass
 
                 if message.channel.id not in command_function.command_data["allowed_channels"]:
                     await message.channel.send(
-                        f"Please use <#{configuration.DEFAULT_COMMAND_CHANNEL}> for bot commands!")
+                        f"Please use <#{config['defaultCommandChannel']}> for bot commands!")
                     return
 
             requirements = command_function.command_data.get("role_requirements")
