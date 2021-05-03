@@ -2,12 +2,11 @@ import discord
 
 import main
 from command.command import Command, Parameter, Category
-from discord.ext import commands
 
 
 class Help(Command):
     def __init__(self):
-        super().__init__("help", "Shoes a command info or the list of the commands", ["commands"], [
+        super().__init__("help", "Shows a command info or the list of the commands", ["commands", "?"], [
             Parameter("command")], category=Category.GENERAL)
 
     # noinspection PyMethodParameters
@@ -19,11 +18,8 @@ class Help(Command):
             last_category = ''
             category_commands: str = ''
             embed = discord.Embed(title="  ", description="  ")
-            bot = discord.Client()
-            user = bot.user
-            print(user)
+            user = message.guild.me
             avatar = user.avatar_url_as(format=None, static_format='png', size=1024)
-
             embed.set_author(name=user.name, icon_url=avatar.__str__())
 
             for _cmd in command_list:
@@ -36,12 +32,24 @@ class Help(Command):
                     elif not argument.required:
                         arguments += f" [{argument.identifier}]"
 
-                if last_category != cmd.category and last_category != '':
+                if last_category != cmd.category and last_category != '' and command_list[len(command_list) - 1] != _cmd:
                     embed.add_field(name=last_category, value=category_commands, inline=False)
-                    last_category = cmd.category
+                    last_category = cmd.category.name
                     category_commands = ''
-                    category_commands += f"`{main.config['prefix']}{name}{arguments} | {cmd.description}`\n"
+                    category_commands += f"`{main.config['prefix']}{name}{arguments}` | {cmd.description}\n"
+                elif last_category != cmd.category and last_category != '' and command_list[len(command_list) - 1] == _cmd:
+                    embed.add_field(name=last_category, value=category_commands, inline=False)
+                    last_category = cmd.category.value.friendlyName
+                    category_commands = ''
+                    category_commands += f"`{main.config['prefix']}{name}{arguments}` | {cmd.description}\n"
+                    embed.add_field(name=last_category, value=category_commands, inline=False)
+                elif last_category is None or last_category == '':
+                    last_category = cmd.category.value.friendlyName
+                    category_commands += f"`{main.config['prefix']}{name}{arguments}` | {cmd.description}\n"
+                elif command_list[len(command_list) - 1] == _cmd:
+                    category_commands += f"`{main.config['prefix']}{name}{arguments}` | {cmd.description}\n"
+                    embed.add_field(name=cmd.category.value.friendlyName, value=category_commands, inline=False)
                 else:
-                    category_commands += f"`{main.config['prefix']}{name}{arguments}`\n"
+                    category_commands += f"`{main.config['prefix']}{name}{arguments}` | {cmd.description}\n"
 
             await message.channel.send(embed=embed)
