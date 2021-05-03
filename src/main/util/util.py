@@ -1,7 +1,7 @@
 from random import choice
 import discord
 
-import configuration
+from src.main import configuration
 
 
 async def get_member_by_id_or_name(message, user: str) -> discord.Member:

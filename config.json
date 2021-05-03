@@ -1,0 +1,63 @@
+{
+  "prefix": "!!",
+  "version": "1.0.7",
+  "moderatorRole": 329226272683065346,
+  "guildId": 329226224759209985,
+  "mutedRole": 465873110911156224,
+  "welcomeChannel": 464772278526148629,
+  "farewellChannel": 464772278526148629,
+  "feedChannel": 329851820509888513,
+  "youtubePing": 793548066699083786,
+  "twitchPing": 782326457325322251,
+  "twitchChannelId": 82826005,
+  "twitchSleep": 90,
+  "youtubeSleep": 90,
+  "allowedCommandChannels": [
+    329235461929435137,
+    334929304561647617
+  ],
+  "defaultCommandChannel": 329235461929435137,
+  "levelSystem": {
+    "xpMessageInterval": 60,
+    "xpGainMin": 20,
+    "xpGainMax": 21,
+    "levelRoles": {
+      "netherite": [731769341246177340, 55],
+      "emerald": [420174387166314506, 45],
+      "obsidian": [630748573990125595, 40],
+      "diamond": [337152398415888385, 35],
+      "gold": [337151525325635586, 30],
+      "lapis": [804091179146412052, 25],
+      "copper": [630748385925922856, 20],
+      "iron": [337151464592113664, 15],
+      "stone": [804093931397840906, 10],
+      "wood": [337151269523423236, 5]
+    },
+    "disallowedXpGain": [
+      329235461929435137,
+      334929304561647617
+    ]
+  },
+  "muteSystem": {
+    "timeMuliplier": {
+      "s": 1,
+      "m": 60,
+      "h": 3600,
+      "d": 86400,
+      "_": 2635200,
+      "y": 31557600
+    }
+  },
+  "usernameModule": {
+    "invisibleCharacters": " ᲼"
+  },
+  "messages": {
+    "stringsHug": [
+      "{hugger} hugs {target}",
+      "{hugger} gives a big hug to {target}",
+      "{hugger} 🫂 {target}"
+    ],
+    "welcomeMsg": "{} has joined the game!",
+    "farewellMsg": "{} has left the game."
+  }
+}

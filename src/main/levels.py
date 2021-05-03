@@ -4,6 +4,8 @@ import sqlite3
 from random import randint
 import discord
 
+from main import config
+
 chatted = []
 
 
@@ -19,24 +21,25 @@ async def add_exp(member: discord.User, message: discord.Message):
         user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
                                         {'user_id': member.id}).fetchone()
 
-        if user_xp == None:
-            user_xp = (0,0)
+        if user_xp is None:
+            user_xp = (0, 0)
 
         xp = user_xp[0] + xp_gain
         level = user_xp[1]
 
         if xp >= await xp_needed_for_level(level):
-            #level up
+            # level up
 
             level += 1
 
             # Internally, levels are one more than MEE6 was, so there is a compensation
             if level - 1 != 0:
-                await message.channel.send(f"<@!{member.id}> reached level {level-1}! <:poglin:798531675634139176>", allowed_mentions=discord.AllowedMentions(users=True))
+                await message.channel.send(f"<@!{member.id}> reached level {level - 1}! <:poglin:798531675634139176>",
+                                           allowed_mentions=discord.AllowedMentions(users=True))
 
             # Give level roles  
-            await give_level_up_roles(member, level)                 
-        
+            await give_level_up_roles(member, level)
+
         sqlite_client.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
         VALUES(:member, :user_xp, :level) \
         ON CONFLICT(ID) \
@@ -57,11 +60,15 @@ async def clear_chatted_loop():
         await asyncio.sleep(configuration.XP_MESSAGE_INTERVAL)
         chatted = []
 
+
 async def xp_needed_for_level(level: int):
-    return int(5/6*((2*(level)**3)+(27*(level)**2)+(91*(level))))
+    return int(5 / 6 * ((2 * level ** 3) + (27 * level ** 2) + (91 * level)))
+
 
 async def give_level_up_roles(member, level):
     # Internally, levels are one more than MEE6 was, so there is a compensation
+    ranks = config['levelSystem']['levelRoles']
+    print(ranks)
     try:
         if level - 1 >= 55:
             await member.add_roles(member.guild.get_role(configuration.NETHERITE), reason="Level up!")

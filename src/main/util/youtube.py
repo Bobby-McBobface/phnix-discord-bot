@@ -2,11 +2,14 @@
 from feedparser import parse
 from datetime import datetime
 import discord
-import configuration
+
+from main import config
+from src.main import configuration
 import asyncio
 
 main_channel = "UCj4zC1Hfj-uc90FUXzRamNw"
 sucks_at = "UC9T9mnA5u12DlQjeywuonpw"
+
 
 async def youtube(client):
     """
@@ -53,12 +56,14 @@ async def handle_feed(channel_id, client):
     # Duplication detection via date checking#
     last_date = last_entry.readline()
 
-    last_date = datetime.strptime(last_date[:16], "%Y-%m-%d %H:%M")
+    try:
+        last_date = datetime.strptime(last_date[:16], "%Y-%m-%d %H:%M")
+    except ValueError:
+        last_date = None
 
     # Checks to see that it isn't a livestream
-    if date > last_date and title.find('LIVE //') == -1:
+    if last_date is None or date > last_date and title.find('LIVE //') == -1:
         updated = True
-
     else:
         updated = False
     last_entry.close()
@@ -66,7 +71,6 @@ async def handle_feed(channel_id, client):
     # Update if updated #
 
     if updated:
-
         # yt_post_flair = config['yt_post_flair']
 
         await postvid(title, url, channel, client)  # calls function to post video
@@ -92,7 +96,8 @@ async def postvid(title, url, channel, client):  # function that handles video p
     """
 
     title = ("Phoenix has posted a new video: " + title)
-    guild = client.get_guild(configuration.GUILD_ID)
-    channel = guild.get_channel(configuration.FEED_CHANNEL)
+    guild = client.get_guild(config['guildId'])
+    channel = guild.get_channel(config['feedChannel'])
 
-    await channel.send(f"Hey <@&{configuration.YOUTUBE_PING}>, {title} at {url}!", allowed_mentions=discord.AllowedMentions(roles=True))
+    await channel.send(f"Hey <@&{configuration.YOUTUBE_PING}>, {title} at {url}!",
+                       allowed_mentions=discord.AllowedMentions(roles=True))
