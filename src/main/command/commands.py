@@ -422,9 +422,9 @@ async def unmute(message: discord.Message, parameters: str, guild=False, silence
                 await message.channel.send(f"Unable to re-give role: {role.name}")
 
     if guild:
-        await member.remove_roles(message.get_role(config['mutedRole'])
+        await member.remove_roles(message.get_role(config['mutedRole']))
     else:
-        await member.remove_roles(message.guild.get_role(config['mutedRole'])
+        await member.remove_roles(message.guild.get_role(config['mutedRole']))
 
     if not silenced:
         await message.channel.send(f'Unmuted {member.name}#{member.discriminator} ({member.id})')
@@ -513,8 +513,8 @@ rank.command_data = {
     "aliases": ["wank"],
 }
 
-
-async def leaderboards(message: discord.Message, parameters: str):
+async def leaderboards(message, parameters):
+    max_rows = 3 # TODO: put this into the SQL, and then maybe make it more like 10 or something
     try:
         offset = int(parameters)
     except:
@@ -522,8 +522,28 @@ async def leaderboards(message: discord.Message, parameters: str):
     sqlite_client = sqlite3.connect('bot_database.db')
     data = sqlite_client.execute('''SELECT ID, XP FROM LEVELS ORDER BY XP DESC LIMIT 3 OFFSET :offset''',
                                  {"offset": offset}).fetchall()
-    print(data)
-    message = await message.channel.send(data)
+    # Format: data = [(user id, experience), ...]
+    
+    # Generate a list of nice looking strings of the data
+    data_strings = []
+    placing = offset # Variable for what each user's placement is in the total leaderboard (#1, #2, #3, ...)
+    for item in data:
+        placing += 1
+        user_id = item[0]
+        exp = item[1]
+        data_strings.append(
+            f"**#{placing}. <@{user_id}>**\n{exp} experience"
+        )
+    # Finalised strings to be displayed
+    lb_label = f"Top {max_rows} Members" if offset == 0 else f"Top {offset+1} to {max_rows+1} Members"
+    lb_content = "\n\n".join(data_strings)
+    
+    # Make a fancy embed thing
+    lb_embed = discord.Embed(title="Leaderboard").add_field(name=lb_label, value=lb_content)
+    message = await message.channel.send(embed=lb_embed)
+    
+    # TODO: Add the ID of this message to some collection and watch for reactions to it
+    # to make the following reaction buttons work:
     await message.add_reaction("◀️")
     await message.add_reaction("▶️")
 
