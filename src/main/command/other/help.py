@@ -27,11 +27,7 @@ class Help(Command):
                 cmd: Command = _cmd()
                 name = cmd.command
                 arguments = ''
-                for argument in cmd.parameters:
-                    if argument.required:
-                        arguments += f" <{argument.identifier}>"
-                    elif not argument.required:
-                        arguments += f" [{argument.identifier}]"
+arguments = ''.join(f" <{argument.identifier}>" if argument.required else f" [{argument.identifier}]"
 
                 if last_category != cmd.category and last_category != '' and command_list[
                     len(command_list) - 1] != _cmd:
