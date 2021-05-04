@@ -80,6 +80,7 @@ async def give_level_up_roles(member, level):
             except:
                 # User probably has the role already
                 pass
+            break
         index += 1
 
     print(ranks)
