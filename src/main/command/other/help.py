@@ -14,7 +14,7 @@ class Help(Command):
         command_list = Command.__subclasses__()
         command_list.sort(key=main.sort_commands)
 
-        if not parameters or parameters == '':
+        if not parameters:
             last_category = ''
             category_commands: str = ''
             embed = discord.Embed(title="  ", description="  ")
