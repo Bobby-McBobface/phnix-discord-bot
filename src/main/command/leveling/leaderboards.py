@@ -41,10 +41,10 @@ class Leaderboards(Command):
                 return False
             asyncio.get_running_loop().create_task(reaction.remove(user))
             if emoji == "◀️" and page > 0:
-                self.change_to = 'previous'
+                page += -1
             elif emoji == "▶️":
-                self.change_to = 'next'
-            return valid
+                page += 1
+            return True
 
         await client.wait_for('reaction_add', timeout=60.0, check=check)
         if change_to == 'next':
