@@ -47,10 +47,7 @@ class Leaderboards(Command):
             return True
 
         await client.wait_for('reaction_add', timeout=60.0, check=check)
-        if change_to == 'next':
-            await self.change_page(message, page + 1, client)
-        elif change_to == 'previous':
-            await self.change_page(message, page - 1, client)
+        await self.change_page(message, page, client)
 
     async def execute(self, message: discord.Message, parameters: str, client: discord.Client):
         try:
