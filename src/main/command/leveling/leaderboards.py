@@ -31,7 +31,6 @@ class Leaderboards(Command):
         change_to = ''
 
         def check(reaction, user):
-            print('aaaaaaaaaaa')
             if user.bot:
                 return False
 
