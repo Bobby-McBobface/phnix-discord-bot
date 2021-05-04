@@ -1,3 +1,4 @@
+# deprecated
 PREFIX = "!!"
 
 VERSION = "1.2"

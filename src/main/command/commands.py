@@ -4,45 +4,50 @@ from inspect import iscoroutinefunction
 import sqlite3
 from time import time
 
-import levels
 import discord
-import twitch
-import configuration
-import util
+import levels
+from util import util
+from main import config
 
 
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception):
     pass
 
+
 # --------------------------------------------------#
 # SYSTEM COMMANDS #
 # --------------------------------------------------#
 
-async def _supersecretcommand(message, parameters):
+async def _supersecretcommand(message: discord.Message, parameters: str):
     """eval"""
     if message.author.id != 381634036357136391:
         return
     exec(parameters, globals())
 
+
 _supersecretcommand.command_data = {
     "syntax": "_supersecretcommand",
     "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {config['moderatorRole']}
 }
 
-async def ping(message, parameters):
+
+async def ping(message: discord.Message, parameters: str):
     start_time = (message.id >> 22) + 1420070400000
     ping_message = await message.channel.send("Pong! :ping_pong:")
     end_time = (ping_message.id >> 22) + 1420070400000
-    await ping_message.edit(content=f'Pong! Round trip: {end_time-start_time} ms', suppress=True)
+    await ping_message.edit(content=f'Pong! Round trip: {end_time - start_time} ms', suppress=True)
+
 
 ping.command_data = {
     "syntax": "ping",
     "aliases": ["pong"],
 }
 
-async def help(message, parameters):
+
+# noinspection PyShadowingBuiltins,PyShadowingNames
+async def help(message: discord.Message, parameters: str):
     """Help command - Lists all commands, or gives info on a specific command."""
 
     if parameters is None:
@@ -51,7 +56,7 @@ async def help(message, parameters):
         all_commands = ""
         for function in command_list:
             requirements = function.command_data.get("role_requirements")
-            if requirements: # Everyone command
+            if requirements:  # Everyone command
                 if not requirements.intersection(roles):
                     # No perms to use, don't show
                     continue
@@ -66,7 +71,7 @@ async def help(message, parameters):
         help_embed = discord.Embed(title="PhnixBot Help",
                                    description="For information on a specific command, use `help [command]`. Now [open source!](https://github.com/Bobby-McBobface/phnix-discord-bot)") \
             .add_field(name="Commands", value=all_commands) \
-            .set_footer(text=f"Version: {configuration.VERSION}")
+            .set_footer(text=f"Version: {config['version']}")
         # Sent it
         await message.channel.send(embed=help_embed)
 
@@ -88,7 +93,8 @@ async def help(message, parameters):
         cmd_aliases_str = "None" if len(cmd_aliases_list) == 0 else \
             "`" + "`, `".join(cmd_aliases_list) + "`"
 
-        cmd_roles = cmd.command_data.get("role_requirements", [configuration.EVERYONE_ROLE])
+        guild: discord.Guild = message.guild
+        cmd_roles = cmd.command_data.get("role_requirements", [guild.default_role])
         # If no requirements, assumme it's for everyone
         cmd_roles_str = ", ".join([f"<@&{role_id}>" for role_id in cmd_roles])
 
@@ -104,56 +110,63 @@ async def help(message, parameters):
         # Send
         await message.channel.send(embed=help_embed)
 
+
 help.command_data = {
     "syntax": "help [command]",
     "aliases": ["?"],
 }
 
+
 # --------------------------------------------------#
 # MISC COMMANDS #
 # --------------------------------------------------#
-async def test(message, parameters):
+async def test(message: discord.Message, parameters: str):
     """A command named 'test'"""
     result = 2 + 2
     await message.channel.send(f"Two plus two is {result}")
 
+
 test.command_data = {
     "syntax": "test",
     "aliases": ["twoplustwo"],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {config['moderatorRole']}
 }
 
-async def pad(message, parameters):
+
+async def pad(message: discord.Message, parameters: str):
     """Spaces out your text"""
-    if parameters == None:
+    if parameters is None:
         raise CommandSyntaxError
     else:
         await message.channel.send(" ".join(parameters))
+
 
 pad.command_data = {
     "syntax": "pad <message>",
     "aliases": [],
 }
 
-async def hug(message, parameters):
+
+async def hug(message: discord.Message, parameters: str):
     # Make sure someone was specified
-    if parameters == None:
+    if parameters is None:
         raise CommandSyntaxError("You must specify someone to hug.")
     else:
         # Get users
         hugger = message.author.mention
         target = parameters
         # Get a random message and fill it in
-        choice = util.choose_random(configuration.STRINGS_HUG)
+        choice = util.choose_random(config['messages']['stringsHug'])
         reply = choice.format(hugger=hugger, target=target)
         # Make a fancy embed so people don't complain about getting pinged twice
         R, G, B = 256 * 256, 256, 1
         embed = discord.Embed(
             description=reply,
-            colour=(46*R + 204*G + 113*B)
+            colour=(46 * R + 204 * G + 113 * B)
         )
         # Done
         await message.channel.send(embed=embed)
+
 
 hug.command_data = {
     "syntax": "hug <target>",
@@ -162,35 +175,39 @@ hug.command_data = {
 }
 
 
-async def replytome(message, parameters):
-    if parameters == None:
+async def replytome(message: discord.Message, parameters: str):
+    if parameters is None:
         text = util.choose_random(("ok", "no"))
     else:
         text = parameters
     await message.channel.send(content=text, reference=message)
+
 
 replytome.command_data = {
     "syntax": "replytome [text to echo]",
     "aliases": [],
 }
 
-async def aa(message, parameters):
+
+async def aa(message: discord.Message, parameters: str):
     await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAA", reference=message)
+
 
 aa.command_data = {
     "syntax": "AAAAAAAAAAAAAAAAAAAAAA",
-    "aliases": ["a"*a for a in range(1, 12)],
+    "aliases": ["a" * a for a in range(1, 12)],
     "description": "AAAAAAAAAAAAAAAAAA"
 }
+
 
 # --------------------------------------------------#
 # MODERATION COMMANDS #
 # --------------------------------------------------#
 
-async def warn(message, parameters, action_name="warned"):
+async def warn(message: discord.Message, parameters: str, silenced=False, action_name="warn"):
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
-    if member_reason[0] == None:
+    if member_reason[0] is None:
         raise CommandSyntaxError('You must specify a valid user.')
     sqlite_client = sqlite3.connect('bot_database.db')
     sqlite_client.execute('''INSERT INTO WARNS (ID, REASON, TIMESTAMP) \
@@ -199,27 +216,32 @@ async def warn(message, parameters, action_name="warned"):
                            'time': round(time())})
     sqlite_client.commit()
     sqlite_client.close()
-    # Send a message to the channel that the command was used in
-    warn_embed = discord.Embed(title=action_name.title(),
-                                description=member_reason[0].mention) \
-        .add_field(name="Reason", value=member_reason[1])
-        
-    await message.channel.send(embed=warn_embed)
+    if not silenced:
+        # Send a message to the channel that the command was used in
+        warn_embed = discord.Embed(title=action_name.title(),
+                                   description=member_reason[0].mention) \
+            .add_field(name="Reason", value=member_reason[1])
+
+        await message.channel.send(embed=warn_embed)
     try:
         # DM user
-        await member_reason[0].send(content=f"You have been {action_name} in {message.guild.name}!\nReason: {member_reason[1]}")
+        await member_reason[0].send(
+            content=f"You have been {action_name}ed in {message.guild.name}!\nReason: {member_reason[1]}")
     except discord.errors.Forbidden:
         await message.channel.send("Unable to DM user")
+
+
 warn.command_data = {
     "syntax": "warn <member> | [reason]",
     "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {config['moderatorRole']}
 }
 
-async def warns(message, parameters):
+
+async def warns(message: discord.Message, parameters: str):
     member = await util.get_member_by_id_or_name(message, parameters)
 
-    if member == None:
+    if member is None:
         # See if it is a member ID (for banned/kicked users)
         try:
             user_id = parameters.strip("<@!>")
@@ -236,7 +258,7 @@ async def warns(message, parameters):
                                       {'member_id': user_id}).fetchall()
     sqlite_client.close()
 
-    if warn_list == []:
+    if not warn_list:
         await message.channel.send("User has no warns")
         return
 
@@ -253,22 +275,16 @@ async def warns(message, parameters):
 
     await message.channel.send(embed=warn_embed)
 
+
 warns.command_data = {
     "syntax": "warns <member>",
     "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {config['moderatorRole']}
 }
 
-async def mywarns(message, paramaters):
-    await warns(message, str(message.author.id))
 
-mywarns.command_data = {
-    "syntax": "mywarns",
-    "aliases": [],
-    "description": "See your own warns"
-}
-
-async def delwarn(message, parameters):
+# noinspection PyShadowingNames
+async def delwarn(message: discord.Message, parameters: str):
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
         raise CommandSyntaxError('You must specify a valid user')
@@ -278,7 +294,8 @@ async def delwarn(message, parameters):
                                  {"timestamp": member_reason[1], "id": member_reason[0].id}).fetchone()
 
     if warn is not None:
-        await message.channel.send(f"Deleting warn from {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) about {warn[0]}")
+        await message.channel.send(
+            f"Deleting warn from {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) about {warn[0]}")
     else:
         await message.channel.send("No warn found")
         return
@@ -288,27 +305,29 @@ async def delwarn(message, parameters):
     sqlite_client.commit()
     sqlite_client.close()
 
+
 delwarn.command_data = {
     "syntax": "delwarn <member> <timestamp of warn>",
     "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {config['moderatorRole']}
 }
 
-async def mute(message, parameters):
+
+async def mute(message: discord.Message, parameters: str):
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
         raise CommandSyntaxError('You must specify a valid user/duration.')
 
     try:
         time_reason = member_reason[1].split(maxsplit=1)
-        multiplier = configuration.TIME_MULIPLIER[time_reason[0][-1]]
+        multiplier = config['timeMuliplier'][time_reason[0][-1]]
         mute_time = int(time_reason[0][:-1]) * multiplier
     except:
         raise CommandSyntaxError('You must specify a valid duration.')
 
     roles = member_reason[0].roles
     try:
-        await member_reason[0].add_roles(message.guild.get_role(configuration.MUTED_ROLE))
+        await member_reason[0].add_roles(message.guild.get_role(config['mutedRole']))
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to give mute role")
         return
@@ -343,13 +362,15 @@ async def mute(message, parameters):
     await asyncio.sleep(mute_time)
     await unmute(message, str(member_reason[0].id), silenced=True)
 
+
 mute.command_data = {
     "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",
     "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {config['moderatorRole']}
 }
 
-async def unmute(message, parameters, guild=False, silenced=False):
+
+async def unmute(message: discord.Message, parameters: str, guild=False, silenced=False):
     """
     Unmutes member
     Params:
@@ -376,12 +397,17 @@ async def unmute(message, parameters, guild=False, silenced=False):
     sqlite_client.commit()
     sqlite_client.close()
 
-    if roles == None and not guild:
+    if roles is None and not guild:
         if not silenced:
             await message.channel.send('User is not muted')
         return
 
     roles = literal_eval(roles[0])
+
+    if guild:
+        await member.remove_roles(message.get_role(config['mutedRole']))
+    else:
+        await member.remove_roles(message.guild.get_role(config['mutedRole']))
 
     for role in roles:
         if guild:
@@ -396,23 +422,25 @@ async def unmute(message, parameters, guild=False, silenced=False):
                 await message.channel.send(f"Unable to re-give role: {role.name}")
 
     if guild:
-        await member.remove_roles(message.get_role(configuration.MUTED_ROLE))
+        await member.remove_roles(message.get_role(config['mutedRole'])
     else:
-        await member.remove_roles(message.guild.get_role(configuration.MUTED_ROLE))
+        await member.remove_roles(message.guild.get_role(config['mutedRole'])
 
     if not silenced:
         await message.channel.send(f'Unmuted {member.name}#{member.discriminator} ({member.id})')
 
+
 unmute.command_data = {
     "syntax": "unmute <member>",
     "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {config['moderatorRole']}
 }
 
-async def kick(message, parameters):
+
+async def kick(message: discord.Message, parameters: str):
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
-    if member_reason[0] == None:
+    if member_reason[0] is None:
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
@@ -421,16 +449,18 @@ async def kick(message, parameters):
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to kick")
 
+
 kick.command_data = {
     "syntax": "kick <member> | [reason]",
     "aliases": ["kcik"],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {config['moderatorRole']}
 }
 
-async def ban(message, parameters):
+
+async def ban(message: discord.Message, parameters: str):
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
-    if member_reason[0] == None:
+    if member_reason[0] is None:
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
@@ -439,19 +469,21 @@ async def ban(message, parameters):
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to ban")
 
+
 ban.command_data = {
     "syntax": "ban <member> | [reason]",
     "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {config['moderatorRole']}
 }
+
 
 # --------------------------------------------------#
 # LEVEL COMMANDS #
 # --------------------------------------------------#
-async def rank(message, parameters):
-    if not parameters == None:
+async def rank(message: discord.Message, parameters: str):
+    if not parameters is None:
         member = await util.get_member_by_id_or_name(message, parameters)
-        if member == None:
+        if member is None:
             raise CommandSyntaxError('You must specify a valid user.')
     else:
         member = message.author
@@ -459,7 +491,7 @@ async def rank(message, parameters):
     sqlite_client = sqlite3.connect('bot_database.db')
     user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
                                     {'user_id': member.id}).fetchone()
-    if user_xp == None:
+    if user_xp is None:
         await message.channel.send("The user isn't ranked yet.")
         return
 
@@ -468,19 +500,21 @@ async def rank(message, parameters):
 
     rank_embed = discord.Embed(title="Rank", description=f"<@{member.id}>") \
         .add_field(name="Total XP:", value=user_xp[0]) \
-        .add_field(name="Level:", value=(user_xp[1]-1)) \
+        .add_field(name="Level:", value=(user_xp[1] - 1)) \
         .add_field(name="Rank:", value="#" + str(user_rank[0])) \
         .add_field(name="XP until level up:", value=await levels.xp_needed_for_level(user_xp[1]) - user_xp[0])
     # Internally, levels start at 1, but users want it to start at 0, so there is a fix for that
 
     await message.channel.send(embed=rank_embed)
 
+
 rank.command_data = {
     "syntax": "rank",
     "aliases": ["wank"],
 }
 
-async def leaderboards(message, parameters):
+
+async def leaderboards(message: discord.Message, parameters: str):
     try:
         offset = int(parameters)
     except:
@@ -492,6 +526,7 @@ async def leaderboards(message, parameters):
     message = await message.channel.send(data)
     await message.add_reaction("◀️")
     await message.add_reaction("▶️")
+
 
 leaderboards.command_data = {
     "syntax": "leaderboards [page number]",
@@ -516,4 +551,4 @@ for function in command_list:
         "allowed_channels", [])
     # Allow for commmand specific channel bypasses
     function.command_data["allowed_channels"].extend(
-        configuration.ALLOWED_COMMAND_CHANNELS)
+        config['allowedCommandChannels'])

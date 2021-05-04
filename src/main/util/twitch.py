@@ -1,10 +1,14 @@
-import discord
-from urllib3 import PoolManager
-from json import loads
-import configuration
 import asyncio
+from json import loads
+
+import discord
+import dotenv
+from urllib3 import PoolManager
+
+import main
 
 http = PoolManager()
+
 
 async def twitch(client):
     """
@@ -22,23 +26,22 @@ async def twitch(client):
     # Get RSS feeds #
     while True:
         await get_stream(client)
-        await asyncio.sleep(configuration.TWITCH_SLEEP)
+        await asyncio.sleep(main.config['twitchSleep'])
+
 
 async def refresh_token():
-    with open("env/twitch_client_id") as file:
-        client_id = file.read()
+    client_id = dotenv.get_key(".env", "TWITCH_CLIENT_ID")
+    secret = dotenv.get_key(".env", "TWITCH_SECRET")
 
-    with open("env/twitch_secret") as file:
-        secret = file.read()
-
-    r = http.request("POST", f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={secret}&grant_type=client_credentials")
+    r = http.request("POST",
+                     f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={secret}&grant_type=client_credentials")
 
     data = loads(r.data.decode('utf-8'))
 
     print(data["access_token"])
 
-    with open("env/twitch_auth_token", "w") as file:
-        file.write(data["access_token"])
+    dotenv.set_key(".env", "TWITCH_AUTH_TOKEN", data["access_token"], "never")
+
 
 async def get_stream(client):
     '''
@@ -46,14 +49,11 @@ async def get_stream(client):
     client: discord.Client
     '''
 
-    with open("env/twitch_client_id") as file:
-        client_id = file.read()
+    client_id = dotenv.get_key(".env", "TWITCH_CLIENT_ID")
+    auth_token = dotenv.get_key(".env", "TWITCH_AUTH_TOKEN")
 
-    with open("env/twitch_auth_token") as file:
-        auth_token = file.read()
-
-    r = http.request("GET", f"https://api.twitch.tv/helix/streams?user_id={configuration.TWITCH_CHANNEL_ID}",
-    headers={'client-id': client_id, 'Authorization': f'Bearer {auth_token}'})
+    r = http.request("GET", f"https://api.twitch.tv/helix/streams?user_id={main.config['twitchChannelId']}",
+                     headers={'client-id': client_id, 'Authorization': f'Bearer {auth_token}'})
 
     if r.status == 401:
         await refresh_token()
@@ -61,7 +61,7 @@ async def get_stream(client):
 
     data = loads(r.data.decode('utf-8'))["data"]
 
-    if data != []:
+    if data:
         stream_id = data[0]["id"]
 
         with open("last_stream.ini", "r+") as file:
@@ -72,9 +72,11 @@ async def get_stream(client):
                 file.write(data[0]["id"])
                 await post_stream(client)
 
+
 async def post_stream(client):
     title = "Phoenix has started a new stream"
-    guild = client.get_guild(configuration.GUILD_ID)
-    channel = guild.get_channel(configuration.FEED_CHANNEL)
+    guild = client.get_guild(main.config['guildId'])
+    channel = guild.get_channel(main.config['feedChannel'])
 
-    await channel.send(f"Hey <@&{configuration.TWITCH_PING}>, {title} at https://twitch.tv/PhoenixSCLive !", allowed_mentions=discord.AllowedMentions(roles=True))
+    await channel.send(f"Hey <@&{main.config['twitchPing']}>, {title} at https://twitch.tv/PhoenixSCLive !",
+                       allowed_mentions=discord.AllowedMentions(roles=True))
