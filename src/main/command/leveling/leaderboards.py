@@ -31,7 +31,7 @@ class Leaderboards(Command):
         change_to = ''
 
         def check(reaction, user):
-            if user.bot:
+            if user.id not in await reaction.users().flatten():
                 return False
 
             emoji = reaction.emoji
