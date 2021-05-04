@@ -34,11 +34,11 @@ class Leaderboards(Command):
             if user.bot:
                 return False
 
-            valid = str(reaction.emoji) == "◀️" or str(reaction.emoji) == "▶️"
+            emoji = reaction.emoji
+            
+            valid = emoji == "◀️" or emoji == "▶️"
             if not valid:
                 return False
-
-            emoji = reaction.emoji
             asyncio.get_running_loop().create_task(reaction.remove(user))
             if emoji == "◀️" and page > 0:
                 self.change_to = 'previous'
