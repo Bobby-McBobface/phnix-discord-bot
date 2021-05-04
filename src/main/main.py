@@ -211,9 +211,6 @@ class PhnixBotClient(discord.Client):
                 else:
                     await message.channel.send("You don't have permission to do this.")
 
-    async def on_reaction_add(self, reaction: discord.Reaction, user: Union[discord.Member, discord.User]):
-        from listener import messageReactionListener
-        await messageReactionListener.on_reaction_add(reaction, user)
 
 
 if __name__ == '__main__':
