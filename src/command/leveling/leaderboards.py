@@ -48,11 +48,10 @@ class Leaderboards(Command):
             return True
 
         try:
-            await self.client.wait_for('reaction_add', timeout=60.0, check=check)
+            await self.client.wait_for('reaction_add', timeout=30.0, check=check)
             await self.change_page()
         except asyncio.TimeoutError:
-            for reaction in self.response.reactions:
-                await reaction.clear()
+            await self.response.clear_reactions()
 
     async def execute(self, message: discord.Message, parameters: str, client: discord.Client):
         try:
