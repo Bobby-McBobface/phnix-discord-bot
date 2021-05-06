@@ -3,29 +3,46 @@ import json
 import os
 from typing import Union
 
-with open("config.json") as config_file:
-    config = json.load(config_file)
-
 import discord
 from time import time
 import asyncio
 import sqlite3
 import dotenv
 
-from command import commands
+from config import config
+import command.command
 import levels
 from util import youtube, twitch, util
 
+from os.path import dirname, basename, isfile, join
+import glob
+from copy import deepcopy
 
-def sort_commands(commandClass):
-    return [-commandClass().category.value.priority, commandClass().category.name]
-
+command_alias_dict = {}
+# For every file in commands
+for name in os.listdir(f"{__file__}/../command"):
+    # If the file is a folder
+    if os.path.isdir(f"{__file__}/../command/{name}"):
+        # Get every *.py in the foder
+        modules = glob.glob(join(dirname(__file__), f"command/{name}/*.py"))
+        import_list = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
+        # Import all commands in the folder
+        for _command in import_list:
+            # Import the command
+            importlib.import_module(name=f"command.{name}.{_command}")
+            # Initialize the command's class
+            command_ = command.command.Command.__subclasses__()[-1]()
+            # Add command name to the alias dict
+            command_alias_dict[command_.command] = command_
+            # Add all aliases to the command_alias_dict
+            for alias in command_.alias:
+                command_alias_dict[alias] = command_
 
 class PhnixBotClient(discord.Client):
     async def on_ready(self):
         """Runs when the bot is operational"""
         print('PhnixBot is ready')
-        await self.remute_on_startup()
+        #await self.remute_on_startup()
         asyncio.ensure_future(levels.clear_chatted_loop())
         asyncio.ensure_future(youtube.youtube(self))
         asyncio.ensure_future(twitch.twitch(self))
@@ -35,17 +52,17 @@ class PhnixBotClient(discord.Client):
         await welcome_channel.send(config['messages']['welcomeMsg'].format("<@" + str(member.id) + ">"))
 
         # Check if member is muted and give appropriate role:
-        muted = await util.check_if_muted(member)
+        '''muted = await util.check_if_muted(member)
 
         if muted and muted[1] - time() > 0:
             await member.add_roles(member.guild.get_role(config['mutedRole']))
             await asyncio.sleep(muted[1] - time())
             await commands.unmute(member.guild, muted[0], guild=True, silenced=True)
         elif muted and muted[1] - time() < 0:
-            await commands.unmute(member.guild, muted[0], guild=True, silenced=True)
+            await commands.unmute(member.guild, muted[0], guild=True, silenced=True)'''
 
         # Regive level roles
-        sqlite_client = sqlite3.connect('../../run/bot_database.db')
+        sqlite_client = sqlite3.connect('data/bot_database.db')
         try:
             level = sqlite_client.execute('''SELECT LEVEL FROM LEVELS WHERE ID=:member_id''',
                                           {'member_id': member.id}).fetchone()[0]
@@ -67,8 +84,8 @@ class PhnixBotClient(discord.Client):
                 else str(after.id)  # idk lol set it to their user id I guess
             await after.edit(nick=new_nick, reason="Invisible nickname detected")
 
-    async def remute_on_startup(self):
-        sqlite_client = sqlite3.connect('bot_database.db')
+    """async def remute_on_startup(self):
+        sqlite_client = sqlite3.connect('data/bot_database.db')
         mute_list = sqlite_client.execute('''SELECT ID, TIMESTAMP FROM MUTES''').fetchall()
 
         guild = self.get_guild(config['guildId'])  # Cheap fix for now since this is used in 1 server
@@ -77,9 +94,9 @@ class PhnixBotClient(discord.Client):
                 await asyncio.sleep(mute[1] - time())
                 await commands.unmute(guild, mute[0], guild=True, silenced=True)
             elif mute[1] - time() < 0:
-                await commands.unmute(guild, mute[0], guild=True, silenced=True)
+                await commands.unmute(guild, mute[0], guild=True, silenced=True)"""
 
-    async def on_message_(self, message):
+    '''async def on_message_(self, message):
         """Runs every time the bot notices a message being sent anywhere."""
 
         # Ignore bot accounts
@@ -156,18 +173,21 @@ class PhnixBotClient(discord.Client):
                 error_syntax = command_function.command_data['syntax']
                 # Put it all together
                 error_message = f"Invalid syntax{error_details}Usage: `{error_syntax}`"
-                await message.channel.send(error_message)
+                await message.channel.send(error_message)'''
 
     async def on_message(self, message: discord.Message):
-        import command.command
         if message.author.bot:
             return
+
+        # EXP/leveling system
+        if message.channel.id not in config['levelSystem']['disallowedXpGain']:
+            await levels.add_exp(message.author, message)
 
         command_text = await util.check_for_and_strip_prefixes(
             message.content,
             (config['prefix'], self.user.mention, f"<@!{self.user.id}>"))
 
-        if command_text is None or command_text == '':
+        if not command_text:
             return
 
         split_command_text = command_text.split(maxsplit=1)
@@ -183,33 +203,23 @@ class PhnixBotClient(discord.Client):
             # No paramaters specified
             parameters = ''
 
-        from os.path import dirname, basename, isfile, join
-        import glob
+        try:
+            # Get the command's function
+            command_class_refrence = command_alias_dict[command_name]
+            # Make a copy so 2 of the same commands can run simultainously
+            # Also hopefully the garbage collector deletes this after use
+            command_class = deepcopy(command_class_refrence)
+        except KeyError:
+            # There must not be a command by that name.
+            return
 
-        modules = glob.glob(join(dirname(__file__), "command/*.py"))
-        commands_list = [basename(f)[:-3] for f in modules if
-                         isfile(f) and not f.endswith('__init__.py') and not f.endswith('commands.py')]
-        for command_ in commands_list:
-            importlib.import_module(name=command_, package="command")
+        # We got the command's function!
 
-        for name in os.listdir(f"{__file__}/../command"):
-            if os.path.isdir(f"{__file__}/../command/{name}"):
-                modules = glob.glob(join(dirname(__file__), f"command/{name}/*.py"))
-                commands_list = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
-                for command_ in commands_list:
-                    importlib.import_module(name=f"command.{name}.{command_}")
-
-        for cls in command.command.Command.__subclasses__():
-            new_class = cls()
-            if new_class.command == command_name or command_name in new_class.alias:
-                user_permissions = message.channel.permissions_for(message.author)
-                roles = []
-                for role_id in new_class.required_permissions.requiredRoles:
-                    roles += self.get_guild(config['guildId']).get_role(role_id)
-                if new_class.required_permissions.permissions.is_subset(user_permissions) and set(roles).issubset(set(message.author.roles)):
-                    await new_class.execute(message, parameters, self)
-                else:
-                    await message.channel.send("You don't have permission to do this.")
+        # Role checks
+        if command_class.required_permissions.required_roles.intersection([role.id for role in message.author.roles]):
+            await command_class.execute(message, parameters, self)
+        else:
+            await message.channel.send("You don't have permission to do this.")
 
 
 

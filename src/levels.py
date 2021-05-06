@@ -4,8 +4,8 @@ from random import randint
 
 import discord
 
-import main
-from main import config
+from config import config
+from config import config
 
 chatted = []
 
@@ -14,11 +14,11 @@ async def add_exp(member: discord.User, message: discord.Message):
     global chatted
 
     if member.id not in chatted:
-        xp_gain = randint(main.config['levelSystem']['xpGainMin'], main.config['levelSystem']['xpGainMax'])
+        xp_gain = randint(config['levelSystem']['xpGainMin'], config['levelSystem']['xpGainMax'])
 
         chatted.append(member.id)
 
-        sqlite_client = sqlite3.connect('bot_database.db')
+        sqlite_client = sqlite3.connect('data/bot_database.db')
         user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
                                         {'user_id': member.id}).fetchone()
 
@@ -58,7 +58,7 @@ async def clear_chatted_loop():
     global chatted
 
     while True:
-        await asyncio.sleep(main.config['levelSystem']['xpMessageInterval'])
+        await asyncio.sleep(config['levelSystem']['xpMessageInterval'])
         chatted = []
 
 
@@ -73,7 +73,7 @@ async def give_level_up_roles(member, level):
 
     # I did NOT test this!
     for rank in ranks:
-        if level - 1 >= rank[1]:
+        if level - 1 >= int(ranks[rank][1]):
             try:
                 await member.add_roles(member.guild.get_role(rank[0]), reason="Level up!")
                 await member.remove_roles(member.guild.get_role(ranks[index + 1][0]), reason="Level up!")

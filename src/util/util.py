@@ -2,7 +2,7 @@ from random import choice
 
 import discord
 
-import main
+from config import config
 
 
 async def get_member_by_id_or_name(message, user: str) -> discord.Member:
@@ -72,7 +72,7 @@ def choose_random(choices: list):
 
 async def check_if_muted(member: discord.Member):
     import sqlite3
-    sqlite_client = sqlite3.connect('bot_database.db')
+    sqlite_client = sqlite3.connect('data/bot_database.db')
     result = sqlite_client.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
                                    {'member_id': member.id, }).fetchone()
     return result
@@ -81,7 +81,7 @@ async def check_if_muted(member: discord.Member):
 async def check_if_string_invisible(string: str) -> bool:
     """Returns True if the string is comprised entirely of non-visible characters."""
     for char in string:
-        if char not in main.config['usernameModule']['invisibleCharacters']:
+        if char not in config['usernameModule']['invisibleCharacters']:
             # String must be visible if this is the case
             return False
     # If the for loop ended, then every character must be invisible.

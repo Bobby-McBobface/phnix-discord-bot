@@ -5,8 +5,7 @@ from datetime import datetime
 import discord
 from feedparser import parse
 
-import main
-from main import config
+from config import config
 
 main_channel = "UCj4zC1Hfj-uc90FUXzRamNw"
 sucks_at = "UC9T9mnA5u12DlQjeywuonpw"
@@ -29,12 +28,12 @@ async def youtube(client):
     while True:
         await handle_feed(main_channel, client)
         await handle_feed(sucks_at, client)
-        await asyncio.sleep(main.config['youtubeSleep'])
+        await asyncio.sleep(config['youtubeSleep'])
 
 
 async def handle_feed(channel_id, client):
     # Check if updated #
-    last_entry = open('last_video_' + channel_id + '.ini', 'r')
+    last_entry = open('data/last_video_' + channel_id + '.ini', 'r')
 
     feed_base_url = 'https://www.youtube.com/feeds/videos.xml?channel_id='
     yt_feed = parse(feed_base_url + channel_id)
@@ -100,5 +99,5 @@ async def postvid(title, url, channel, client):  # function that handles video p
     guild = client.get_guild(config['guildId'])
     channel = guild.get_channel(config['feedChannel'])
 
-    await channel.send(f"Hey <@&{main.config['youtubePing']}>, {title} at {url}!",
+    await channel.send(f"Hey <@&{config['youtubePing']}>, {title} at {url}!",
                        allowed_mentions=discord.AllowedMentions(roles=True))

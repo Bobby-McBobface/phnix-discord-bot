@@ -7,7 +7,7 @@ from time import time
 import discord
 import levels
 from util import util
-from main import config
+from config import config
 
 
 # Custom exceptions we can raise
