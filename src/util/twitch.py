@@ -38,8 +38,6 @@ async def refresh_token():
 
     data = loads(r.data.decode('utf-8'))
 
-    print(data["access_token"])
-
     dotenv.set_key(".env", "TWITCH_AUTH_TOKEN", data["access_token"], "never")
 
 

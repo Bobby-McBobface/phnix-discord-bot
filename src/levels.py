@@ -82,8 +82,6 @@ async def give_level_up_roles(member, level):
                 pass
             break
         index += 1
-
-    print(ranks)
     # try:
     #     if level - 1 >= 55:
     #         await member.add_roles(member.guild.get_role(configuration.NETHERITE), reason="Level up!")
