@@ -69,49 +69,37 @@ async def xp_needed_for_level(level: int):
 async def give_level_up_roles(member, level):
     # Internally, levels are one more than MEE6 was, so there is a compensation
     ranks = config['levelSystem']['levelRoles']
-    index = 0
 
-    # I did NOT test this!
-    for rank in ranks:
-        if level - 1 >= int(ranks[rank][1]):
-            try:
-                await member.add_roles(member.guild.get_role(rank[0]), reason="Level up!")
-                await member.remove_roles(member.guild.get_role(ranks[index + 1][0]), reason="Level up!")
-            except:
-                # User probably has the role already
-                pass
-            break
-        index += 1
-    # try:
-    #     if level - 1 >= 55:
-    #         await member.add_roles(member.guild.get_role(configuration.NETHERITE), reason="Level up!")
-    #         await member.remove_roles(member.guild.get_role(configuration.EMERALD), reason="Level up!")
-    #     elif level - 1 >= 45:
-    #         await member.add_roles(member.guild.get_role(configuration.EMERALD), reason="Level up!")
-    #         await member.remove_roles(member.guild.get_role(configuration.OBSIDIAN), reason="Level up!")
-    #     elif level - 1 >= 40:
-    #         await member.add_roles(member.guild.get_role(configuration.OBSIDIAN), reason="Level up!")
-    #         await member.remove_roles(member.guild.get_role(configuration.DIAMOND), reason="Level up!")
-    #     elif level - 1 >= 35:
-    #         await member.add_roles(member.guild.get_role(configuration.DIAMOND), reason="Level up!")
-    #         await member.remove_roles(member.guild.get_role(configuration.GOLD), reason="Level up!")
-    #     elif level - 1 >= 30:
-    #         await member.add_roles(member.guild.get_role(configuration.GOLD), reason="Level up!")
-    #         await member.remove_roles(member.guild.get_role(configuration.LAPIS), reason="Level up!")
-    #     elif level - 1 >= 25:
-    #         await member.add_roles(member.guild.get_role(configuration.LAPIS), reason="Level up!")
-    #         await member.remove_roles(member.guild.get_role(configuration.COPPER), reason="Level up!")
-    #     elif level - 1 >= 20:
-    #         await member.add_roles(member.guild.get_role(configuration.COPPER), reason="Level up!")
-    #         await member.remove_roles(member.guild.get_role(configuration.IRON), reason="Level up!")
-    #     elif level - 1 >= 15:
-    #         await member.add_roles(member.guild.get_role(configuration.IRON), reason="Level up!")
-    #         await member.remove_roles(member.guild.get_role(configuration.STONE), reason="Level up!")
-    #     elif level - 1 >= 10:
-    #         await member.add_roles(member.guild.get_role(configuration.STONE), reason="Level up!")
-    #         await member.remove_roles(member.guild.get_role(configuration.WOOD), reason="Level up!")
-    #     elif level - 1 >= 5:
-    #         await member.add_roles(member.guild.get_role(configuration.WOOD), reason="Level up!")
-    # except:
-    #     # User probably has the role already
-    #     pass
+    try:
+        if level - 1 >= 55:
+            await member.add_roles(member.guild.get_role(ranks["netherite"][0]))
+            await member.remove_roles(member.guild.get_role(ranks["emerald"][0]))
+        elif level - 1 >= 45:
+            await member.add_roles(member.guild.get_role(ranks["emerald"][0]))
+            await member.remove_roles(member.guild.get_role(ranks["obsidian"][0]))
+        elif level - 1 >= 40:
+            await member.add_roles(member.guild.get_role(ranks["obsidian"][0]))
+            await member.remove_roles(member.guild.get_role(ranks["diamond"][0]))
+        elif level - 1 >= 35:
+            await member.add_roles(member.guild.get_role(ranks["diamond"][0]))
+            await member.remove_roles(member.guild.get_role(ranks["gold"][0]))
+        elif level - 1 >= 30:
+            await member.add_roles(member.guild.get_role(ranks["gold"][0]))
+            await member.remove_roles(member.guild.get_role(ranks["lapis"][0]))
+        elif level - 1 >= 25:
+            await member.add_roles(member.guild.get_role(ranks["lapis"][0]))
+            await member.remove_roles(member.guild.get_role(ranks["copper"][0]))
+        elif level - 1 >= 20:
+            await member.add_roles(member.guild.get_role(ranks["copper"][0]))
+            await member.remove_roles(member.guild.get_role(ranks["iron"][0]))
+        elif level - 1 >= 15:
+            await member.add_roles(member.guild.get_role(ranks["iron"][0]))
+            await member.remove_roles(member.guild.get_role(ranks["stone"][0]))
+        elif level - 1 >= 10:
+            await member.add_roles(member.guild.get_role(ranks["stone"][0]))
+            await member.remove_roles(member.guild.get_role(ranks["wood"][0]))
+        elif level - 1 >= 5:
+            await member.add_roles(member.guild.get_role(ranks["wood"][0]))
+    except:
+       # User probably has the role already
+        pass
