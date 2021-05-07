@@ -68,9 +68,18 @@ async def xp_needed_for_level(level: int):
 
 async def give_level_up_roles(member, level):
     # Internally, levels are one more than MEE6 was, so there is a compensation
-    ranks = config['levelSystem']['levelRoles']
+    ranks = config['levelSystem']['levelRoles'].values()
 
-    try:
+    for index, value in enumerate(ranks):
+        if level - 1 >= value[1]:
+            try:
+                await member.add_roles(member.guild.get_role(value[0]))
+                await member.remove_roles(member.guild.get_role(list(ranks)[index + 1][0]))
+            except IndexError:
+                # Wood role, nothing to remove
+                pass
+            break
+    '''try:
         if level - 1 >= 55:
             await member.add_roles(member.guild.get_role(ranks["netherite"][0]))
             await member.remove_roles(member.guild.get_role(ranks["emerald"][0]))
@@ -102,4 +111,4 @@ async def give_level_up_roles(member, level):
             await member.add_roles(member.guild.get_role(ranks["wood"][0]))
     except:
        # User probably has the role already
-        pass
+        pass'''
