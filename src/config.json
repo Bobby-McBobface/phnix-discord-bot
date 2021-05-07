@@ -19,7 +19,7 @@
   "defaultCommandChannel": 329235461929435137,
   "levelSystem": {
     "xpMessageInterval": 60,
-    "xpGainMin": 20,
+    "xpGainMin": 19,
     "xpGainMax": 21,
     "levelRoles": {
       "netherite": [731769341246177340, 55],
