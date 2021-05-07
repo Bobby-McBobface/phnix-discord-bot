@@ -13,14 +13,18 @@ class Leaderboards(Command):
 
     async def change_page(self):
         sqlite_client = sqlite3.connect('data/bot_database.db')
-        data_list = sqlite_client.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 3 OFFSET :offset''', {"offset": self.page}).fetchall()
+        data_list = sqlite_client.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
+                                          {"offset": self.page*10}).fetchall()
 
         lb_list = ''
-        for data in data_list:
+        for index, data in enumerate(data_list):
             user = data[0]
             level = data[1]
             total_xp = data[2]
-            lb_list += f"<@{user}> | Level: {level} | Total XP: {total_xp}\n"
+            lb_list += f"{self.page*10 + index + 1}: <@{user}> | Level: {level} | Total XP: {total_xp}\n"
+
+        if not lb_list:
+            lb_list = "No data on this page!"
 
         embed = discord.Embed(title="Leaderboard", description=lb_list)
 
@@ -36,7 +40,7 @@ class Leaderboards(Command):
                 return False
 
             emoji = reaction.emoji
-            
+
             valid = emoji == "◀️" or emoji == "▶️"
             if not valid:
                 return False
@@ -67,4 +71,3 @@ class Leaderboards(Command):
         await self.response.add_reaction("◀️")
         await self.response.add_reaction("▶️")
         await self.change_page()
-
