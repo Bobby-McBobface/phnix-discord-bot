@@ -19,7 +19,7 @@ class Leaderboards(Command):
         lb_list = ''
         for index, data in enumerate(data_list):
             user = data[0]
-            level = data[1]
+            level = int(data[1]) - 1
             total_xp = data[2]
             lb_list += f"{self.page*10 + index + 1}: <@{user}> | Level: {level} | Total XP: {total_xp}\n"
 

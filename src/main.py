@@ -17,6 +17,7 @@ from util import youtube, twitch, util
 from os.path import dirname, basename, isfile, join
 import glob
 from copy import deepcopy
+import traceback
 
 command_alias_dict = {}
 # For every file in commands
@@ -31,9 +32,13 @@ for name in os.listdir(f"{__file__}/../command"):
             # Import the command
             importlib.import_module(name=f"command.{name}.{_command}")
             # Initialize the command's class
+            # You would think this would take up a lot of memory, but it doesn't seem to, maybe it's just a pointer
+            # TODO: Test again with more commands
             command_ = command.command.Command.__subclasses__()[-1]()
             # Add command name to the alias dict
             command_alias_dict[command_.command] = command_
+            # command_alias_dict[command_.command] = len(command.command.Command.__subclasses__()) - 1
+
             # Add all aliases to the command_alias_dict
             for alias in command_.alias:
                 command_alias_dict[alias] = command_
@@ -216,11 +221,26 @@ class PhnixBotClient(discord.Client):
         # We got the command's function!
 
         # Role checks
-        if command_class.required_permissions.required_roles.intersection([role.id for role in message.author.roles]):
-            await command_class.execute(message, parameters, self)
-        else:
+        if not command_class.required_permissions.required_roles.intersection([role.id for role in message.author.roles]):
             await message.channel.send("You don't have permission to do this.")
+            return
 
+        try:
+            await command_class.execute(message, parameters, self)
+
+        except command.command.CommandSyntaxError as err:
+            # If the command raised CommandSyntaxError, send some information to the user:
+            error_details = f": {str(err)}\n" if str(
+                err) != "" else ". "  # Get details from the exception, and format it
+            # Get command syntax from the function
+            error_syntax = ''.join(f'<{parameter.identifier}>' if parameter.required else f'[{parameter.identifier}]' for parameter in command_class.parameters)
+            error_syntax = command_class.command + " " + error_syntax
+            # Put it all together
+            error_message = f"Invalid syntax{error_details}Usage: `{error_syntax}`"
+            await message.channel.send(error_message)
+        except Exception as e:
+            await message.channel.send(f"INTERNAL ERROR!! {e}")
+            traceback.print_exc()
 
 
 if __name__ == '__main__':

@@ -4,6 +4,8 @@ from config import config
 
 import discord
 
+class CommandSyntaxError(Exception):
+    pass
 
 class Permission:
     def __init__(self, permissions: discord.Permissions = discord.Permissions(), required_roles: set = set()):
@@ -35,6 +37,10 @@ class Category(Enum):
     DEVELOPMENT = {
         'friendly_name': 'Bot Development', 
         'priority': 100
+    }
+    SYSTEM = {
+        'friendly_name': 'System commands', 
+        'priority': 50
     }
     OTHER = {
         'friendly_name': 'Other', 
