@@ -19,7 +19,7 @@ class CommandSyntaxError(Exception):
 # SYSTEM COMMANDS #
 # --------------------------------------------------#
 
-async def _supersecretcommand(message, parameters):
+async def _supersecretcommand(message, parameters, client):
     """eval"""
     if message.author.id != 381634036357136391:
         return
@@ -31,7 +31,7 @@ _supersecretcommand.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-async def ping(message, parameters):
+async def ping(message, parameters, client):
     start_time = (message.id >> 22) + 1420070400000
     ping_message = await message.channel.send("Pong! :ping_pong:")
     end_time = (ping_message.id >> 22) + 1420070400000
@@ -42,7 +42,7 @@ ping.command_data = {
     "aliases": ["pong"],
 }
 
-async def help(message, parameters):
+async def help(message, parameters, client):
     """Help command - Lists all commands, or gives info on a specific command."""
 
     if parameters is None:
@@ -112,7 +112,7 @@ help.command_data = {
 # --------------------------------------------------#
 # MISC COMMANDS #
 # --------------------------------------------------#
-async def test(message, parameters):
+async def test(message, parameters, client):
     """A command named 'test'"""
     result = 2 + 2
     await message.channel.send(f"Two plus two is {result}")
@@ -123,7 +123,7 @@ test.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-async def pad(message, parameters):
+async def pad(message, parameters, client):
     """Spaces out your text"""
     if parameters == None:
         raise CommandSyntaxError
@@ -135,7 +135,7 @@ pad.command_data = {
     "aliases": [],
 }
 
-async def hug(message, parameters):
+async def hug(message, parameters, client):
     # Make sure someone was specified
     if parameters == None:
         raise CommandSyntaxError("You must specify someone to hug.")
@@ -162,7 +162,7 @@ hug.command_data = {
 }
 
 
-async def replytome(message, parameters):
+async def replytome(message, parameters, client):
     if parameters == None:
         text = util.choose_random(("ok", "no"))
     else:
@@ -174,7 +174,7 @@ replytome.command_data = {
     "aliases": [],
 }
 
-async def aa(message, parameters):
+async def aa(message, parameters, client):
     await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAA", reference=message)
 
 aa.command_data = {
@@ -187,7 +187,7 @@ aa.command_data = {
 # MODERATION COMMANDS #
 # --------------------------------------------------#
 
-async def warn(message, parameters, action_name="warned"):
+async def warn(message, parameters, client, action_name="warned"):
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
     if member_reason[0] == None:
@@ -216,7 +216,7 @@ warn.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-async def warns(message, parameters):
+async def warns(message, parameters, client):
     member = await util.get_member_by_id_or_name(message, parameters)
 
     if member == None:
@@ -259,8 +259,8 @@ warns.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-async def mywarns(message, paramaters):
-    await warns(message, str(message.author.id))
+async def mywarns(message, parameters, client):
+    await warns(message, str(message.author.id), client)
 
 mywarns.command_data = {
     "syntax": "mywarns",
@@ -268,7 +268,7 @@ mywarns.command_data = {
     "description": "See your own warns"
 }
 
-async def delwarn(message, parameters):
+async def delwarn(message, parameters, client):
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
         raise CommandSyntaxError('You must specify a valid user')
@@ -294,7 +294,7 @@ delwarn.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-async def mute(message, parameters):
+async def mute(message, parameters, client):
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
         raise CommandSyntaxError('You must specify a valid user/duration.')
@@ -338,10 +338,10 @@ async def mute(message, parameters):
     sqlite_client.commit()
     sqlite_client.close()
 
-    await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}', action_name="muted")
+    await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}', client, action_name="muted")
 
     await asyncio.sleep(mute_time)
-    await unmute(message, str(member_reason[0].id), silenced=True)
+    await unmute(message, str(member_reason[0].id), client, silenced=True)
 
 mute.command_data = {
     "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",
@@ -349,7 +349,7 @@ mute.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-async def unmute(message, parameters, guild=False, silenced=False):
+async def unmute(message, parameters, client, guild=False, silenced=False):
     """
     Unmutes member
     Params:
@@ -409,14 +409,14 @@ unmute.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-async def kick(message, parameters):
+async def kick(message, parameters, client):
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
     if member_reason[0] == None:
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
-        await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}", action_name="kicked")
+        await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}", client, action_name="kicked")
         await message.guild.kick(member_reason[0], reason=member_reason[1])
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to kick")
@@ -427,14 +427,14 @@ kick.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE}
 }
 
-async def ban(message, parameters):
+async def ban(message, parameters, client):
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
     if member_reason[0] == None:
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
-        await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", action_name="banned")
+        await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", client, action_name="banned")
         await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to ban")
@@ -448,7 +448,7 @@ ban.command_data = {
 # --------------------------------------------------#
 # LEVEL COMMANDS #
 # --------------------------------------------------#
-async def rank(message, parameters):
+async def rank(message, parameters, client):
     if not parameters == None:
         member = await util.get_member_by_id_or_name(message, parameters)
         if member == None:
@@ -480,39 +480,61 @@ rank.command_data = {
     "aliases": ["wank"],
 }
 
-async def leaderboards(message, parameters):
-    max_rows = 3 # TODO: put this into the SQL, and then maybe make it more like 10 or something
+async def leaderboards(message, parameters, client, first_execution=True, op=None):
     try:
-        offset = int(parameters)
+        page = int(parameters)
     except:
-        offset = 0
+        page = 0
+
+    if first_execution:
+        response = await message.channel.send(embed=discord.Embed(title="Loading"))
+        await response.add_reaction("◀️")
+        await response.add_reaction("▶️")
+        await leaderboards(response, page, client, first_execution=False, op=message.author.id)
+
     sqlite_client = sqlite3.connect('bot_database.db')
-    data = sqlite_client.execute('''SELECT ID, XP FROM LEVELS ORDER BY XP DESC LIMIT 3 OFFSET :offset''',
-                                 {"offset": offset}).fetchall()
-    # Format: data = [(user id, experience), ...]
-    
-    # Generate a list of nice looking strings of the data
-    data_strings = []
-    placing = offset # Variable for what each user's placement is in the total leaderboard (#1, #2, #3, ...)
-    for item in data:
-        placing += 1
-        user_id = item[0]
-        exp = item[1]
-        data_strings.append(
-            f"**#{placing}. <@{user_id}>**\n{exp} experience"
-        )
-    # Finalised strings to be displayed
-    lb_label = f"Top {max_rows} Members" if offset == 0 else f"Top {offset+1} to {max_rows+1} Members"
-    lb_content = "\n\n".join(data_strings)
-    
-    # Make a fancy embed thing
-    lb_embed = discord.Embed(title="Leaderboard").add_field(name=lb_label, value=lb_content)
-    message = await message.channel.send(embed=lb_embed)
-    
-    # TODO: Add the ID of this message to some collection and watch for reactions to it
-    # to make the following reaction buttons work:
-    await message.add_reaction("◀️")
-    await message.add_reaction("▶️")
+    data_list = sqlite_client.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
+                                          {"offset": page*10}).fetchall()
+    sqlite_client.close()
+
+    lb_list = ''
+    for index, data in enumerate(data_list):
+        user = data[0]
+        level = int(data[1]) - 1
+        total_xp = data[2]
+        lb_list += f"{page*10 + index + 1}: <@{user}> | Level: {level} | Total XP: {total_xp}\n"
+
+    if not lb_list:
+        lb_list = "No data on this page!"
+
+    embed = discord.Embed(title="Leaderboard", description=lb_list)
+    await message.edit(embed=embed)
+
+    def check(reaction, user):
+        if op != user.id:
+            return False
+
+        if reaction.message.id != message.id:
+            return False
+
+        emoji = reaction.emoji
+
+        valid = emoji == "◀️" or emoji == "▶️"
+        if not valid:
+            return False
+        asyncio.get_running_loop().create_task(reaction.remove(user))
+        nonlocal page
+        if emoji == "◀️" and page > 0:
+            page += -1
+        elif emoji == "▶️":
+            page += 1
+        return True
+
+    try:
+        await client.wait_for('reaction_add', timeout=30.0, check=check)
+        await leaderboards(message, page, client, first_execution=False, op=op)
+    except asyncio.TimeoutError:
+        await message.clear_reactions()
 
 leaderboards.command_data = {
     "syntax": "leaderboards [page number]",
@@ -535,6 +557,3 @@ for function in command_list:
         command_aliases_dict[alias] = function
     function.command_data["allowed_channels"] = function.command_data.get(
         "allowed_channels", [])
-    # Allow for commmand specific channel bypasses
-    function.command_data["allowed_channels"].extend(
-        configuration.ALLOWED_COMMAND_CHANNELS)
