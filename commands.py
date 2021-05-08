@@ -491,6 +491,7 @@ async def leaderboards(message, parameters, client, first_execution=True, op=Non
         await response.add_reaction("◀️")
         await response.add_reaction("▶️")
         await leaderboards(response, page, client, first_execution=False, op=message.author.id)
+        return
 
     sqlite_client = sqlite3.connect('bot_database.db')
     data_list = sqlite_client.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
