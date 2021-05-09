@@ -480,22 +480,28 @@ rank.command_data = {
     "aliases": ["wank"],
 }
 
-async def leaderboards(message, parameters, client, first_execution=True, op=None):
+async def leaderboards(message, parameters, client, first_execution=True, op=None, page_cache=0):
     try:
         page = int(parameters)
     except:
-        page = 0
+        # Human friendly compensation
+        page = 1
 
     if first_execution:
         response = await message.channel.send(embed=discord.Embed(title="Loading"))
         await response.add_reaction("◀️")
         await response.add_reaction("▶️")
-        await leaderboards(response, page, client, first_execution=False, op=message.author.id)
+
+        sqlite_client = sqlite3.connect('bot_database.db')
+        total_pages = sqlite_client.execute('''SELECT COUNT(*) FROM LEVELS''').fetchone()[0] // 10 + 1
+        sqlite_client.close()
+
+        await leaderboards(response, page, client, first_execution=False, op=message.author.id, page_cache=total_pages)
         return
 
     sqlite_client = sqlite3.connect('bot_database.db')
     data_list = sqlite_client.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
-                                          {"offset": page*10}).fetchall()
+                                          {"offset": (page - 1)*10}).fetchall()
     sqlite_client.close()
 
     lb_list = ''
@@ -503,12 +509,12 @@ async def leaderboards(message, parameters, client, first_execution=True, op=Non
         user = data[0]
         level = int(data[1]) - 1
         total_xp = data[2]
-        lb_list += f"{page*10 + index + 1}: <@{user}> | Level: {level} | Total XP: {total_xp}\n"
+        lb_list += f"{(page - 1) * 10 + index + 1}: <@{user}> | Level: {level} | Total XP: {total_xp}\n"
 
     if not lb_list:
         lb_list = "No data on this page!"
 
-    embed = discord.Embed(title="Leaderboard", description=lb_list)
+    embed = discord.Embed(title="Leaderboard", description=lb_list).set_footer(text=f"Page: {page}/{page_cache}")
     await message.edit(embed=embed)
 
     def check(reaction, user):
@@ -525,15 +531,17 @@ async def leaderboards(message, parameters, client, first_execution=True, op=Non
             return False
         asyncio.get_running_loop().create_task(reaction.remove(user))
         nonlocal page
-        if emoji == "◀️" and page > 0:
+        if emoji == "◀️" and page > 1:
             page += -1
-        elif emoji == "▶️":
+        elif emoji == "▶️" and page < page_cache:
             page += 1
+        else:
+            return False
         return True
 
     try:
-        await client.wait_for('reaction_add', timeout=30.0, check=check)
-        await leaderboards(message, page, client, first_execution=False, op=op)
+        await client.wait_for('reaction_add', timeout=60.0, check=check)
+        await leaderboards(message, page, client, first_execution=False, op=op, page_cache=page_cache)
     except asyncio.TimeoutError:
         await message.clear_reactions()
 
