@@ -48,7 +48,7 @@ class PhnixBotClient(discord.Client):
         farewell_message = configuration.farewell_msg.format(member)
         farewell_message = discord.utils.escape_markdown(farewell_message) # Escape Discord markdown formatting, e.g. so underscores in their name doesn't turn into italics
         farewell_channel = self.get_channel(configuration.FAREWELL_CHANNEL)
-        await farewell_channel.send(message)
+        await farewell_channel.send(farewell_message)
 
     async def on_member_update(self, before, after):
         # Check if their nick is invisible
