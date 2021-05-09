@@ -9,11 +9,34 @@ import discord
 import twitch
 import configuration
 import util
+from enum import Enum
 
 
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception):
     pass
+
+class Category(Enum):
+    MODERATION = {
+        'friendly_name': 'Moderation', 
+        'priority': 10
+    }
+    LEVELING = {
+        'friendly_name': 'Leveling', 
+        'priority': 1
+    }
+    DEVELOPMENT = {
+        'friendly_name': 'Bot Development', 
+        'priority': 100
+    }
+    SYSTEM = {
+        'friendly_name': 'System commands', 
+        'priority': 50
+    }
+    OTHER = {
+        'friendly_name': 'Other', 
+        'priority': -1
+    }
 
 # --------------------------------------------------#
 # SYSTEM COMMANDS #
@@ -27,8 +50,8 @@ async def _supersecretcommand(message, parameters, client):
 
 _supersecretcommand.command_data = {
     "syntax": "_supersecretcommand",
-    "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.DEVELOPMENT
 }
 
 async def ping(message, parameters, client):
@@ -40,6 +63,7 @@ async def ping(message, parameters, client):
 ping.command_data = {
     "syntax": "ping",
     "aliases": ["pong"],
+    "category": Category.SYSTEM
 }
 
 async def help(message, parameters, client):
@@ -48,25 +72,36 @@ async def help(message, parameters, client):
     if parameters is None:
         roles = [role.id for role in message.author.roles]
 
-        all_commands = ""
+        category_commands = ""
+        last_category = None
+
+         # Make one of those fancy embed doohickies
+        help_embed = discord.Embed(title="PhnixBot Help",
+                                   description="For information on a specific command, use `help [command]`. \n\
+                                   Now [open source!](https://github.com/Bobby-McBobface/phnix-discord-bot)") \
+                                   .set_footer(text=f"Version: {configuration.VERSION}")
         for function in command_list:
             requirements = function.command_data.get("role_requirements")
-            if requirements: # Everyone command
+            if requirements: # Not @everyone command
                 if not requirements.intersection(roles):
                     # No perms to use, don't show
                     continue
 
-            # Get a string listing all commands
-            all_commands += f"{function.__name__}\n"
+            if not last_category:
+                # First command
+                last_category = function.command_data["category"]
 
-        '''all_commands = "\n".join( \
-            [function.__name__ for function in command_list if
-                function.command_data.get("role_requirements", {}].intersection(roles)])'''
-        # Make one of those fancy embed doohickies
-        help_embed = discord.Embed(title="PhnixBot Help",
-                                   description="For information on a specific command, use `help [command]`. Now [open source!](https://github.com/Bobby-McBobface/phnix-discord-bot)") \
-            .add_field(name="Commands", value=all_commands) \
-            .set_footer(text=f"Version: {configuration.VERSION}")
+            elif function.command_data["category"] != last_category:
+                # New category
+                help_embed.add_field(name=last_category.value["friendly_name"], value=category_commands, inline=False)
+                last_category = function.command_data["category"]
+                category_commands = ''
+
+            category_commands += f"{function.__name__}\n"
+
+        # Add the last category
+        help_embed.add_field(name=last_category.value["friendly_name"], value=category_commands, inline=False)
+
         # Sent it
         await message.channel.send(embed=help_embed)
 
@@ -107,6 +142,7 @@ async def help(message, parameters, client):
 help.command_data = {
     "syntax": "help [command]",
     "aliases": ["?"],
+    "category": Category.SYSTEM
 }
 
 # --------------------------------------------------#
@@ -120,7 +156,8 @@ async def test(message, parameters, client):
 test.command_data = {
     "syntax": "test",
     "aliases": ["twoplustwo"],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.OTHER
 }
 
 async def pad(message, parameters, client):
@@ -132,7 +169,7 @@ async def pad(message, parameters, client):
 
 pad.command_data = {
     "syntax": "pad <message>",
-    "aliases": [],
+    "category": Category.OTHER
 }
 
 async def hug(message, parameters, client):
@@ -156,9 +193,9 @@ async def hug(message, parameters, client):
         await message.channel.send(embed=embed)
 
 hug.command_data = {
-    "syntax": "hug <target>",
-    "aliases": [],
+    "syntax": "hug <target>",    
     "allowed_channels": [329226224759209985, 827880703844286475],
+    "category": Category.OTHER
 }
 
 
@@ -171,7 +208,7 @@ async def replytome(message, parameters, client):
 
 replytome.command_data = {
     "syntax": "replytome [text to echo]",
-    "aliases": [],
+    "category": Category.OTHER
 }
 
 async def aa(message, parameters, client):
@@ -180,7 +217,8 @@ async def aa(message, parameters, client):
 aa.command_data = {
     "syntax": "AAAAAAAAAAAAAAAAAAAAAA",
     "aliases": ["a"*a for a in range(1, 12)],
-    "description": "AAAAAAAAAAAAAAAAAA"
+    "description": "AAAAAAAAAAAAAAAAAA",
+    "category": Category.OTHER
 }
 
 # --------------------------------------------------#
@@ -212,8 +250,8 @@ async def warn(message, parameters, client, action_name="warned"):
         await message.channel.send("Unable to DM user")
 warn.command_data = {
     "syntax": "warn <member> | [reason]",
-    "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.MODERATION
 }
 
 async def warns(message, parameters, client):
@@ -254,18 +292,18 @@ async def warns(message, parameters, client):
     await message.channel.send(embed=warn_embed)
 
 warns.command_data = {
-    "syntax": "warns <member>",
-    "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "syntax": "warns <member>",   
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.MODERATION
 }
 
 async def mywarns(message, parameters, client):
     await warns(message, str(message.author.id), client)
 
 mywarns.command_data = {
-    "syntax": "mywarns",
-    "aliases": [],
-    "description": "See your own warns"
+    "syntax": "mywarns", 
+    "description": "See your own warns",
+    "category": Category.MODERATION
 }
 
 async def delwarn(message, parameters, client):
@@ -289,9 +327,9 @@ async def delwarn(message, parameters, client):
     sqlite_client.close()
 
 delwarn.command_data = {
-    "syntax": "delwarn <member> <timestamp of warn>",
-    "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "syntax": "delwarn <member> <timestamp of warn>",  
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.MODERATION
 }
 
 async def mute(message, parameters, client):
@@ -344,9 +382,9 @@ async def mute(message, parameters, client):
     await unmute(message, str(member_reason[0].id), client, silenced=True)
 
 mute.command_data = {
-    "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",
-    "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",  
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.MODERATION
 }
 
 async def unmute(message, parameters, client, guild=False, silenced=False):
@@ -404,9 +442,9 @@ async def unmute(message, parameters, client, guild=False, silenced=False):
         await message.channel.send(f'Unmuted {member.name}#{member.discriminator} ({member.id})')
 
 unmute.command_data = {
-    "syntax": "unmute <member>",
-    "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "syntax": "unmute <member>",  
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.MODERATION
 }
 
 async def kick(message, parameters, client):
@@ -424,7 +462,8 @@ async def kick(message, parameters, client):
 kick.command_data = {
     "syntax": "kick <member> | [reason]",
     "aliases": ["kcik"],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.MODERATION
 }
 
 async def ban(message, parameters, client):
@@ -441,8 +480,8 @@ async def ban(message, parameters, client):
 
 ban.command_data = {
     "syntax": "ban <member> | [reason]",
-    "aliases": [],
-    "role_requirements": {configuration.MODERATOR_ROLE}
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.MODERATION
 }
 
 # --------------------------------------------------#
@@ -481,6 +520,7 @@ async def rank(message, parameters, client):
 rank.command_data = {
     "syntax": "rank",
     "aliases": ["wank"],
+    "category": Category.LEVELING
 }
 
 async def leaderboards(message, parameters, client, first_execution=True, op=None, page_cache=0):
@@ -551,6 +591,7 @@ async def leaderboards(message, parameters, client, first_execution=True, op=Non
 leaderboards.command_data = {
     "syntax": "leaderboards [page number]",
     "aliases": ["lb"],
+    "category": Category.LEVELING
 }
 
 command_list = []
@@ -564,8 +605,14 @@ for _ in vars():
 for function in command_list:
     # Add the command's name itself as an alias
     command_aliases_dict[function.__name__] = function
+    # Set stuff to default values
+    function.command_data["aliases"] = function.command_data.get("aliases", [])
+    function.command_data["allowed_channels"] = function.command_data.get("allowed_channels", [])
+    function.command_data["category"] = function.command_data.get("category", Category.OTHER)
+
     # Iterate through all aliases and add them as aliases
     for alias in function.command_data["aliases"]:
         command_aliases_dict[alias] = function
-    function.command_data["allowed_channels"] = function.command_data.get(
-        "allowed_channels", [])
+
+# Sort by priority for help
+command_list.sort(key=lambda a: a.command_data["category"].value["priority"], reverse=True)
