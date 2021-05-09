@@ -10,17 +10,19 @@ A command needs:
 Command example:
 
 ```py
-async def test(message, params):
+async def test(message, params, client):
     """A command named 'test'
     Parameters:
-    message: The discord.py message object
+    message: discord.Message
     params: The text after the command name. Str or None
+    client: discord.Client
     """
     result = 2 + 2
     await message.channel.send(f"Two plus two is {result}")
 test.command_data = {
   "syntax": "test",
+  "description": "Returns 2 + 2"
   "alias": ["twoplustwo"],
-  "role_requirements": [configuration.MODERATOR_ROLE]
+  "role_requirements": {configuration.MODERATOR_ROLE}
 }
 ```
