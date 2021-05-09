@@ -6,7 +6,7 @@ if answer != "y":
     exit(code=0)
     
 print("Setting up data...")
-
+"""
 sqlite_client = sqlite3.connect('bot_database.db')
 #sqlite_client.execute('''DROP TABLE LEVELS''')
 #sqlite_client.commit()
@@ -49,15 +49,14 @@ for user in users:
     sqlite_client.commit()
 
 sqlite_client.close()
-
-"""sqlite_client = sqlite3.connect('bot_database.db')
+"""
+sqlite_client = sqlite3.connect('bot_database.db')
 sqlite_client.execute(f'''INSERT INTO LEVELS (ID, XP, LEVEL) \
     VALUES(:id, :xp, :level) \
     ON CONFLICT(ID) \
     DO UPDATE SET XP=:xp, LEVEL=:level''', \
     {'id': 381634036357136391, \
-    'xp': 1624, \
-    'level': 5})
-     
+    'xp':1216823182500, \
+    'level': 9000})
 sqlite_client.commit()
-sqlite_client.close()"""
+sqlite_client.close()
