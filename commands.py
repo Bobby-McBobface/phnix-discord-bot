@@ -583,7 +583,7 @@ async def leaderboards(message, parameters, client, first_execution=True, op=Non
         return True
 
     try:
-        await client.wait_for('reaction_add', timeout=60.0, check=check)
+        await client.wait_for('reaction_add', timeout=30.0, check=check)
         await leaderboards(message, page, client, first_execution=False, op=op, page_cache=page_cache)
     except asyncio.TimeoutError:
         await message.clear_reactions()
