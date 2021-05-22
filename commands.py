@@ -56,6 +56,25 @@ _supersecretcommand.command_data = {
 }
 
 
+async def _update(message, parameters, client):
+    import os
+    import sys
+    import subprocess
+    process = subprocess.Popen(["git", "pull"], stdout=subprocess.PIPE)
+    process.wait()
+    output = process.communicate()[0]
+    await message.channel.send(output)
+    os.execv(sys.executable, ['python3'] + sys.argv)
+
+
+_update.command_data = {
+    "syntax": "_update",
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.DEVELOPMENT,
+    "description": "Update the bot from GitHub"
+}
+
+
 async def ping(message, parameters, client):
     start_time = (message.id >> 22) + 1420070400000
     ping_message = await message.channel.send("Pong! :ping_pong:")
