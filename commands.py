@@ -101,7 +101,11 @@ async def help(message, parameters, client):
                 last_category = function.command_data["category"]
                 category_commands = ''
 
-            category_commands += f"{function.__name__}\n"
+            description = function.command_data.get('description')
+            if description is None:
+                description = "No description"
+
+            category_commands += f"`{function.command_data['syntax']}` {description}\n"
 
         # Add the last category
         help_embed.add_field(
@@ -538,7 +542,7 @@ async def rank(message, parameters, client):
 
 rank.command_data = {
     "syntax": "rank",
-    "aliases": ["wank"],
+    "aliases": ["wank", "level"],
     "category": Category.LEVELING
 }
 
@@ -608,7 +612,7 @@ async def leaderboards(message, parameters, client, first_execution=True, op=Non
 
 leaderboards.command_data = {
     "syntax": "leaderboards [page number]",
-    "aliases": ["lb"],
+    "aliases": ["lb", "levels"],
     "category": Category.LEVELING
 }
 
