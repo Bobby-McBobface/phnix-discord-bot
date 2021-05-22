@@ -6,7 +6,6 @@ from time import time
 
 import levels
 import discord
-import twitch
 import configuration
 import util
 from enum import Enum
@@ -16,31 +15,33 @@ from enum import Enum
 class CommandSyntaxError(Exception):
     pass
 
+
 class Category(Enum):
     MODERATION = {
-        'friendly_name': 'Moderation', 
+        'friendly_name': 'Moderation',
         'priority': 10
     }
     LEVELING = {
-        'friendly_name': 'Leveling', 
+        'friendly_name': 'Leveling',
         'priority': 1
     }
     DEVELOPMENT = {
-        'friendly_name': 'Bot Development', 
+        'friendly_name': 'Bot Development',
         'priority': 100
     }
     SYSTEM = {
-        'friendly_name': 'System commands', 
+        'friendly_name': 'System commands',
         'priority': 50
     }
     OTHER = {
-        'friendly_name': 'Other', 
+        'friendly_name': 'Other',
         'priority': -1
     }
 
 # --------------------------------------------------#
 # SYSTEM COMMANDS #
 # --------------------------------------------------#
+
 
 async def _supersecretcommand(message, parameters, client):
     """eval"""
@@ -54,6 +55,7 @@ _supersecretcommand.command_data = {
     "category": Category.DEVELOPMENT
 }
 
+
 async def ping(message, parameters, client):
     start_time = (message.id >> 22) + 1420070400000
     ping_message = await message.channel.send("Pong! :ping_pong:")
@@ -66,6 +68,7 @@ ping.command_data = {
     "category": Category.SYSTEM
 }
 
+
 async def help(message, parameters, client):
     """Help command - Lists all commands, or gives info on a specific command."""
 
@@ -75,14 +78,14 @@ async def help(message, parameters, client):
         category_commands = ""
         last_category = None
 
-         # Make one of those fancy embed doohickies
+        # Make one of those fancy embed doohickies
         help_embed = discord.Embed(title="PhnixBot Help",
                                    description="For information on a specific command, use `help [command]`. \n\
                                    Now [open source!](https://github.com/Bobby-McBobface/phnix-discord-bot)") \
-                                   .set_footer(text=f"Version: {configuration.VERSION}")
+            .set_footer(text=f"Version: {configuration.VERSION}")
         for function in command_list:
             requirements = function.command_data.get("role_requirements")
-            if requirements: # Not @everyone command
+            if requirements:  # Not @everyone command
                 if not requirements.intersection(roles):
                     # No perms to use, don't show
                     continue
@@ -93,14 +96,16 @@ async def help(message, parameters, client):
 
             elif function.command_data["category"] != last_category:
                 # New category
-                help_embed.add_field(name=last_category.value["friendly_name"], value=category_commands, inline=False)
+                help_embed.add_field(
+                    name=last_category.value["friendly_name"], value=category_commands, inline=False)
                 last_category = function.command_data["category"]
                 category_commands = ''
 
             category_commands += f"{function.__name__}\n"
 
         # Add the last category
-        help_embed.add_field(name=last_category.value["friendly_name"], value=category_commands, inline=False)
+        help_embed.add_field(
+            name=last_category.value["friendly_name"], value=category_commands, inline=False)
 
         # Sent it
         await message.channel.send(embed=help_embed)
@@ -123,7 +128,8 @@ async def help(message, parameters, client):
         cmd_aliases_str = "None" if len(cmd_aliases_list) == 0 else \
             "`" + "`, `".join(cmd_aliases_list) + "`"
 
-        cmd_roles = cmd.command_data.get("role_requirements", [configuration.EVERYONE_ROLE])
+        cmd_roles = cmd.command_data.get(
+            "role_requirements", [configuration.EVERYONE_ROLE])
         # If no requirements, assumme it's for everyone
         cmd_roles_str = ", ".join([f"<@&{role_id}>" for role_id in cmd_roles])
 
@@ -148,6 +154,8 @@ help.command_data = {
 # --------------------------------------------------#
 # MISC COMMANDS #
 # --------------------------------------------------#
+
+
 async def test(message, parameters, client):
     """A command named 'test'"""
     result = 2 + 2
@@ -160,6 +168,7 @@ test.command_data = {
     "category": Category.OTHER
 }
 
+
 async def pad(message, parameters, client):
     """Spaces out your text"""
     if parameters == None:
@@ -171,6 +180,7 @@ pad.command_data = {
     "syntax": "pad <message>",
     "category": Category.OTHER
 }
+
 
 async def hug(message, parameters, client):
     # Make sure someone was specified
@@ -193,7 +203,7 @@ async def hug(message, parameters, client):
         await message.channel.send(embed=embed)
 
 hug.command_data = {
-    "syntax": "hug <target>",    
+    "syntax": "hug <target>",
     "allowed_channels": [329226224759209985, 827880703844286475],
     "category": Category.OTHER
 }
@@ -211,6 +221,7 @@ replytome.command_data = {
     "category": Category.OTHER
 }
 
+
 async def aa(message, parameters, client):
     await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAA", reference=message)
 
@@ -224,6 +235,7 @@ aa.command_data = {
 # --------------------------------------------------#
 # MODERATION COMMANDS #
 # --------------------------------------------------#
+
 
 async def warn(message, parameters, client, action_name="warned"):
     member_reason = await util.split_into_member_and_reason(message, parameters)
@@ -239,9 +251,9 @@ async def warn(message, parameters, client, action_name="warned"):
     sqlite_client.close()
     # Send a message to the channel that the command was used in
     warn_embed = discord.Embed(title=action_name.title(),
-                                description=member_reason[0].mention) \
+                               description=member_reason[0].mention) \
         .add_field(name="Reason", value=member_reason[1])
-        
+
     await message.channel.send(embed=warn_embed)
     try:
         # DM user
@@ -253,6 +265,7 @@ warn.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION
 }
+
 
 async def warns(message, parameters, client):
     member = await util.get_member_by_id_or_name(message, parameters)
@@ -292,19 +305,21 @@ async def warns(message, parameters, client):
     await message.channel.send(embed=warn_embed)
 
 warns.command_data = {
-    "syntax": "warns <member>",   
+    "syntax": "warns <member>",
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION
 }
+
 
 async def mywarns(message, parameters, client):
     await warns(message, str(message.author.id), client)
 
 mywarns.command_data = {
-    "syntax": "mywarns", 
+    "syntax": "mywarns",
     "description": "See your own warns",
     "category": Category.MODERATION
 }
+
 
 async def delwarn(message, parameters, client):
     member_reason = await util.split_into_member_and_reason(message, parameters)
@@ -327,10 +342,11 @@ async def delwarn(message, parameters, client):
     sqlite_client.close()
 
 delwarn.command_data = {
-    "syntax": "delwarn <member> <timestamp of warn>",  
+    "syntax": "delwarn <member> <timestamp of warn>",
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION
 }
+
 
 async def mute(message, parameters, client):
     member_reason = await util.split_into_member_and_reason(message, parameters)
@@ -382,10 +398,11 @@ async def mute(message, parameters, client):
     await unmute(message, str(member_reason[0].id), client, silenced=True)
 
 mute.command_data = {
-    "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",  
+    "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION
 }
+
 
 async def unmute(message, parameters, client, guild=False, silenced=False):
     """
@@ -442,10 +459,11 @@ async def unmute(message, parameters, client, guild=False, silenced=False):
         await message.channel.send(f'Unmuted {member.name}#{member.discriminator} ({member.id})')
 
 unmute.command_data = {
-    "syntax": "unmute <member>",  
+    "syntax": "unmute <member>",
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION
 }
+
 
 async def kick(message, parameters, client):
     member_reason = await util.split_into_member_and_reason(message, parameters)
@@ -465,6 +483,7 @@ kick.command_data = {
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION
 }
+
 
 async def ban(message, parameters, client):
     member_reason = await util.split_into_member_and_reason(message, parameters)
@@ -523,6 +542,7 @@ rank.command_data = {
     "category": Category.LEVELING
 }
 
+
 async def leaderboards(message, parameters, client, first_execution=True, op=None, page_cache=0):
     try:
         page = int(parameters)
@@ -536,7 +556,8 @@ async def leaderboards(message, parameters, client, first_execution=True, op=Non
         await response.add_reaction("▶️")
 
         sqlite_client = sqlite3.connect('bot_database.db')
-        total_pages = sqlite_client.execute('''SELECT COUNT(*) FROM LEVELS''').fetchone()[0] // 10 + 1
+        total_pages = sqlite_client.execute(
+            '''SELECT COUNT(*) FROM LEVELS''').fetchone()[0] // 10 + 1
         sqlite_client.close()
 
         await leaderboards(response, page, client, first_execution=False, op=message.author.id, page_cache=total_pages)
@@ -544,15 +565,17 @@ async def leaderboards(message, parameters, client, first_execution=True, op=Non
 
     sqlite_client = sqlite3.connect('bot_database.db')
     data_list = sqlite_client.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
-                                          {"offset": (page - 1)*10}).fetchall()
+                                      {"offset": (page - 1)*10}).fetchall()
     sqlite_client.close()
 
-    lb_list = ''.join(f"{(page - 1) * 10 + index + 1}: <@{data[0]}> | Level: {data[1]} | Total XP: {data[2]}\n" for index, data in enumerate(data_list))
+    lb_list = ''.join(
+        f"{(page - 1) * 10 + index + 1}: <@{data[0]}> | Level: {data[1]} | Total XP: {data[2]}\n" for index, data in enumerate(data_list))
 
     if not lb_list:
         lb_list = "No data on this page!"
 
-    embed = discord.Embed(title="Leaderboard", description=lb_list).set_footer(text=f"Page: {page}/{page_cache}")
+    embed = discord.Embed(title="Leaderboard", description=lb_list).set_footer(
+        text=f"Page: {page}/{page_cache}")
     await message.edit(embed=embed)
 
     def check(reaction, user):
@@ -602,12 +625,15 @@ for function in command_list:
     command_aliases_dict[function.__name__] = function
     # Set stuff to default values
     function.command_data["aliases"] = function.command_data.get("aliases", [])
-    function.command_data["allowed_channels"] = function.command_data.get("allowed_channels", [])
-    function.command_data["category"] = function.command_data.get("category", Category.OTHER)
+    function.command_data["allowed_channels"] = function.command_data.get(
+        "allowed_channels", [])
+    function.command_data["category"] = function.command_data.get(
+        "category", Category.OTHER)
 
     # Iterate through all aliases and add them as aliases
     for alias in function.command_data["aliases"]:
         command_aliases_dict[alias] = function
 
 # Sort by priority for help
-command_list.sort(key=lambda a: a.command_data["category"].value["priority"], reverse=True)
+command_list.sort(
+    key=lambda a: a.command_data["category"].value["priority"], reverse=True)

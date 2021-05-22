@@ -6,6 +6,7 @@ import asyncio
 
 http = PoolManager()
 
+
 async def twitch(client):
     """
     Gets a list of new twich videos from an RSS feed and posts them to a
@@ -24,6 +25,7 @@ async def twitch(client):
         await get_stream(client)
         await asyncio.sleep(configuration.TWITCH_SLEEP)
 
+
 async def refresh_token():
     with open("env/twitch_client_id") as file:
         client_id = file.read()
@@ -31,7 +33,8 @@ async def refresh_token():
     with open("env/twitch_secret") as file:
         secret = file.read()
 
-    r = http.request("POST", f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={secret}&grant_type=client_credentials")
+    r = http.request(
+        "POST", f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={secret}&grant_type=client_credentials")
 
     data = loads(r.data.decode('utf-8'))
 
@@ -39,6 +42,7 @@ async def refresh_token():
 
     with open("env/twitch_auth_token", "w") as file:
         file.write(data["access_token"])
+
 
 async def get_stream(client):
     '''
@@ -53,7 +57,7 @@ async def get_stream(client):
         auth_token = file.read()
 
     r = http.request("GET", f"https://api.twitch.tv/helix/streams?user_id={configuration.TWITCH_CHANNEL_ID}",
-    headers={'client-id': client_id, 'Authorization': f'Bearer {auth_token}'})
+                     headers={'client-id': client_id, 'Authorization': f'Bearer {auth_token}'})
 
     if r.status == 401:
         await refresh_token()
@@ -71,6 +75,7 @@ async def get_stream(client):
                 file.truncate(0)
                 file.write(data[0]["id"])
                 await post_stream(client)
+
 
 async def post_stream(client):
     title = "Phoenix has started a new stream"

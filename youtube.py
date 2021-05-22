@@ -8,6 +8,7 @@ import asyncio
 main_channel = "UCj4zC1Hfj-uc90FUXzRamNw"
 sucks_at = "UC9T9mnA5u12DlQjeywuonpw"
 
+
 async def youtube(client):
     """
     Gets a list of new YouTube videos from an RSS feed and posts them to a
@@ -69,7 +70,8 @@ async def handle_feed(channel_id, client):
 
         # yt_post_flair = config['yt_post_flair']
 
-        await postvid(title, url, channel, client)  # calls function to post video
+        # calls function to post video
+        await postvid(title, url, channel, client)
 
         last_date = date
         # updates the latest date in the function

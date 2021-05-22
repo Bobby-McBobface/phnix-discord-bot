@@ -4,7 +4,7 @@ print("CHECK CONTENTS OF THIS SCRIPT BEFORE RUNNING!!!")
 answer = input("Are you sure you want to run this? (y/n)")
 if answer != "y":
     exit(code=0)
-    
+
 print("Setting up data...")
 """
 sqlite_client = sqlite3.connect('bot_database.db')
@@ -54,9 +54,9 @@ sqlite_client = sqlite3.connect('bot_database.db')
 sqlite_client.execute(f'''INSERT INTO LEVELS (ID, XP, LEVEL) \
     VALUES(:id, :xp, :level) \
     ON CONFLICT(ID) \
-    DO UPDATE SET XP=:xp, LEVEL=:level''', \
-    {'id': 381634036357136391, \
-    'xp':1216823182500, \
-    'level': 9000})
+    DO UPDATE SET XP=:xp, LEVEL=:level''',
+                      {'id': 381634036357136391,
+                       'xp': 1216823182500,
+                       'level': 9000})
 sqlite_client.commit()
 sqlite_client.close()
