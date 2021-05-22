@@ -15,7 +15,6 @@ from enum import Enum
 class CommandSyntaxError(Exception):
     pass
 
-
 class Category(Enum):
     MODERATION = {
         'friendly_name': 'Moderation',
@@ -52,7 +51,8 @@ async def _supersecretcommand(message, parameters, client):
 _supersecretcommand.command_data = {
     "syntax": "_supersecretcommand",
     "role_requirements": {configuration.MODERATOR_ROLE},
-    "category": Category.DEVELOPMENT
+    "category": Category.DEVELOPMENT,
+    "description": "Super secret"
 }
 
 
@@ -65,7 +65,8 @@ async def ping(message, parameters, client):
 ping.command_data = {
     "syntax": "ping",
     "aliases": ["pong"],
-    "category": Category.SYSTEM
+    "category": Category.SYSTEM,
+    "description": "Pong! Measures latency from us to Discord"
 }
 
 
@@ -105,7 +106,7 @@ async def help(message, parameters, client):
             if description is None:
                 description = "No description"
 
-            category_commands += f"`{function.command_data['syntax']}` {description}\n"
+            category_commands += f"`{configuration.PREFIX}{function.command_data['syntax']}` {description}\n"
 
         # Add the last category
         help_embed.add_field(
@@ -152,7 +153,8 @@ async def help(message, parameters, client):
 help.command_data = {
     "syntax": "help [command]",
     "aliases": ["?"],
-    "category": Category.SYSTEM
+    "category": Category.SYSTEM,
+    "description": "Shows help on commands"
 }
 
 # --------------------------------------------------#
@@ -182,7 +184,8 @@ async def pad(message, parameters, client):
 
 pad.command_data = {
     "syntax": "pad <message>",
-    "category": Category.OTHER
+    "category": Category.OTHER,
+    "description": "Spaces out your text"
 }
 
 
@@ -209,7 +212,8 @@ async def hug(message, parameters, client):
 hug.command_data = {
     "syntax": "hug <target>",
     "allowed_channels": [329226224759209985, 827880703844286475],
-    "category": Category.OTHER
+    "category": Category.OTHER,
+    "description": "Hug someone"
 }
 
 
@@ -222,7 +226,8 @@ async def replytome(message, parameters, client):
 
 replytome.command_data = {
     "syntax": "replytome [text to echo]",
-    "category": Category.OTHER
+    "category": Category.OTHER,
+    "description": "Replies to you"
 }
 
 
@@ -230,7 +235,7 @@ async def aa(message, parameters, client):
     await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAA", reference=message)
 
 aa.command_data = {
-    "syntax": "AAAAAAAAAAAAAAAAAAAAAA",
+    "syntax": "aa",
     "aliases": ["a"*a for a in range(1, 12)],
     "description": "AAAAAAAAAAAAAAAAAA",
     "category": Category.OTHER
@@ -261,13 +266,15 @@ async def warn(message, parameters, client, action_name="warned"):
     await message.channel.send(embed=warn_embed)
     try:
         # DM user
-        await member_reason[0].send(content=f"You have been {action_name} in {message.guild.name}!\nReason: {member_reason[1]}")
+        pass
+        # await member_reason[0].send(content=f"You have been **{action_name}** in {message.guild.name}!", embed=warn_embed)
     except discord.errors.Forbidden:
         await message.channel.send("Unable to DM user")
 warn.command_data = {
     "syntax": "warn <member> | [reason]",
     "role_requirements": {configuration.MODERATOR_ROLE},
-    "category": Category.MODERATION
+    "category": Category.MODERATION,
+    "description": "Warn someone"
 }
 
 
@@ -311,7 +318,8 @@ async def warns(message, parameters, client):
 warns.command_data = {
     "syntax": "warns <member>",
     "role_requirements": {configuration.MODERATOR_ROLE},
-    "category": Category.MODERATION
+    "category": Category.MODERATION,
+    "description": "List the warns of a user"
 }
 
 
@@ -348,7 +356,8 @@ async def delwarn(message, parameters, client):
 delwarn.command_data = {
     "syntax": "delwarn <member> <timestamp of warn>",
     "role_requirements": {configuration.MODERATOR_ROLE},
-    "category": Category.MODERATION
+    "category": Category.MODERATION,
+    "description": "Delete a warn from a user"
 }
 
 
@@ -364,30 +373,23 @@ async def mute(message, parameters, client):
     except:
         raise CommandSyntaxError('You must specify a valid duration.')
 
-    roles = member_reason[0].roles
+    # Give mute
     try:
         await member_reason[0].add_roles(message.guild.get_role(configuration.MUTED_ROLE))
     except discord.errors.Forbidden:
         await message.channel.send("I don't have perms to give mute role")
         return
 
-    forbidden_role_flag = False
-
-    for role in roles[1:]:
-        try:
-            await member_reason[0].remove_roles(role)
-        except discord.errors.Forbidden:
-            forbidden_role_flag = True
-
-    if forbidden_role_flag:
-        await message.channel.send("I don't have perms to give remove all their roles")
+    roles = member_reason[0].roles
+    # Remove @everyone role
+    roles = roles[1:]
 
     sqlite_client = sqlite3.connect('bot_database.db')
     try:
         sqlite_client.execute('''INSERT INTO MUTES (ID, TIMESTAMP, ROLES) \
             VALUES(:member_id, :timestamp, :roles) ''',
                               {'member_id': member_reason[0].id, 'timestamp': round(time()) + mute_time,
-                               'roles': str([role.id for role in roles[1:]])})
+                               'roles': str([role.id for role in roles])})
     except sqlite3.IntegrityError:
         await message.channel.send('User is already muted')
         sqlite_client.close()
@@ -396,15 +398,28 @@ async def mute(message, parameters, client):
     sqlite_client.commit()
     sqlite_client.close()
 
+    # Remove all roles
+    forbidden_role_flag = False
+    for role in roles:
+        if role.id != configuration.MUTED_ROLE:
+            try:
+                await member_reason[0].remove_roles(role)
+            except discord.errors.Forbidden:
+                forbidden_role_flag = True
+
+    if forbidden_role_flag:
+        await message.channel.send("I don't have perms to give remove all their roles")
+
     await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}', client, action_name="muted")
 
     await asyncio.sleep(mute_time)
     await unmute(message, str(member_reason[0].id), client, silenced=True)
 
 mute.command_data = {
-    "syntax": "mute <member> | <duration<s|m|h|d|y>> [reason]",
+    "syntax": "mute <member> | <duration><s|m|h|d|y> [reason]",
     "role_requirements": {configuration.MODERATOR_ROLE},
-    "category": Category.MODERATION
+    "category": Category.MODERATION,
+    "description": "Mute a user for a specified duration"
 }
 
 
@@ -450,7 +465,7 @@ async def unmute(message, parameters, client, guild=False, silenced=False):
 
         try:
             await member.add_roles(role)
-        except discord.errors.Forbidden:
+        except:
             if not silenced:
                 await message.channel.send(f"Unable to re-give role: {role.name}")
 
@@ -465,7 +480,8 @@ async def unmute(message, parameters, client, guild=False, silenced=False):
 unmute.command_data = {
     "syntax": "unmute <member>",
     "role_requirements": {configuration.MODERATOR_ROLE},
-    "category": Category.MODERATION
+    "category": Category.MODERATION,
+    "description": "Unmutes a user"
 }
 
 
@@ -485,7 +501,8 @@ kick.command_data = {
     "syntax": "kick <member> | [reason]",
     "aliases": ["kcik"],
     "role_requirements": {configuration.MODERATOR_ROLE},
-    "category": Category.MODERATION
+    "category": Category.MODERATION,
+    "description": "Kicks a user"
 }
 
 
@@ -504,7 +521,8 @@ async def ban(message, parameters, client):
 ban.command_data = {
     "syntax": "ban <member> | [reason]",
     "role_requirements": {configuration.MODERATOR_ROLE},
-    "category": Category.MODERATION
+    "category": Category.MODERATION,
+    "description": "Bans a user"
 }
 
 # --------------------------------------------------#
@@ -543,7 +561,8 @@ async def rank(message, parameters, client):
 rank.command_data = {
     "syntax": "rank",
     "aliases": ["wank", "level"],
-    "category": Category.LEVELING
+    "category": Category.LEVELING,
+    "description": "Check how much XP you have"
 }
 
 
@@ -613,7 +632,8 @@ async def leaderboards(message, parameters, client, first_execution=True, op=Non
 leaderboards.command_data = {
     "syntax": "leaderboards [page number]",
     "aliases": ["lb", "levels"],
-    "category": Category.LEVELING
+    "category": Category.LEVELING,
+    "description": "Shows a list of all users and their XP"
 }
 
 command_list = []
