@@ -285,8 +285,7 @@ async def warn(message, parameters, client, action_name="warned"):
     await message.channel.send(embed=warn_embed)
     try:
         # DM user
-        pass
-        # await member_reason[0].send(content=f"You have been **{action_name}** in {message.guild.name}!", embed=warn_embed)
+        await member_reason[0].send(content=f"You have been **{action_name}** in {message.guild.name}!", embed=warn_embed)
     except discord.errors.Forbidden:
         await message.channel.send("Unable to DM user")
 warn.command_data = {
