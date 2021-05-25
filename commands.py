@@ -610,7 +610,7 @@ async def leaderboards(message, parameters, client, first_execution=True, op=Non
     sqlite_client.close()
 
     lb_list = ''.join(
-        f"{(page - 1) * 10 + index + 1}: <@{data[0]}> | Level: {data[1]} | Total XP: {data[2]}\n" for index, data in enumerate(data_list))
+        f"{(page - 1) * 10 + index + 1}: <@{data[0]}> | Level: {int(data[1]) - 1} | Total XP: {data[2]}\n" for index, data in enumerate(data_list))
 
     if not lb_list:
         lb_list = "No data on this page!"
