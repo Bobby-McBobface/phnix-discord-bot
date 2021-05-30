@@ -10,43 +10,48 @@ chatted = []
 async def add_exp(member: discord.User, message: discord.Message):
     global chatted
 
-    if member.id not in chatted:
-        xp_gain = randint(configuration.XP_GAIN_MIN, configuration.XP_GAIN_MAX)
+    if member.id in chatted:
+        return
 
-        chatted.append(member.id)
+    if len(message.content) < 3:
+        return
 
-        sqlite_client = sqlite3.connect('bot_database.db')
-        user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
-                                        {'user_id': member.id}).fetchone()
+    xp_gain = randint(configuration.XP_GAIN_MIN, configuration.XP_GAIN_MAX)
 
-        if user_xp == None:
-            user_xp = (0, 0)
+    chatted.append(member.id)
 
-        xp = user_xp[0] + xp_gain
-        level = user_xp[1]
+    sqlite_client = sqlite3.connect('bot_database.db')
+    user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
+                                    {'user_id': member.id}).fetchone()
 
-        if xp >= await xp_needed_for_level(level):
-            # level up
+    if user_xp == None:
+        user_xp = (0, 0)
 
-            level += 1
+    xp = user_xp[0] + xp_gain
+    level = user_xp[1]
 
-            # Internally, levels are one more than MEE6 was, so there is a compensation
-            if level - 1 != 0:
-                await message.channel.send(f"<@!{member.id}> reached level {level-1}! <:poglin:798531675634139176>", allowed_mentions=discord.AllowedMentions(users=True))
+    if xp >= await xp_needed_for_level(level):
+        # level up
 
-            # Give level roles
-            await give_level_up_roles(member, level)
+        level += 1
 
-        sqlite_client.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
-        VALUES(:member, :user_xp, :level) \
-        ON CONFLICT(ID) \
-        DO UPDATE SET XP=:user_xp, LEVEL=:level''',
-                              {'member': member.id,
-                               'user_xp': xp,
-                               'level': level}
-                              )
-        sqlite_client.commit()
-        sqlite_client.close()
+        # Internally, levels are one more than MEE6 was, so there is a compensation
+        if level - 1 != 0:
+            await message.channel.send(f"<@!{member.id}> reached level {level-1}! <:poglin:798531675634139176>", allowed_mentions=discord.AllowedMentions(users=True))
+
+        # Give level roles
+        await give_level_up_roles(member, level)
+
+    sqlite_client.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
+    VALUES(:member, :user_xp, :level) \
+    ON CONFLICT(ID) \
+    DO UPDATE SET XP=:user_xp, LEVEL=:level''',
+                          {'member': member.id,
+                           'user_xp': xp,
+                           'level': level}
+                          )
+    sqlite_client.commit()
+    sqlite_client.close()
 
 
 # Need a non blocking loop here to reset chatted every INTERVAL seconds
