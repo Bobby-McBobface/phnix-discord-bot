@@ -219,11 +219,11 @@ async def hug(message: discord.Message, parameters: str, client: discord.Client)
     target = parameters
     if hugger == target:
         #reply message should be a pun
-    reply = util.choose_random(configuration.STRINGS_PUN)
+        reply = util.choose_random(configuration.STRINGS_PUN)
     else:
         # Get a random message and fill it in
-    choice = util.choose_random(configuration.STRINGS_HUG)
-    reply = choice.format(hugger=hugger, target=target)
+        choice = util.choose_random(configuration.STRINGS_HUG)
+        reply = choice.format(hugger=hugger, target=target)
     # Make a fancy embed so people don't complain about getting pinged twice
     R, G, B = 256 * 256, 256, 1
     embed = discord.Embed(
