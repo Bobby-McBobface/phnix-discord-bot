@@ -9,7 +9,7 @@ main_channel = "UCj4zC1Hfj-uc90FUXzRamNw"
 sucks_at = "UC9T9mnA5u12DlQjeywuonpw"
 
 
-async def youtube(client):
+async def youtube(client) -> None:
     """
     Gets a list of new YouTube videos from an RSS feed and posts them to a
     configured subreddit.
@@ -29,7 +29,7 @@ async def youtube(client):
         await asyncio.sleep(configuration.YOUTUBE_SLEEP)
 
 
-async def handle_feed(channel_id, client):
+async def handle_feed(channel_id: str, client: discord.Client) -> None:
     # Check if updated #
     last_entry = open('last_video_' + channel_id + '.ini', 'r')
 
@@ -81,7 +81,7 @@ async def handle_feed(channel_id, client):
         last_entry.close()
 
 
-async def postvid(title, url, channel, client):  # function that handles video posts
+async def postvid(title: str, url: str, channel: str, client: discord.Client) -> None:  # function that handles video posts
     """
     Posts the video to Reddit with the specified configuration parameters.
     Arguments:

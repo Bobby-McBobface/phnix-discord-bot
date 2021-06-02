@@ -7,7 +7,7 @@ import asyncio
 http = PoolManager()
 
 
-async def twitch(client):
+async def twitch(client: discord.Client) -> None:
     """
     Gets a list of new twich videos from an RSS feed and posts them to a
     configured subreddit.
@@ -26,7 +26,7 @@ async def twitch(client):
         await asyncio.sleep(configuration.TWITCH_SLEEP)
 
 
-async def refresh_token():
+async def refresh_token() -> None:
     with open("env/twitch_client_id") as file:
         client_id = file.read()
 
@@ -44,7 +44,7 @@ async def refresh_token():
         file.write(data["access_token"])
 
 
-async def get_stream(client):
+async def get_stream(client) -> None:
     '''
     Args:
     client: discord.Client
@@ -77,7 +77,7 @@ async def get_stream(client):
                 await post_stream(client)
 
 
-async def post_stream(client):
+async def post_stream(client) -> None:
     title = "Phoenix has started a new stream"
     guild = client.get_guild(configuration.GUILD_ID)
     channel = guild.get_channel(configuration.FEED_CHANNEL)
