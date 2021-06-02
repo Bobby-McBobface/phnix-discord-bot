@@ -1,6 +1,6 @@
 PREFIX = "!"
 
-VERSION = "1.6"
+VERSION = "1.6.1"
 
 MODERATOR_ROLE = 329226272683065346
 GUILD_ID = 329226224759209985
@@ -62,6 +62,11 @@ STRINGS_HUG = [
     "{hugger} hugs {target}",
     "{hugger} gives a big hug to {target}",
     "{hugger} 🫂 {target}"
+]
+
+STRINGS_PUN = [
+    "{hugger} trying to self-hug, gets tangled up",
+    "{hugger} couldn't figure out how to hug themselves"
 ]
 
 ########################
