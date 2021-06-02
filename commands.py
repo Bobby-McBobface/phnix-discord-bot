@@ -210,23 +210,30 @@ pad.command_data = {
 
 async def hug(message: discord.Message, parameters: str, client: discord.Client) -> None:
     # Make sure someone was specified
-    if parameters == None:
-        raise CommandSyntaxError("You must specify someone to hug.")
+    if parameters != None:
+        parameters = parameters.strip()
     else:
-        # Get users
-        hugger = message.author.mention
-        target = parameters
+        raise CommandSyntaxError("You must specify someone to hug.")
+    # Get users
+    hugger = message.author.mention
+    target = parameters
+    if hugger == target:
+        #reply message should be a pun
+    reply = util.choose_random(configuration.STRINGS_PUN)
+    else:
         # Get a random message and fill it in
-        choice = util.choose_random(configuration.STRINGS_HUG)
-        reply = choice.format(hugger=hugger, target=target)
-        # Make a fancy embed so people don't complain about getting pinged twice
-        R, G, B = 256 * 256, 256, 1
-        embed = discord.Embed(
-            description=reply,
-            colour=(46*R + 204*G + 113*B)
-        )
-        # Done
-        await message.channel.send(embed=embed)
+    choice = util.choose_random(configuration.STRINGS_HUG)
+    reply = choice.format(hugger=hugger, target=target)
+    # Make a fancy embed so people don't complain about getting pinged twice
+    R, G, B = 256 * 256, 256, 1
+    embed = discord.Embed(
+        description=reply,
+    colour=(46*R + 204*G + 113*B)
+    )
+    # Done
+    await message.channel.send(embed=embed)
+    if "<@!832151395989848084>" in target:
+        await message.channel.send('Thanks for hugging me, I love that!')
 
 hug.command_data = {
     "syntax": "hug <target>",
