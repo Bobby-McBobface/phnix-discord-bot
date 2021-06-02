@@ -12,7 +12,7 @@ import twitch
 
 
 class PhnixBotClient(discord.Client):
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         """Runs when the bot is operational"""
         print('PhnixBot is ready')
         await self.remute_on_startup()
@@ -20,7 +20,7 @@ class PhnixBotClient(discord.Client):
         asyncio.ensure_future(youtube.youtube(self))
         asyncio.ensure_future(twitch.twitch(self))
 
-    async def on_member_join(self, member):
+    async def on_member_join(self, member) -> None:
         welcome_channel = self.get_channel(configuration.WELCOME_CHANNEL)
         await welcome_channel.send(configuration.welcome_msg.format("<@" + str(member.id) + ">"))
 
@@ -44,14 +44,14 @@ class PhnixBotClient(discord.Client):
 
         await levels.give_level_up_roles(member, level)
 
-    async def on_member_remove(self, member):
+    async def on_member_remove(self, member)-> None:
         farewell_message = configuration.farewell_msg.format(member)
         # Escape Discord markdown formatting, e.g. so underscores in their name doesn't turn into italics
         farewell_message = discord.utils.escape_markdown(farewell_message)
         farewell_channel = self.get_channel(configuration.FAREWELL_CHANNEL)
         await farewell_channel.send(farewell_message)
 
-    async def on_member_update(self, before, after):
+    async def on_member_update(self, before, after) -> None:
         # Check if their nick is invisible
         if (await util.check_if_string_invisible(after.display_name)):
             # Their nickname is invisible! Change it
@@ -59,7 +59,7 @@ class PhnixBotClient(discord.Client):
                 else str(after.id)  # idk lol set it to their user id I guess
             await after.edit(nick=new_nick, reason="Invisible nickname detected")
 
-    async def remute_on_startup(self):
+    async def remute_on_startup(self) -> None:
         sqlite_client = sqlite3.connect('bot_database.db')
         mute_list = sqlite_client.execute(
             '''SELECT ID, TIMESTAMP FROM MUTES''').fetchall()
@@ -73,7 +73,7 @@ class PhnixBotClient(discord.Client):
             elif mute[1] - time() < 0:
                 await commands.unmute(guild, mute[0], self, guild=True, silenced=True)
 
-    async def on_message(self, message):
+    async def on_message(self, message) -> None:
         """Runs every time the bot notices a message being sent anywhere."""
 
         # Ignore bot accounts
@@ -104,7 +104,7 @@ class PhnixBotClient(discord.Client):
                 parameters = parameters.strip()
             else:
                 # No paramaters specified
-                parameters = None
+                parameters = ""
 
             try:
                 # Get the command's function

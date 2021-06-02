@@ -7,7 +7,7 @@ import discord
 chatted = []
 
 
-async def add_exp(member: discord.User, message: discord.Message):
+async def add_exp(member: discord.User, message: discord.Message) -> None:
     global chatted
 
     if member.id in chatted:
@@ -55,7 +55,7 @@ async def add_exp(member: discord.User, message: discord.Message):
 
 
 # Need a non blocking loop here to reset chatted every INTERVAL seconds
-async def clear_chatted_loop():
+async def clear_chatted_loop() -> None:
     global chatted
 
     while True:
@@ -63,11 +63,11 @@ async def clear_chatted_loop():
         chatted = []
 
 
-async def xp_needed_for_level(level: int):
+async def xp_needed_for_level(level: int) -> int:
     return int(5/6*((2*(level)**3)+(27*(level)**2)+(91*(level))))
 
 
-async def give_level_up_roles(member, level):
+async def give_level_up_roles(member, level) -> None:
     # Internally, levels are one more than MEE6 was, so there is a compensation
     ranks = configuration.LEVEL_ROLES.values()
 

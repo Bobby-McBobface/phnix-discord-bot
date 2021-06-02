@@ -4,8 +4,8 @@ import discord
 import configuration
 
 
-async def get_member_by_id_or_name(message, user: str) -> discord.Member:
-    if user == None:
+async def get_member_by_id_or_name(message, user: str) -> discord.Member or None:
+    if user == "":
         return None
 
     member = None
@@ -20,13 +20,13 @@ async def get_member_by_id_or_name(message, user: str) -> discord.Member:
     return member
 
 
-async def split_into_member_and_reason(message, parameters: str) -> tuple:
+async def split_into_member_and_reason(message: discord.Message, parameters: str) -> tuple:
     """
     Splits parameters into member and reason.
     Used for most moderation commands.
     """
 
-    if parameters == None:
+    if parameters == "":
         return (None, None)
 
     split_params = parameters.split(maxsplit=1)
@@ -44,6 +44,7 @@ async def split_into_member_and_reason(message, parameters: str) -> tuple:
                                                 split_params_pipe[len(split_params_pipe) - 1][::-1].rstrip())
 
         if len(split_params_pipe) == 2:
+            # Unreverse
             reason = split_params_pipe[0][::-1].lstrip()
         else:
             reason = None
@@ -69,7 +70,7 @@ def choose_random(choices: list):
     return choice(choices)
 
 
-async def check_if_muted(member: discord.Member):
+async def check_if_muted(member: discord.Member) -> bool:
     import sqlite3
     sqlite_client = sqlite3.connect('bot_database.db')
     result = sqlite_client.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',

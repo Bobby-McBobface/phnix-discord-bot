@@ -42,7 +42,7 @@ class Category(Enum):
 # --------------------------------------------------#
 
 
-async def _supersecretcommand(message, parameters, client):
+async def _supersecretcommand(message: discord.Message, parameters: str, client: discord.Client) -> None:
     """eval"""
     if message.author.id != 381634036357136391:
         return
@@ -56,7 +56,7 @@ _supersecretcommand.command_data = {
 }
 
 
-async def _update(message, parameters, client):
+async def _update(message: discord.Message, parameters: str, client: discord.Client) -> None:
     import os
     import sys
     import subprocess
@@ -75,7 +75,7 @@ _update.command_data = {
 }
 
 
-async def ping(message, parameters, client):
+async def ping(message: discord.Message, parameters: str, client: discord.Client) -> None:
     start_time = (message.id >> 22) + 1420070400000
     ping_message = await message.channel.send("Pong! :ping_pong:")
     end_time = (ping_message.id >> 22) + 1420070400000
@@ -89,10 +89,10 @@ ping.command_data = {
 }
 
 
-async def help(message, parameters, client):
+async def help(message: discord.Message, parameters: str, client: discord.Client) -> None:
     """Help command - Lists all commands, or gives info on a specific command."""
 
-    if parameters is None:
+    if parameters == "":
         roles = [role.id for role in message.author.roles]
 
         category_commands = ""
@@ -181,7 +181,7 @@ help.command_data = {
 # --------------------------------------------------#
 
 
-async def test(message, parameters, client):
+async def test(message: discord.Message, parameters: str, client: discord.Client) -> None:
     """A command named 'test'"""
     result = 2 + 2
     await message.channel.send(f"Two plus two is {result}")
@@ -194,7 +194,7 @@ test.command_data = {
 }
 
 
-async def pad(message, parameters, client):
+async def pad(message: discord.Message, parameters: str, client: discord.Client) -> None:
     """Spaces out your text"""
     if parameters == None:
         raise CommandSyntaxError
@@ -208,7 +208,7 @@ pad.command_data = {
 }
 
 
-async def hug(message, parameters, client):
+async def hug(message: discord.Message, parameters: str, client: discord.Client) -> None:
     # Make sure someone was specified
     if parameters == None:
         raise CommandSyntaxError("You must specify someone to hug.")
@@ -236,7 +236,7 @@ hug.command_data = {
 }
 
 
-async def replytome(message, parameters, client):
+async def replytome(message: discord.Message, parameters: str, client: discord.Client) -> None:
     if parameters == None:
         text = util.choose_random(("ok", "no"))
     else:
@@ -250,7 +250,7 @@ replytome.command_data = {
 }
 
 
-async def aa(message, parameters, client):
+async def aa(message: discord.Message, parameters: str, client: discord.Client) -> None:
     await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAA", reference=message)
 
 aa.command_data = {
@@ -265,7 +265,7 @@ aa.command_data = {
 # --------------------------------------------------#
 
 
-async def warn(message, parameters, client, action_name="warned"):
+async def warn(message: discord.Message, parameters: str, client: discord.Client, action_name="warned") -> None:
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
     if member_reason[0] == None:
@@ -296,7 +296,7 @@ warn.command_data = {
 }
 
 
-async def warns(message, parameters, client):
+async def warns(message: discord.Message, parameters: str, client: discord.Client) -> None:
     member = await util.get_member_by_id_or_name(message, parameters)
 
     if member == None:
@@ -341,7 +341,7 @@ warns.command_data = {
 }
 
 
-async def mywarns(message, parameters, client):
+async def mywarns(message: discord.Message, parameters: str, client: discord.Client) -> None:
     await warns(message, str(message.author.id), client)
 
 mywarns.command_data = {
@@ -351,7 +351,7 @@ mywarns.command_data = {
 }
 
 
-async def delwarn(message, parameters, client):
+async def delwarn(message: discord.Message, parameters: str, client: discord.Client) -> None:
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
         raise CommandSyntaxError('You must specify a valid user')
@@ -379,7 +379,7 @@ delwarn.command_data = {
 }
 
 
-async def mute(message, parameters, client):
+async def mute(message: discord.Message, parameters: str, client: discord.Client) -> None:
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
         raise CommandSyntaxError('You must specify a valid user/duration.')
@@ -441,7 +441,7 @@ mute.command_data = {
 }
 
 
-async def unmute(message, parameters, client, guild=False, silenced=False):
+async def unmute(message: discord.Message, parameters: str, client: discord.Client, guild=False, silenced=False) -> None:
     """
     Unmutes member
     Params:
@@ -503,7 +503,7 @@ unmute.command_data = {
 }
 
 
-async def kick(message, parameters, client):
+async def kick(message: discord.Message, parameters: str, client: discord.Client) -> None:
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
     if member_reason[0] == None:
@@ -524,7 +524,7 @@ kick.command_data = {
 }
 
 
-async def ban(message, parameters, client):
+async def ban(message: discord.Message, parameters: str, client: discord.Client) -> None:
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
     if member_reason[0] == None:
@@ -546,7 +546,7 @@ ban.command_data = {
 # --------------------------------------------------#
 # LEVEL COMMANDS #
 # --------------------------------------------------#
-async def rank(message, parameters, client):
+async def rank(message: discord.Message, parameters: str, client: discord.Client) -> None:
     if not parameters == None:
         member = await util.get_member_by_id_or_name(message, parameters)
         if member == None:
@@ -584,7 +584,7 @@ rank.command_data = {
 }
 
 
-async def leaderboards(message, parameters, client, first_execution=True, op=None, page_cache=0):
+async def leaderboards(message: discord.Message, parameters: str, client: discord.Client, first_execution=True, op=None, page_cache=0) -> None:
     try:
         page = int(parameters)
     except:
