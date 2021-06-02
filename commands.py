@@ -219,7 +219,7 @@ async def hug(message: discord.Message, parameters: str, client: discord.Client)
     target = parameters
     if hugger == target:
         #reply message should be a pun
-        reply = util.choose_random(configuration.STRINGS_PUN)
+        reply = util.choose_random(configuration.STRINGS_PUN).format(hugger=hugger)
     else:
         # Get a random message and fill it in
         choice = util.choose_random(configuration.STRINGS_HUG)
