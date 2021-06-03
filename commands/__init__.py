@@ -60,7 +60,7 @@ def command(cmdinfo):
     def actual_decorator(cmdfunc):
         cmdfunc.command_data = cmdinfo
         command_list.append(cmdfunc)
-        command_aliases_dict[cmdfunc.__name] = cmdfunc
+        command_aliases_dict[cmdfunc.__name__] = cmdfunc
         for aliases in cmdinfo["aliases"]:
             command_aliases_dict[alias] = cmdfunc
         return cmdfunc
