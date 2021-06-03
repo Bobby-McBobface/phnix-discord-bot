@@ -1,45 +1,46 @@
 import asyncio
+from commands import Category, CommandSyntaxError
 import sqlite3
 
 import levels
 import discord
 import configuration
 import util
-from commands import Category, CommandSyntaxError
+
 # Registers all the commands; takes as a parameter the decorator factory to use.
 def register_all(command):
     @command({
-        "syntax": "rank",
+        "syntax": "rank [user]",
         "aliases": ["wank", "level"],
         "category": Category.LEVELING,
         "description": "Check how much XP you have"
     })
     async def rank(message: discord.Message, parameters: str, client: discord.Client) -> None:
-        if not parameters == None:
+        if parameters != "":
             member = await util.get_member_by_id_or_name(message, parameters)
-            if member == None:
+            if member is None:
                 raise CommandSyntaxError('You must specify a valid user.')
         else:
             member = message.author
 
-            sqlite_client = sqlite3.connect('bot_database.db')
-            user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
-                                            {'user_id': member.id}).fetchone()
-        if user_xp == None:
+        sqlite_client = sqlite3.connect('bot_database.db')
+        user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
+                                        {'user_id': member.id}).fetchone()
+        if user_xp is None:
             await message.channel.send("The user isn't ranked yet.")
             return
 
         user_rank = sqlite_client.execute('''SELECT COUNT(*)+1 FROM LEVELS WHERE XP > :user_xp''',
-                                          {'user_xp': user_xp[0]}).fetchone()
+                                        {'user_xp': user_xp[0]}).fetchone()
 
         avatar = member.avatar_url_as(format=None, static_format='png', size=1024)
 
         rank_embed = discord.Embed(description=f"Rank for <@{member.id}>") \
-                            .add_field(name="Total XP:", value=user_xp[0]) \
-                            .add_field(name="Level:", value=(user_xp[1]-1)) \
-                            .add_field(name="Rank:", value="#" + str(user_rank[0])) \
-                            .add_field(name="XP until level up:", value=await levels.xp_needed_for_level(user_xp[1]) - user_xp[0]) \
-                            .set_author(name=f"{member.name}#{member.discriminator}", icon_url=avatar.__str__())
+            .add_field(name="Total XP:", value=user_xp[0]) \
+            .add_field(name="Level:", value=(user_xp[1]-1)) \
+            .add_field(name="Rank:", value="#" + str(user_rank[0])) \
+            .add_field(name="XP until level up:", value=await levels.xp_needed_for_level(user_xp[1]) - user_xp[0]) \
+            .set_author(name=f"{member.name}#{member.discriminator}", icon_url=avatar.__str__())
         # Internally, levels start at 1, but users want it to start at 0, so there is a fix for that
 
         await message.channel.send(embed=rank_embed)
