@@ -5,7 +5,7 @@ import discord
 import configuration
 import util
 from enum import Enum
-
+from commands import Category, CommandSyntaxError
 # Registers all the commands; takes as a parameter the decorator factory to use.
 def register_all(command):
     @command({
