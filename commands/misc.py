@@ -26,8 +26,8 @@ def register_all(command):
     })
     async def pad(message: discord.Message, parameters: str, client: discord.Client) -> None:
         """Spaces out your text"""
-        if parameters == None:
-            raise CommandSyntaxError
+        if parameters == "":
+            raise CommandSyntaxError("You must specify text to space out.")
         else:
             await message.channel.send(" ".join(parameters))
 
@@ -38,15 +38,13 @@ def register_all(command):
         "description": "Hug someone"
     })
     async def hug(message: discord.Message, parameters: str, client: discord.Client) -> None:
-        # Make sure someone was specified
-        if parameters != None:
-            parameters = parameters.strip()
-        else:
+    # Make sure someone was specified
+        if parameters == "":
             raise CommandSyntaxError("You must specify someone to hug.")
         # Get users
         hugger = message.author.mention
         target = parameters
-        if hugger == target:
+        if str(message.author.id) in target:
             #reply message should be a pun
             reply = util.choose_random(configuration.STRINGS_PUN).format(hugger=hugger)
         else:
@@ -57,11 +55,12 @@ def register_all(command):
         R, G, B = 256 * 256, 256, 1
         embed = discord.Embed(
             description=reply,
-            colour=(46*R + 204*G + 113*B)
+        colour=(46*R + 204*G + 113*B)
         )
         # Done
         await message.channel.send(embed=embed)
-        if "<@!832151395989848084>" in target:
+
+        if str(client.user.id) in target:
             await message.channel.send('Thanks for hugging me, I love that!')
 
     @command({
@@ -70,11 +69,12 @@ def register_all(command):
         "description": "Replies to you"
     })
     async def replytome(message: discord.Message, parameters: str, client: discord.Client) -> None:
-        if parameters == None:
+        if parameters == "":
             text = util.choose_random(("ok", "no"))
         else:
             text = parameters
-            await message.channel.send(content=text, reference=message)
+        await message.channel.send(content=text, reference=message)
+
 
     @command({
         "syntax": "aa",
