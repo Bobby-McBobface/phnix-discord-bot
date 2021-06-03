@@ -31,3 +31,5 @@ test.command_data = {
 - Make a file in that folder called "token" and put your Discord Bot token there
 - Make file called twitch_client_id and put your Twitch application's id there
 - Make file called twitch_secret and put your Twitch application's secret there
+- Run setup_data.py
+- Run main.py
