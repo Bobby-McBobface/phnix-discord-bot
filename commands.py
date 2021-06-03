@@ -213,6 +213,7 @@ async def hug(message: discord.Message, parameters: str, client: discord.Client)
     if parameters == "":
         raise CommandSyntaxError("You must specify someone to hug.")
     # Get users
+    hugger = message.author.mention
     target = parameters
     if str(message.author.id) in target:
         #reply message should be a pun
