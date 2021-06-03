@@ -65,7 +65,7 @@ STRINGS_HUG = [
 ]
 
 STRINGS_PUN = [
-    "{hugger} trying to self-hug, gets tangled up",
+    "{hugger} tried to self-hug; gets tangled up",
     "{hugger} couldn't figure out how to hug themselves"
 ]
 
