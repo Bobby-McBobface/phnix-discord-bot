@@ -210,9 +210,7 @@ pad.command_data = {
 
 async def hug(message: discord.Message, parameters: str, client: discord.Client) -> None:
     # Make sure someone was specified
-    if parameters != "":
-        parameters = parameters.strip()
-    else:
+    if parameters == "":
         raise CommandSyntaxError("You must specify someone to hug.")
     # Get users
     hugger = message.author.mention
@@ -232,7 +230,8 @@ async def hug(message: discord.Message, parameters: str, client: discord.Client)
     )
     # Done
     await message.channel.send(embed=embed)
-    if "<@!832151395989848084>" in target:
+
+    if f"<@!{client.user.id}>" in target:
         await message.channel.send('Thanks for hugging me, I love that!')
 
 hug.command_data = {
