@@ -19,6 +19,9 @@ async def twitch(client: discord.Client) -> None:
         reddit (praw.Reddit): The Reddit connection to use to process the check
         debug (bool): Used for testing purposes. Currently does nothing.
     """
+    with open("last_stream.ini", "a+"):
+        # create file
+        pass
 
     # Get RSS feeds #
     while True:
@@ -44,7 +47,7 @@ async def refresh_token() -> None:
         file.write(data["access_token"])
 
 
-async def get_stream(client) -> None:
+async def get_stream(client: discord.Client) -> None:
     '''
     Args:
     client: discord.Client
@@ -77,7 +80,7 @@ async def get_stream(client) -> None:
                 await post_stream(client)
 
 
-async def post_stream(client) -> None:
+async def post_stream(client: discord.Client) -> None:
     title = "Phoenix has started a new stream"
     guild = client.get_guild(configuration.GUILD_ID)
     channel = guild.get_channel(configuration.FEED_CHANNEL)
