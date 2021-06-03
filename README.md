@@ -26,3 +26,8 @@ test.command_data = {
   "role_requirements": {configuration.MODERATOR_ROLE}
 }
 ```
+# How to run
+- Make a folder called env
+- Make a file in that folder called "token" and put your Discord Bot token there
+- Make file called twitch_client_id and put your Twitch application's id there
+- Make file called twitch_secret and put your Twitch application's secret there
