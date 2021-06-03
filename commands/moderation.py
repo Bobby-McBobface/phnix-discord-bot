@@ -195,7 +195,7 @@ def register_all(command):
         else:
             member = await util.get_member_by_id_or_name(message, parameters)
 
-        if member == None:
+        if member is None:
             if not silenced:
                 raise CommandSyntaxError('You must specify a valid user.')
             else:
@@ -203,13 +203,13 @@ def register_all(command):
 
         sqlite_client = sqlite3.connect('bot_database.db')
         roles = sqlite_client.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
-                                      {'member_id': member.id}).fetchone()
+                                    {'member_id': member.id}).fetchone()
         sqlite_client.execute('''DELETE FROM MUTES WHERE ID=:member_id''',
-                              {'member_id': member.id})
+                            {'member_id': member.id})
         sqlite_client.commit()
         sqlite_client.close()
 
-        if roles == None and not guild:
+        if roles is None and not guild:
             if not silenced:
                 await message.channel.send('User is not muted')
             return
@@ -236,6 +236,7 @@ def register_all(command):
         if not silenced:
             await message.channel.send(f'Unmuted {member.name}#{member.discriminator} ({member.id})')
 
+
     @command({
         "syntax": "kick <member> | [reason]",
         "aliases": ["kcik"],
@@ -246,7 +247,7 @@ def register_all(command):
     async def kick(message: discord.Message, parameters: str, client: discord.Client) -> None:
         member_reason = await util.split_into_member_and_reason(message, parameters)
 
-        if member_reason[0] == None:
+        if member_reason[0] is None:
             raise CommandSyntaxError('You must specify a valid user.')
 
         try:
@@ -264,7 +265,7 @@ def register_all(command):
     async def ban(message: discord.Message, parameters: str, client: discord.Client) -> None:
         member_reason = await util.split_into_member_and_reason(message, parameters)
 
-        if member_reason[0] == None:
+        if member_reason[0] is None:
             raise CommandSyntaxError('You must specify a valid user.')
 
         try:
@@ -272,3 +273,4 @@ def register_all(command):
             await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
         except discord.errors.Forbidden:
             await message.channel.send("I don't have perms to ban")
+            
