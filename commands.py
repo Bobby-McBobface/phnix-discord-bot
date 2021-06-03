@@ -196,8 +196,8 @@ test.command_data = {
 
 async def pad(message: discord.Message, parameters: str, client: discord.Client) -> None:
     """Spaces out your text"""
-    if parameters == None:
-        raise CommandSyntaxError
+    if parameters == "":
+        raise CommandSyntaxError("You must specify text to space out.")
     else:
         await message.channel.send(" ".join(parameters))
 
@@ -210,7 +210,7 @@ pad.command_data = {
 
 async def hug(message: discord.Message, parameters: str, client: discord.Client) -> None:
     # Make sure someone was specified
-    if parameters != None:
+    if parameters != "":
         parameters = parameters.strip()
     else:
         raise CommandSyntaxError("You must specify someone to hug.")
@@ -244,7 +244,7 @@ hug.command_data = {
 
 
 async def replytome(message: discord.Message, parameters: str, client: discord.Client) -> None:
-    if parameters == None:
+    if parameters == "":
         text = util.choose_random(("ok", "no"))
     else:
         text = parameters
@@ -295,6 +295,7 @@ async def warn(message: discord.Message, parameters: str, client: discord.Client
         await member_reason[0].send(content=f"You have been **{action_name}** in {message.guild.name}!", embed=warn_embed)
     except discord.errors.Forbidden:
         await message.channel.send("Unable to DM user")
+
 warn.command_data = {
     "syntax": "warn <member> | [reason]",
     "role_requirements": {configuration.MODERATOR_ROLE},
@@ -461,7 +462,7 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
     else:
         member = await util.get_member_by_id_or_name(message, parameters)
 
-    if member == None:
+    if member is None:
         if not silenced:
             raise CommandSyntaxError('You must specify a valid user.')
         else:
@@ -475,7 +476,7 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
     sqlite_client.commit()
     sqlite_client.close()
 
-    if roles == None and not guild:
+    if roles is None and not guild:
         if not silenced:
             await message.channel.send('User is not muted')
         return
@@ -513,7 +514,7 @@ unmute.command_data = {
 async def kick(message: discord.Message, parameters: str, client: discord.Client) -> None:
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
-    if member_reason[0] == None:
+    if member_reason[0] is None:
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
@@ -534,7 +535,7 @@ kick.command_data = {
 async def ban(message: discord.Message, parameters: str, client: discord.Client) -> None:
     member_reason = await util.split_into_member_and_reason(message, parameters)
 
-    if member_reason[0] == None:
+    if member_reason[0] is None:
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
@@ -554,9 +555,9 @@ ban.command_data = {
 # LEVEL COMMANDS #
 # --------------------------------------------------#
 async def rank(message: discord.Message, parameters: str, client: discord.Client) -> None:
-    if not parameters == None:
+    if parameters != "":
         member = await util.get_member_by_id_or_name(message, parameters)
-        if member == None:
+        if member is None:
             raise CommandSyntaxError('You must specify a valid user.')
     else:
         member = message.author
@@ -564,7 +565,7 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
     sqlite_client = sqlite3.connect('bot_database.db')
     user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
                                     {'user_id': member.id}).fetchone()
-    if user_xp == None:
+    if user_xp is None:
         await message.channel.send("The user isn't ranked yet.")
         return
 
@@ -584,7 +585,7 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
     await message.channel.send(embed=rank_embed)
 
 rank.command_data = {
-    "syntax": "rank",
+    "syntax": "rank [user]",
     "aliases": ["wank", "level"],
     "category": Category.LEVELING,
     "description": "Check how much XP you have"
