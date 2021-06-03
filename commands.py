@@ -215,7 +215,7 @@ async def hug(message: discord.Message, parameters: str, client: discord.Client)
     # Get users
     hugger = message.author.mention
     target = parameters
-    if hugger == target:
+    if message.author.id in target:
         #reply message should be a pun
         reply = util.choose_random(configuration.STRINGS_PUN).format(hugger=hugger)
     else:
@@ -231,7 +231,7 @@ async def hug(message: discord.Message, parameters: str, client: discord.Client)
     # Done
     await message.channel.send(embed=embed)
 
-    if f"<@!{client.user.id}>" in target:
+    if f"{client.user.id}" in target:
         await message.channel.send('Thanks for hugging me, I love that!')
 
 hug.command_data = {
