@@ -27,6 +27,8 @@ async def test(message, params, client):
     await message.channel.send(f"Two plus two is {result}")
 ```
 # How to run
+- pip install -r requirements.txt
+- Change directory to src/
 - Make a folder called env
 - Make a file in that folder called "token" and put your Discord Bot token there
 - Make file called twitch_client_id and put your Twitch application's id there
