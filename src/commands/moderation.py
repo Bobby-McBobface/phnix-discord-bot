@@ -48,14 +48,14 @@ async def warn(message: discord.Message, parameters: str, client: discord.Client
 async def warns(message: discord.Message, parameters: str, client: discord.Client) -> None:
     member = await util.get_member_by_id_or_name(message, parameters)
 
-    if member == None:
+    if member is None:
         # See if it is a member ID (for banned/kicked users)
         try:
             user_id = parameters.strip("<@!>")
             user_id = int(user_id)
         except:
             raise CommandSyntaxError('You must specify a valid user.')
-        if len(str(user_id)) != 18:
+        if len(str(user_id)) not in range(17, 20):
             raise CommandSyntaxError('You must specify a valid user.')
     else:
         user_id = member.id
@@ -190,30 +190,52 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
     parameters: Parameters
     guild: if the message parameter is a guild object"""
 
+    print('unmute', parameters)
     if guild:
         member = message.get_member(parameters)
     else:
         member = await util.get_member_by_id_or_name(message, parameters)
 
     if member is None:
-        if not silenced:
-            raise CommandSyntaxError('You must specify a valid user.')
-        else:
-            return
+        # See if it is a member ID (for banned/kicked/left users)
+        try:
+            user_id = parameters.strip("<@!>")
+            user_id = int(user_id)
+        except Exception:
+            if not silenced:
+                raise CommandSyntaxError('You must specify a valid user.')
+            else:
+                return 
+        if len(str(user_id)) not in range(17, 20):
+            if not silenced:
+                raise CommandSyntaxError('You must specify a valid user.')
+            else:
+                return 
+    else:
+        user_id = member.id
 
     sqlite_client = sqlite3.connect('bot_database.db')
+
     roles = sqlite_client.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
-                                {'member_id': member.id}).fetchone()
+                                    {'member_id': user_id}).fetchone()
+        
     sqlite_client.execute('''DELETE FROM MUTES WHERE ID=:member_id''',
-                        {'member_id': member.id})
+                        {'member_id': user_id})
     sqlite_client.commit()
     sqlite_client.close()
 
-    if roles is None and not guild:
-        if not silenced:
-            await message.channel.send('User is not muted')
+    if roles is None:
+        # If it's an empty array, they're in the database, elif None, they're not
+        await message.channel.send("User is not muted")
         return
 
+    if not member:
+        # No need to re give roles or anything, they left
+        if not silenced:
+            await message.channel.send(f"Unmuted {user_id}")
+        return
+
+    # Re give roles
     roles = literal_eval(roles[0])
 
     for role in roles:
@@ -228,14 +250,15 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
             if not silenced:
                 await message.channel.send(f"Unable to re-give role: {role.name}")
 
+    # Remove muted role
     if guild:
         await member.remove_roles(message.get_role(configuration.MUTED_ROLE))
     else:
         await member.remove_roles(message.guild.get_role(configuration.MUTED_ROLE))
 
+    # Inform user we're done
     if not silenced:
         await message.channel.send(f'Unmuted {member.name}#{member.discriminator} ({member.id})')
-
 
 @command({
     "syntax": "kick <member> | [reason]",

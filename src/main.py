@@ -30,9 +30,7 @@ class PhnixBotClient(discord.Client):
         if muted and muted[1] - time() > 0:
             await member.add_roles(member.guild.get_role(configuration.MUTED_ROLE))
             await asyncio.sleep(muted[1] - time())
-            await commands.command_aliases_dict["unmute"](member.guild, muted[0], self, guild=True, silenced=True)
-        elif muted and muted[1] - time() < 0:
-            await commands.command_aliases_dict["unmute"](member.guild, muted[0], self, guild=True, silenced=True)
+            await commands.command_aliases_dict["unmute"](member.guild, str(muted[0]), self, guild=True, silenced=True)
 
         # Regive level roles
         sqlite_client = sqlite3.connect('bot_database.db')
@@ -66,16 +64,13 @@ class PhnixBotClient(discord.Client):
 
         # Cheap fix for now since this is used in 1 server
         guild = self.get_guild(configuration.GUILD_ID)
-        print(mute_list)
 
         for mute in mute_list:
-            print(mute[1] - time())
             if mute[1] - time() > 0:
                 await asyncio.sleep(mute[1] - time())
                 await commands.command_aliases_dict["unmute"](guild, mute[0], self, guild=True, silenced=True)
             elif mute[1] - time() < 0:
-                print('unmute')
-                await commands.command_aliases_dict["unmute"](guild, mute[0], self, guild=True, silenced=True)
+                await commands.command_aliases_dict["unmute"](guild, str(mute[0]), self, guild=True, silenced=True)
 
     async def on_message(self, message) -> None:
         """Runs every time the bot notices a message being sent anywhere."""
