@@ -57,8 +57,8 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
             raise CommandSyntaxError('You must specify a valid user.')
         if len(str(user_id)) != 18:
             raise CommandSyntaxError('You must specify a valid user.')
-        else:
-            user_id = member.id
+    else:
+        user_id = member.id
 
     sqlite_client = sqlite3.connect('bot_database.db')
     warn_list = sqlite_client.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id''',
