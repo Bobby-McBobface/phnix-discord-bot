@@ -9,7 +9,7 @@ main_channel = "UCj4zC1Hfj-uc90FUXzRamNw"
 sucks_at = "UC9T9mnA5u12DlQjeywuonpw"
 
 
-async def youtube(client) -> None:
+async def youtube(client: discord.Client) -> None:
     """
     Gets a list of new YouTube videos from an RSS feed and posts them to a
     configured subreddit.
@@ -21,6 +21,20 @@ async def youtube(client) -> None:
         reddit (praw.Reddit): The Reddit connection to use to process the check
         debug (bool): Used for testing purposes. Currently does nothing.
     """
+    # Create files if they don't exist
+    try:
+        with open(f"last_video_{main_channel}.ini", "r") as file:
+            pass
+    except FileNotFoundError:
+        with open(f"last_video_{main_channel}.ini", "w") as file:
+            file.write(str(datetime.now()))
+        
+    try:
+        with open(f"last_video_{sucks_at}.ini", "r") as file:
+            pass
+    except FileNotFoundError:
+        with open(f"last_video_{sucks_at}.ini", "w") as file:
+            file.write(str(datetime.now()))
 
     # Get RSS feeds #
     while True:
@@ -75,7 +89,7 @@ async def handle_feed(channel_id: str, client: discord.Client) -> None:
 
         last_date = date
         # updates the latest date in the function
-        last_entry = open('last_video_' + channel_id + '.ini', 'w')
+        last_entry = open('last_video_' + channel_id + '.ini', 'r')
         last_entry.write(str(date))
 
         last_entry.close()
