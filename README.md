@@ -10,6 +10,12 @@ A command needs:
 Command example:
 
 ```py
+@command({
+  "syntax": "test",
+  "description": "Returns 2 + 2"
+  "alias": ["twoplustwo"],
+  "role_requirements": {configuration.MODERATOR_ROLE}
+})
 async def test(message, params, client):
     """A command named 'test'
     Parameters:
@@ -19,10 +25,4 @@ async def test(message, params, client):
     """
     result = 2 + 2
     await message.channel.send(f"Two plus two is {result}")
-test.command_data = {
-  "syntax": "test",
-  "description": "Returns 2 + 2"
-  "alias": ["twoplustwo"],
-  "role_requirements": {configuration.MODERATOR_ROLE}
-}
 ```
