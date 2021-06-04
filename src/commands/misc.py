@@ -24,6 +24,8 @@ async def pad(message: discord.Message, parameters: str, client: discord.Client)
     """Spaces out your text"""
     if parameters == "":
         raise CommandSyntaxError("You must specify text to space out.")
+    elif len(parameters) > 1000:
+        await message.channel.send("Message must not surpass 1000 characters")
     else:
         await message.channel.send(" ".join(parameters))
 
