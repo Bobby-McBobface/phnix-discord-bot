@@ -76,11 +76,11 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
         warn_text += str(warn[0]) + '\n'
         timestamp_text += str(warn[1]) + '\n'
 
-        warn_embed = discord.Embed(title=f"Warns. Total of {len(warn_list)}", description=f"<@{user_id}>") \
-                            .add_field(name="Reason", value=warn_text) \
-                            .add_field(name="Timestamp", value=timestamp_text)
+    warn_embed = discord.Embed(title=f"Warns. Total of {len(warn_list)}", description=f"<@{user_id}>") \
+                        .add_field(name="Reason", value=warn_text) \
+                        .add_field(name="Timestamp", value=timestamp_text)
 
-        await message.channel.send(embed=warn_embed)
+    await message.channel.send(embed=warn_embed)
 
 @command({
     "syntax": "mywarns",
