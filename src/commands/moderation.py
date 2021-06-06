@@ -190,7 +190,6 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
     parameters: Parameters
     guild: if the message parameter is a guild object"""
 
-    print('unmute', parameters)
     if guild:
         member = message.get_member(parameters)
     else:
