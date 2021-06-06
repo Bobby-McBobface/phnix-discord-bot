@@ -1,3 +1,4 @@
+from os import dup
 import discord
 from time import time
 import asyncio
