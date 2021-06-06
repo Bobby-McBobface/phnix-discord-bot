@@ -41,8 +41,6 @@ async def refresh_token() -> None:
 
     data = loads(r.data.decode('utf-8'))
 
-    print(data["access_token"])
-
     with open("env/twitch_auth_token", "w") as file:
         file.write(data["access_token"])
 
