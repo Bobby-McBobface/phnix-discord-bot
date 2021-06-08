@@ -89,7 +89,7 @@ async def handle_feed(channel_id: str, client: discord.Client) -> None:
 
         last_date = date
         # updates the latest date in the function
-        last_entry = open('last_video_' + channel_id + '.ini', 'r')
+        last_entry = open('last_video_' + channel_id + '.ini', 'w')
         last_entry.write(str(date))
 
         last_entry.close()
