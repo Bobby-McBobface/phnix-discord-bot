@@ -75,14 +75,14 @@ class PhnixBotClient(discord.Client):
 
     async def on_message(self, message) -> None:
         """Runs every time the bot notices a message being sent anywhere."""
-
-        # Ignore bot accounts
-        if message.author.bot:
-            return
-
+        
         # EXP/leveling system
         if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
             await levels.add_exp(message.author, message)
+            
+        # Don't let bot accounts to use commands!
+        if message.author.bot:
+            return
 
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
         command_text = await util.check_for_and_strip_prefixes(
