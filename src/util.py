@@ -2,6 +2,7 @@ from random import choice
 import discord
 
 import configuration
+import database_handle
 
 
 async def get_member_by_id_or_name(message, user: str) -> discord.Member or None:
@@ -72,8 +73,8 @@ def choose_random(choices: list):
 
 async def check_if_muted(member: discord.Member) -> bool:
     import sqlite3
-    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
-    result = sqlite_client.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
+    
+    result = database_handle.cursor.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
                                    {'member_id': member.id, }).fetchone()
     return result
 

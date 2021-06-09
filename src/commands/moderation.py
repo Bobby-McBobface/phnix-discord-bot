@@ -7,6 +7,7 @@ import discord
 import configuration
 import util
 from commands import Category, CommandSyntaxError, command
+import database_handle
 
 # Registers all the commands; takes as a parameter the decorator factory to use.
 @command({
@@ -20,13 +21,13 @@ async def warn(message: discord.Message, parameters: str, client: discord.Client
 
     if member_reason[0] == None:
         raise CommandSyntaxError('You must specify a valid user.')
-    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
-    sqlite_client.execute('''INSERT INTO WARNS (ID, REASON, TIMESTAMP) \
+    
+    database_handle.cursor.execute('''INSERT INTO WARNS (ID, REASON, TIMESTAMP) \
     VALUES(:member_id, :reason, :time)''',
                             {'member_id': member_reason[0].id, 'reason': str(member_reason[1]),
                             'time': round(time())})
-    sqlite_client.commit()
-    sqlite_client.close()
+    database_handle.client.commit()
+    
     # Send a message to the channel that the command was used in
     warn_embed = discord.Embed(title=action_name.title(),
                                 description=member_reason[0].mention) \
@@ -60,10 +61,10 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
     else:
         user_id = member.id
 
-    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
-    warn_list = sqlite_client.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id''',
+    
+    warn_list = database_handle.cursor.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id''',
                                     {'member_id': user_id}).fetchall()
-    sqlite_client.close()
+    
 
     if warn_list == []:
         await message.channel.send("User has no warns")
@@ -101,8 +102,8 @@ async def delwarn(message: discord.Message, parameters: str, client: discord.Cli
     if member_reason == (None, None):
         raise CommandSyntaxError('You must specify a valid user')
 
-    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
-    warn = sqlite_client.execute('''SELECT REASON FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
+    
+    warn = database_handle.cursor.execute('''SELECT REASON FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
                                     {"timestamp": member_reason[1], "id": member_reason[0].id}).fetchone()
 
     if warn is not None:
@@ -111,10 +112,10 @@ async def delwarn(message: discord.Message, parameters: str, client: discord.Cli
         await message.channel.send("No warn found")
         return
 
-    sqlite_client.execute('''DELETE FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
+    database_handle.cursor.execute('''DELETE FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
                             {"timestamp": member_reason[1], "id": member_reason[0].id})
-    sqlite_client.commit()
-    sqlite_client.close()
+    database_handle.client.commit()
+    
 
 @command({
     "syntax": "mute <member> | <duration><s|m|h|d|y> [reason]",
@@ -145,19 +146,19 @@ async def mute(message: discord.Message, parameters: str, client: discord.Client
     # Remove @everyone role
     roles = roles[1:]
 
-    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
+    
     try:
-        sqlite_client.execute('''INSERT INTO MUTES (ID, TIMESTAMP, ROLES) \
+        database_handle.cursor.execute('''INSERT INTO MUTES (ID, TIMESTAMP, ROLES) \
         VALUES(:member_id, :timestamp, :roles) ''',
                                 {'member_id': member_reason[0].id, 'timestamp': round(time()) + mute_time,
                                 'roles': str([role.id for role in roles])})
     except sqlite3.IntegrityError:
         await message.channel.send('User is already muted')
-        sqlite_client.close()
+        
         return
 
-    sqlite_client.commit()
-    sqlite_client.close()
+    database_handle.client.commit()
+    
 
     # Remove all roles
     forbidden_role_flag = False
@@ -213,15 +214,15 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
     else:
         user_id = member.id
 
-    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
+    
 
-    roles = sqlite_client.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
+    roles = database_handle.cursor.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
                                     {'member_id': user_id}).fetchone()
         
-    sqlite_client.execute('''DELETE FROM MUTES WHERE ID=:member_id''',
+    database_handle.cursor.execute('''DELETE FROM MUTES WHERE ID=:member_id''',
                         {'member_id': user_id})
-    sqlite_client.commit()
-    sqlite_client.close()
+    database_handle.client.commit()
+    
 
     if roles is None:
         # If it's an empty array, they're in the database, elif None, they're not

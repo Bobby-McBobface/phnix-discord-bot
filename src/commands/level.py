@@ -1,13 +1,14 @@
 import asyncio
 from commands import Category, CommandSyntaxError, command
-import sqlite3
 
 import levels
 import discord
 import util
-import configuration
+import database_handle
 
 # Registers all the commands; takes as a parameter the decorator factory to use.
+
+
 @command({
     "syntax": "rank [user]",
     "aliases": ["wank", "level"],
@@ -22,15 +23,14 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
     else:
         member = message.author
 
-    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
-    user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
-                                    {'user_id': member.id}).fetchone()
+    user_xp = database_handle.cursor.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
+                                             {'user_id': member.id}).fetchone()
     if user_xp is None:
         await message.channel.send("The user isn't ranked yet.")
         return
 
-    user_rank = sqlite_client.execute('''SELECT COUNT(*)+1 FROM LEVELS WHERE XP > :user_xp''',
-                                    {'user_xp': user_xp[0]}).fetchone()
+    user_rank = database_handle.cursor.execute('''SELECT COUNT(*)+1 FROM LEVELS WHERE XP > :user_xp''',
+                                               {'user_xp': user_xp[0]}).fetchone()
 
     avatar = member.avatar_url_as(format=None, static_format='png', size=1024)
 
@@ -43,6 +43,7 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
     # Internally, levels start at 1, but users want it to start at 0, so there is a fix for that
 
     await message.channel.send(embed=rank_embed)
+
 
 @command({
     "syntax": "leaderboards [page number]",
@@ -62,18 +63,14 @@ async def leaderboards(message: discord.Message, parameters: str, client: discor
         await response.add_reaction("◀️")
         await response.add_reaction("▶️")
 
-        sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
-        total_pages = sqlite_client.execute(
+        total_pages = database_handle.cursor.execute(
             '''SELECT COUNT(*) FROM LEVELS''').fetchone()[0] // 10 + 1
-        sqlite_client.close()
 
         await leaderboards(response, page, client, first_execution=False, op=message.author.id, page_cache=total_pages)
         return
 
-    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
-    data_list = sqlite_client.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
-                                        {"offset": (page - 1)*10}).fetchall()
-    sqlite_client.close()
+    data_list = database_handle.cursor.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
+                                               {"offset": (page - 1)*10}).fetchall()
 
     lb_list = ''.join(
         f"{(page - 1) * 10 + index + 1}: <@{data[0]}> | Level: {int(data[1]) - 1} | Total XP: {data[2]}\n" for index, data in enumerate(data_list))
