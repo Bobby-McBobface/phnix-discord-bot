@@ -122,7 +122,9 @@ class PhnixBotClient(discord.Client):
                 if message.channel.id not in command_function.command_data["allowed_channels"] \
                         and message.channel.id not in configuration.ALLOWED_COMMAND_CHANNELS:
 
-                    await message.channel.send(f"Please use <#{configuration.DEFAULT_COMMAND_CHANNEL}> for bot commands!")
+                    error_message = await message.channel.send(f"Please use <#{configuration.DEFAULT_COMMAND_CHANNEL}> for bot commands!")
+                    await asyncio.sleep(5)
+                    await error_message.delete()
                     return
 
             requirements = command_function.command_data.get(
@@ -136,7 +138,9 @@ class PhnixBotClient(discord.Client):
                     roles_string = " or ".join([f"`{message.guild.get_role(role_id).name}`" for role_id in
                                                 command_function.command_data['role_requirements'] if
                                                 message.guild.get_role(role_id) != None])
-                    await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")
+                    error_message = await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")  
+                    await asyncio.sleep(5)
+                    error_message.delete()
                     return
 
             # Run the found function
@@ -150,8 +154,10 @@ class PhnixBotClient(discord.Client):
                 # Get command syntax from the function
                 error_syntax = command_function.command_data['syntax']
                 # Put it all together
-                error_message = f"Invalid syntax{error_details}Usage: `{error_syntax}`"
-                await message.channel.send(error_message)
+                error_text = f"Invalid syntax{error_details}Usage: `{error_syntax}`"
+                await message.channel.send(error_text)             
+                error_message = await asyncio.sleep(5)
+                await error_message.delete()
 
 
 if __name__ == '__main__':
