@@ -51,9 +51,9 @@ class PhnixBotClient(discord.Client):
 
     async def on_member_update(self, before, after) -> None:
         # Check if their nick is invisible
-        if (await util.check_if_string_invisible(after.display_name)):
+        if (util.check_if_string_invisible(after.display_name)):
             # Their nickname is invisible! Change it
-            new_nick = None if not (await util.check_if_string_invisible(after.name)) \
+            new_nick = None if not (util.check_if_string_invisible(after.name)) \
                 else str(after.id)  # idk lol set it to their user id I guess
             await after.edit(nick=new_nick, reason="Invisible nickname detected")
 
@@ -84,7 +84,7 @@ class PhnixBotClient(discord.Client):
             await levels.add_exp(message.author, message)
 
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
-        command_text = await util.check_for_and_strip_prefixes(
+        command_text = util.check_for_and_strip_prefixes(
             message.content,
             (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>"))
 

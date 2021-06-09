@@ -47,7 +47,7 @@ async def warn(message: discord.Message, parameters: str, client: discord.Client
     "description": "List the warns of a user"
 })
 async def warns(message: discord.Message, parameters: str, client: discord.Client) -> None:
-    member = await util.get_member_by_id_or_name(message, parameters)
+    member = util.get_member_by_id_or_name(message, parameters)
 
     if member is None:
         # See if it is a member ID (for banned/kicked users)
@@ -194,7 +194,7 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
     if guild:
         member = message.get_member(parameters)
     else:
-        member = await util.get_member_by_id_or_name(message, parameters)
+        member = util.get_member_by_id_or_name(message, parameters)
 
     if member is None:
         # See if it is a member ID (for banned/kicked/left users)
