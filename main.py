@@ -126,9 +126,15 @@ class PhnixBotClient(discord.Client):
 
                 if message.channel.id not in command_function.command_data["allowed_channels"] \
                         and message.channel.id not in configuration.ALLOWED_COMMAND_CHANNELS:
-
+                    
+                util.choose_random
+               
                     await message.channel.send(f"Please use <#{configuration.DEFAULT_COMMAND_CHANNEL}> for bot commands!")
                     return
+                or
+                    await message.channel.send(f"Use <#{configuration.DEFAULT_COMMAND_CHANNEL}> for that. I don't want to repeat myself, so please do it in right channel")
+                    return
+                
 
             requirements = command_function.command_data.get(
                 "role_requirements")
