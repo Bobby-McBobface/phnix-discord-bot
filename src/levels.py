@@ -30,7 +30,7 @@ async def add_exp(member: discord.User, message: discord.Message) -> None:
     xp = user_xp[0] + xp_gain
     level = user_xp[1]
 
-    if xp >= await xp_needed_for_level(level):
+    if xp >= xp_needed_for_level(level):
         # level up
 
         level += 1
@@ -62,7 +62,7 @@ async def clear_chatted_loop() -> None:
         chatted = []
 
 
-async def xp_needed_for_level(level: int) -> int:
+def xp_needed_for_level(level: int) -> int:
     return int(5/6*((2*(level)**3)+(27*(level)**2)+(91*(level))))
 
 

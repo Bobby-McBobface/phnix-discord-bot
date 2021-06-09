@@ -5,7 +5,7 @@ import configuration
 import database_handle
 
 
-async def get_member_by_id_or_name(message, user: str) -> discord.Member or None:
+def get_member_by_id_or_name(message, user: str) -> discord.Member or None:
     if user == "":
         return None
 
@@ -31,7 +31,7 @@ async def split_into_member_and_reason(message: discord.Message, parameters: str
         return (None, None)
 
     split_params = parameters.split(maxsplit=1)
-    member = await get_member_by_id_or_name(message, split_params[0])
+    member = get_member_by_id_or_name(message, split_params[0])
     try:
         reason = split_params[1].lstrip('| ')
     except IndexError:
@@ -41,7 +41,7 @@ async def split_into_member_and_reason(message: discord.Message, parameters: str
         # Reversed to split the last | in case someone has | in their name
         split_params_pipe = parameters[::-1].split("|", 1)
 
-        member = await get_member_by_id_or_name(message,
+        member = get_member_by_id_or_name(message,
                                                 split_params_pipe[len(split_params_pipe) - 1][::-1].rstrip())
 
         if len(split_params_pipe) == 2:
@@ -53,7 +53,7 @@ async def split_into_member_and_reason(message: discord.Message, parameters: str
     return (member, reason)
 
 
-async def check_for_and_strip_prefixes(string: str, prefixes: tuple) -> str:
+def check_for_and_strip_prefixes(string: str, prefixes: tuple) -> str:
     """
     If `string` starts with one of the given prefixes,
     return the string and the prefix. Otherwise, returns None.
@@ -71,15 +71,15 @@ def choose_random(choices: list):
     return choice(choices)
 
 
-async def check_if_muted(member: discord.Member) -> bool:
-    import sqlite3
-    
+def check_if_muted(member: discord.Member) -> bool:
     result = database_handle.cursor.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
                                    {'member_id': member.id, }).fetchone()
-    return result
+
+    # return not not result
+    return bool(result)
 
 
-async def check_if_string_invisible(string: str) -> bool:
+def check_if_string_invisible(string: str) -> bool:
     """Returns True if the string is comprised entirely of non-visible characters."""
     for char in string:
         if char not in configuration.INVISIBLE_CHARACTERS:
