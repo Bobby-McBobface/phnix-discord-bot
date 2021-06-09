@@ -81,4 +81,4 @@ async def replytome(message: discord.Message, parameters: str, client: discord.C
     "category": Category.OTHER
 })
 async def aa(message: discord.Message, parameters: str, client: discord.Client) -> None:
-    await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAA", reference=message)
+    await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!", reference=message)
