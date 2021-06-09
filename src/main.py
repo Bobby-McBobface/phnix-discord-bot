@@ -1,7 +1,6 @@
 import discord
 from time import time
 import asyncio
-import sqlite3
 
 import commands
 import configuration
@@ -9,6 +8,7 @@ import levels
 import util
 import youtube
 import twitch
+import database_handle
 
 
 class PhnixBotClient(discord.Client):
@@ -33,9 +33,9 @@ class PhnixBotClient(discord.Client):
             await commands.command_aliases_dict["unmute"](member.guild, str(muted[0]), self, guild=True, silenced=True)
 
         # Regive level roles
-        sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
+        
         try:
-            level = sqlite_client.execute('''SELECT LEVEL FROM LEVELS WHERE ID=:member_id''',
+            level = database_handle.cursor.execute('''SELECT LEVEL FROM LEVELS WHERE ID=:member_id''',
                                           {'member_id': member.id}).fetchone()[0]
         except:
             level = 0
@@ -58,8 +58,8 @@ class PhnixBotClient(discord.Client):
             await after.edit(nick=new_nick, reason="Invisible nickname detected")
 
     async def remute_on_startup(self) -> None:
-        sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
-        mute_list = sqlite_client.execute(
+        
+        mute_list = database_handle.cursor.execute(
             '''SELECT ID, TIMESTAMP FROM MUTES''').fetchall()
 
         # Cheap fix for now since this is used in 1 server
@@ -175,3 +175,4 @@ if __name__ == '__main__':
     client.run(token)
 
     print('PhnixBot Killed')
+    database_handle.client.close()

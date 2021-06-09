@@ -1,8 +1,9 @@
 import asyncio
-import configuration
-import sqlite3
 from random import randint
+
+import configuration
 import discord
+import database_handle
 
 chatted = []
 
@@ -20,9 +21,8 @@ async def add_exp(member: discord.User, message: discord.Message) -> None:
 
     chatted.append(member.id)
 
-    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
-    user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
-                                    {'user_id': member.id}).fetchone()
+    user_xp = database_handle.cursor.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
+                                             {'user_id': member.id}).fetchone()
 
     if user_xp == None:
         user_xp = (0, 0)
@@ -42,16 +42,15 @@ async def add_exp(member: discord.User, message: discord.Message) -> None:
         # Give level roles
         await give_level_up_roles(member, level)
 
-    sqlite_client.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
+    database_handle.cursor.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
     VALUES(:member, :user_xp, :level) \
     ON CONFLICT(ID) \
     DO UPDATE SET XP=:user_xp, LEVEL=:level''',
-                          {'member': member.id,
-                           'user_xp': xp,
-                           'level': level}
-                          )
-    sqlite_client.commit()
-    sqlite_client.close()
+                                   {'member': member.id,
+                                    'user_xp': xp,
+                                    'level': level}
+                                   )
+    database_handle.client.commit()
 
 
 # Need a non blocking loop here to reset chatted every INTERVAL seconds
