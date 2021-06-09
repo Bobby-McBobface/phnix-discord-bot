@@ -1,6 +1,6 @@
 PREFIX = "!"
 
-VERSION = "1.7.5"
+VERSION = "1.7.7"
 
 DATABASE_PATH = r"bot_database.db"
 
