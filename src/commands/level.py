@@ -5,6 +5,7 @@ import sqlite3
 import levels
 import discord
 import util
+import configuration
 
 # Registers all the commands; takes as a parameter the decorator factory to use.
 @command({
@@ -21,7 +22,7 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
     else:
         member = message.author
 
-    sqlite_client = sqlite3.connect('bot_database.db')
+    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
     user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
                                     {'user_id': member.id}).fetchone()
     if user_xp is None:
@@ -61,7 +62,7 @@ async def leaderboards(message: discord.Message, parameters: str, client: discor
         await response.add_reaction("◀️")
         await response.add_reaction("▶️")
 
-        sqlite_client = sqlite3.connect('bot_database.db')
+        sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
         total_pages = sqlite_client.execute(
             '''SELECT COUNT(*) FROM LEVELS''').fetchone()[0] // 10 + 1
         sqlite_client.close()
@@ -69,7 +70,7 @@ async def leaderboards(message: discord.Message, parameters: str, client: discor
         await leaderboards(response, page, client, first_execution=False, op=message.author.id, page_cache=total_pages)
         return
 
-    sqlite_client = sqlite3.connect('bot_database.db')
+    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
     data_list = sqlite_client.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
                                         {"offset": (page - 1)*10}).fetchall()
     sqlite_client.close()
