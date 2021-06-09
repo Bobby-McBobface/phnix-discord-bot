@@ -1,4 +1,3 @@
-from os import dup
 import discord
 from time import time
 import asyncio
@@ -34,7 +33,7 @@ class PhnixBotClient(discord.Client):
             await commands.command_aliases_dict["unmute"](member.guild, str(muted[0]), self, guild=True, silenced=True)
 
         # Regive level roles
-        sqlite_client = sqlite3.connect('bot_database.db')
+        sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
         try:
             level = sqlite_client.execute('''SELECT LEVEL FROM LEVELS WHERE ID=:member_id''',
                                           {'member_id': member.id}).fetchone()[0]
@@ -59,7 +58,7 @@ class PhnixBotClient(discord.Client):
             await after.edit(nick=new_nick, reason="Invisible nickname detected")
 
     async def remute_on_startup(self) -> None:
-        sqlite_client = sqlite3.connect('bot_database.db')
+        sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
         mute_list = sqlite_client.execute(
             '''SELECT ID, TIMESTAMP FROM MUTES''').fetchall()
 

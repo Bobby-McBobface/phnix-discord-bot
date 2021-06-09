@@ -20,7 +20,7 @@ async def add_exp(member: discord.User, message: discord.Message) -> None:
 
     chatted.append(member.id)
 
-    sqlite_client = sqlite3.connect('bot_database.db')
+    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
     user_xp = sqlite_client.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
                                     {'user_id': member.id}).fetchone()
 

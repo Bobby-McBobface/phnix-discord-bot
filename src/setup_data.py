@@ -7,7 +7,7 @@ if answer != "y":
 
 print("Setting up data...")
 """
-sqlite_client = sqlite3.connect('bot_database.db')
+sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
 #sqlite_client.execute('''DROP TABLE LEVELS''')
 #sqlite_client.commit()
 #sqlite_client.execute('''DROP TABLE WARNS''')
@@ -50,7 +50,7 @@ for user in users:
 
 sqlite_client.close()
 """
-sqlite_client = sqlite3.connect('bot_database.db')
+sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
 sqlite_client.execute(f'''INSERT INTO LEVELS (ID, XP, LEVEL) \
     VALUES(:id, :xp, :level) \
     ON CONFLICT(ID) \

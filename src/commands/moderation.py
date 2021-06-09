@@ -20,7 +20,7 @@ async def warn(message: discord.Message, parameters: str, client: discord.Client
 
     if member_reason[0] == None:
         raise CommandSyntaxError('You must specify a valid user.')
-    sqlite_client = sqlite3.connect('bot_database.db')
+    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
     sqlite_client.execute('''INSERT INTO WARNS (ID, REASON, TIMESTAMP) \
     VALUES(:member_id, :reason, :time)''',
                             {'member_id': member_reason[0].id, 'reason': str(member_reason[1]),
@@ -60,7 +60,7 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
     else:
         user_id = member.id
 
-    sqlite_client = sqlite3.connect('bot_database.db')
+    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
     warn_list = sqlite_client.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id''',
                                     {'member_id': user_id}).fetchall()
     sqlite_client.close()
@@ -101,7 +101,7 @@ async def delwarn(message: discord.Message, parameters: str, client: discord.Cli
     if member_reason == (None, None):
         raise CommandSyntaxError('You must specify a valid user')
 
-    sqlite_client = sqlite3.connect('bot_database.db')
+    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
     warn = sqlite_client.execute('''SELECT REASON FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
                                     {"timestamp": member_reason[1], "id": member_reason[0].id}).fetchone()
 
@@ -145,7 +145,7 @@ async def mute(message: discord.Message, parameters: str, client: discord.Client
     # Remove @everyone role
     roles = roles[1:]
 
-    sqlite_client = sqlite3.connect('bot_database.db')
+    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
     try:
         sqlite_client.execute('''INSERT INTO MUTES (ID, TIMESTAMP, ROLES) \
         VALUES(:member_id, :timestamp, :roles) ''',
@@ -213,7 +213,7 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
     else:
         user_id = member.id
 
-    sqlite_client = sqlite3.connect('bot_database.db')
+    sqlite_client = sqlite3.connect(configuration.DATABASE_PATH)
 
     roles = sqlite_client.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
                                     {'member_id': user_id}).fetchone()
