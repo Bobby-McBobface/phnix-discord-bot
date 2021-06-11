@@ -269,6 +269,7 @@ async def kick(message: discord.Message, parameters: str, client: discord.Client
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
+        #TODO: Check for role hierarchy
         await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}", client, action_name="kicked")
         await message.guild.kick(member_reason[0], reason=member_reason[1])
     except discord.errors.Forbidden:
@@ -287,6 +288,7 @@ async def ban(message: discord.Message, parameters: str, client: discord.Client)
         raise CommandSyntaxError('You must specify a valid user.')
 
     try:
+        #TODO: Check for role hierarchy
         await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", client, action_name="banned")
         await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
     except discord.errors.Forbidden:
