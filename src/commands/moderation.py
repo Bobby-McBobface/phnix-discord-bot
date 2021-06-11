@@ -145,7 +145,6 @@ async def mute(message: discord.Message, parameters: str, client: discord.Client
     roles = member_reason[0].roles
     # Remove @everyone role
     roles = roles[1:]
-
     
     try:
         database_handle.cursor.execute('''INSERT INTO MUTES (ID, TIMESTAMP, ROLES) \
@@ -154,12 +153,10 @@ async def mute(message: discord.Message, parameters: str, client: discord.Client
                                 'roles': str([role.id for role in roles])})
     except sqlite3.IntegrityError:
         await message.channel.send('User is already muted')
-        
         return
 
     database_handle.client.commit()
     
-
     # Remove all roles
     forbidden_role_flag = False
     for role in roles:
@@ -172,10 +169,10 @@ async def mute(message: discord.Message, parameters: str, client: discord.Client
     if forbidden_role_flag:
         await message.channel.send("I don't have perms to give remove all their roles")
 
-        await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}', client, action_name="muted")
+    await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}', client, action_name="muted")
 
-        await asyncio.sleep(mute_time)
-        await unmute(message, str(member_reason[0].id), client, silenced=True)
+    await asyncio.sleep(mute_time)
+    await unmute(message, str(member_reason[0].id), client, silenced=True)
 
 @command({
     "syntax": "unmute <member>",
