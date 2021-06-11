@@ -242,7 +242,7 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
         except:
             forbidden_roles_list.append(role)
 
-    if not silenced:
+    if not silenced and forbidden_roles_list:
         await message.channel.send(f"Unable to re-give roles: {forbidden_roles_list}")
 
     # Remove muted role
