@@ -61,11 +61,9 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
     else:
         user_id = member.id
 
-    
     warn_list = database_handle.cursor.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id''',
                                     {'member_id': user_id}).fetchall()
     
-
     if warn_list == []:
         await message.channel.send("User has no warns")
         return
@@ -101,7 +99,6 @@ async def delwarn(message: discord.Message, parameters: str, client: discord.Cli
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
         raise CommandSyntaxError('You must specify a valid user')
-
     
     warn = database_handle.cursor.execute('''SELECT REASON FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
                                     {"timestamp": member_reason[1], "id": member_reason[0].id}).fetchone()
@@ -158,16 +155,16 @@ async def mute(message: discord.Message, parameters: str, client: discord.Client
     database_handle.client.commit()
     
     # Remove all roles
-    forbidden_role_flag = False
+    forbidden_role_list = []
     for role in roles:
         if role.id != configuration.MUTED_ROLE:
             try:
                 await member_reason[0].remove_roles(role)
             except discord.errors.Forbidden:
-                forbidden_role_flag = True
+                forbidden_role_list.append(role)
 
-    if forbidden_role_flag:
-        await message.channel.send("I don't have perms to give remove all their roles")
+    if forbidden_role_list:
+        await message.channel.send("Unable to remove roles: {forbidden_role_list}")
 
     await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}', client, action_name="muted")
 
@@ -211,8 +208,6 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
     else:
         user_id = member.id
 
-    
-
     roles = database_handle.cursor.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
                                     {'member_id': user_id}).fetchone()
         
@@ -234,6 +229,7 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
 
     # Re give roles
     roles = literal_eval(roles[0])
+    forbidden_roles_list = []
 
     for role in roles:
         if guild:
@@ -244,8 +240,10 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
         try:
             await member.add_roles(role)
         except:
-            if not silenced:
-                await message.channel.send(f"Unable to re-give role: {role.name}")
+            forbidden_roles_list.append(role)
+
+    if not silenced:
+        await message.channel.send(f"Unable to re-give roles: {forbidden_roles_list}")
 
     # Remove muted role
     if guild:
