@@ -258,7 +258,7 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
 @command({
     "syntax": "kick <member> | [reason]",
     "aliases": ["kcik"],
-    "role_requirements": {configuration.MODERATOR_ROLE},
+    "role_requirements": set(),
     "category": Category.MODERATION,
     "description": "Kicks a user"
 })
@@ -267,13 +267,21 @@ async def kick(message: discord.Message, parameters: str, client: discord.Client
 
     if member_reason[0] is None:
         raise CommandSyntaxError('You must specify a valid user.')
+    
+    if not message.guild.me.guild_permissions.kick_members:
+        await message.channel.send("I don't have permissions to kick.")
+        return
 
-    try:
-        #TODO: Check for role hierarchy
-        await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}", client, action_name="kicked")
-        await message.guild.kick(member_reason[0], reason=member_reason[1])
-    except discord.errors.Forbidden:
-        await message.channel.send("I don't have perms to kick")
+    if message.guild.me.top_role >= member_reason[0].top_role:
+        await message.channel.send("I am not high enough in the role hierarchy")
+        return
+
+    if message.author.top_role <= member_reason[0].top_role:
+        await message.channel.send("You are not high enough in the role hierarchy.")
+        return
+
+    await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}", client, action_name="kicked")
+    await message.guild.kick(member_reason[0], reason=member_reason[1])
 
 @command({
     "syntax": "ban <member> | [reason]",
@@ -286,10 +294,19 @@ async def ban(message: discord.Message, parameters: str, client: discord.Client)
 
     if member_reason[0] is None:
         raise CommandSyntaxError('You must specify a valid user.')
+    
+    if not message.guild.me.guild_permissions.kick_members:
+        await message.channel.send("I don't have permissions to kick.")
+        return
 
-    try:
-        #TODO: Check for role hierarchy
-        await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", client, action_name="banned")
-        await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
-    except discord.errors.Forbidden:
-        await message.channel.send("I don't have perms to ban")
+    if message.guild.me.top_role >= member_reason[0].top_role:
+        await message.channel.send("I am not high enough in the role hierarchy.")
+        return
+
+    if message.author.top_role <= member_reason[0].top_role:
+        await message.channel.send("You are not high enough in the role hierarchy.")
+        return
+
+    await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", client, action_name="banned")
+    await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
+    
