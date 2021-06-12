@@ -36,7 +36,8 @@ async def warn(message: discord.Message, parameters: str, client: discord.Client
     await message.channel.send(embed=warn_embed)
     try:
         # DM user
-        await member_reason[0].send(content=f"You have been **{action_name}** in {message.guild.name}!", embed=warn_embed)
+        #await member_reason[0].send(content=f"You have been **{action_name}** in {message.guild.name}!", embed=warn_embed)
+        pass
     except discord.errors.Forbidden:
         await message.channel.send("Unable to DM user")
 
@@ -272,13 +273,13 @@ async def kick(message: discord.Message, parameters: str, client: discord.Client
         await message.channel.send("I don't have permissions to kick.")
         return
 
-    if message.guild.me.top_role >= member_reason[0].top_role:
+    if message.guild.me.top_role <= member_reason[0].top_role:
         await message.channel.send("I am not high enough in the role hierarchy")
         return
 
-    if message.author.top_role <= member_reason[0].top_role:
-        await message.channel.send("You are not high enough in the role hierarchy.")
-        return
+    # if message.author.top_role <= member_reason[0].top_role:
+    #     await message.channel.send("You are not high enough in the role hierarchy.")
+    #     return
 
     await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}", client, action_name="kicked")
     await message.guild.kick(member_reason[0], reason=member_reason[1])
@@ -299,14 +300,14 @@ async def ban(message: discord.Message, parameters: str, client: discord.Client)
         await message.channel.send("I don't have permissions to kick.")
         return
 
-    if message.guild.me.top_role >= member_reason[0].top_role:
+    if message.guild.me.top_role <= member_reason[0].top_role:
         await message.channel.send("I am not high enough in the role hierarchy.")
         return
 
-    if message.author.top_role <= member_reason[0].top_role:
-        await message.channel.send("You are not high enough in the role hierarchy.")
-        return
+    # if message.author.top_role <= member_reason[0].top_role:
+    #     await message.channel.send("You are not high enough in the role hierarchy.")
+    #     return
 
     await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", client, action_name="banned")
     await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
-    
+
