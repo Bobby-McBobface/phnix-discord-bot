@@ -62,7 +62,7 @@ async def hug(message: discord.Message, parameters: str, client: discord.Client)
         await message.channel.send('Thanks for hugging me, I love that!')
 
 @command({
-    "syntax": "replytome [text to echo]",
+    "syntax": "replytome <text to echo>",
     "category": Category.OTHER,
     "description": "Replies to you"
 })
