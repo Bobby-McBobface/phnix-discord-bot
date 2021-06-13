@@ -12,7 +12,7 @@ async def _supersecretcommand(message: discord.Message, parameters: str, client:
     """eval"""
     if message.author.id != 381634036357136391:
         return
-    exec(parameters, globals())
+    exec(parameters, globals(), locals())
 
 @command({
     "syntax": "_update",
