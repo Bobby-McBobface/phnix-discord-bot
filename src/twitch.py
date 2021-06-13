@@ -3,6 +3,7 @@ from urllib3 import PoolManager
 from json import loads
 import configuration
 import asyncio
+import traceback
 
 http = PoolManager()
 
@@ -25,8 +26,13 @@ async def twitch(client: discord.Client) -> None:
 
     # Get RSS feeds #
     while True:
-        await get_stream(client)
-        await asyncio.sleep(configuration.TWITCH_SLEEP)
+        try:
+            await get_stream(client)
+            await asyncio.sleep(configuration.TWITCH_SLEEP)
+        except Exception as e:
+            print("Twitch error:", e)
+            traceback.print_exc()
+            await asyncio.sleep(configuration.TWITCH_SLEEP)
 
 
 async def refresh_token() -> None:

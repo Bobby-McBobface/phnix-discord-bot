@@ -4,6 +4,7 @@ from datetime import datetime
 import discord
 import configuration
 import asyncio
+import traceback
 
 main_channel = "UCj4zC1Hfj-uc90FUXzRamNw"
 sucks_at = "UC9T9mnA5u12DlQjeywuonpw"
@@ -38,9 +39,15 @@ async def youtube(client: discord.Client) -> None:
 
     # Get RSS feeds #
     while True:
-        await handle_feed(main_channel, client)
-        await handle_feed(sucks_at, client)
-        await asyncio.sleep(configuration.YOUTUBE_SLEEP)
+        try:
+            await handle_feed(main_channel, client)
+            await handle_feed(sucks_at, client)
+            await asyncio.sleep(configuration.YOUTUBE_SLEEP)
+        except Exception as e:
+            print("Youtube error:", e)
+            traceback.print_exc()
+            await asyncio.sleep(configuration.YOUTUBE_SLEEP)
+            
 
 
 async def handle_feed(channel_id: str, client: discord.Client) -> None:
