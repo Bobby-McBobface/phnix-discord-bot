@@ -59,7 +59,7 @@ async def hug(message: discord.Message, parameters: str, client: discord.Client)
     await message.channel.send(embed=embed)
 
     if str(client.user.id) in target:
-        await message.channel.send('Thanks for hugging me, I love that!')
+        await message.channel.send('Thanks for hugging me; I love that!')
 
 @command({
     "syntax": "replytome [text to echo]",
