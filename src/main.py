@@ -122,7 +122,7 @@ class PhnixBotClient(discord.Client):
                         and message.channel.id not in configuration.ALLOWED_COMMAND_CHANNELS:
 
                     error_message = await message.channel.send(f"Please use <#{configuration.DEFAULT_COMMAND_CHANNEL}> for bot commands!")
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(configuration.DELETE_ERROR_MESSAGE_TIME)
                     await error_message.delete()
                     return
 
@@ -138,7 +138,7 @@ class PhnixBotClient(discord.Client):
                                                 command_function.command_data['role_requirements'] if
                                                 message.guild.get_role(role_id) != None])
                     error_message = await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")  
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(configuration.DELETE_ERROR_MESSAGE_TIME)
                     await error_message.delete()
                     return
 
@@ -155,7 +155,7 @@ class PhnixBotClient(discord.Client):
                 # Put it all together
                 error_text = f"Invalid syntax{error_details}Usage: `{error_syntax}`"
                 error_message = await message.channel.send(error_text)             
-                await asyncio.sleep(5)
+                await asyncio.sleep(configuration.DELETE_ERROR_MESSAGE_TIME)
                 await error_message.delete()
 
 
