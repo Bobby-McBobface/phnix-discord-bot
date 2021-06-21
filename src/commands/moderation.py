@@ -259,7 +259,7 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
 @command({
     "syntax": "kick <member> | [reason]",
     "aliases": ["kcik"],
-    "role_requirements": set(),
+    "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION,
     "description": "Kicks a user"
 })

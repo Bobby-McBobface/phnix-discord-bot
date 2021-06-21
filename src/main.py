@@ -25,7 +25,7 @@ class PhnixBotClient(discord.Client):
         await welcome_channel.send(configuration.welcome_msg.format("<@" + str(member.id) + ">"))
 
         # Check if member is muted and give appropriate role:
-        muted = util.check_if_muted(member)
+        muted = util.get_muted_status(member)
 
         if muted and muted[1] - time() > 0:
             await member.add_roles(member.guild.get_role(configuration.MUTED_ROLE))

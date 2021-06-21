@@ -70,7 +70,7 @@ def choose_random(choices: list):
     return choice(choices)
 
 
-def check_if_muted(member: discord.Member) -> tuple[int, int]:
+def get_muted_status(member: discord.Member) -> "tuple[int, int]":
     return database_handle.cursor.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
                                    {'member_id': member.id, }).fetchone()
     
