@@ -71,13 +71,10 @@ def choose_random(choices: list):
     return choice(choices)
 
 
-def check_if_muted(member: discord.Member) -> bool:
-    result = database_handle.cursor.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
+def check_if_muted(member: discord.Member):
+    return database_handle.cursor.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
                                    {'member_id': member.id, }).fetchone()
-
-    # return not not result
-    return bool(result)
-
+    
 
 def check_if_string_invisible(string: str) -> bool:
     """Returns True if the string is comprised entirely of non-visible characters."""
