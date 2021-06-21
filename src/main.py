@@ -29,16 +29,15 @@ class PhnixBotClient(discord.Client):
 
         if muted and muted[1] - time() > 0:
             await member.add_roles(member.guild.get_role(configuration.MUTED_ROLE))
-            await asyncio.sleep(muted[1] - time())
-            await commands.command_aliases_dict["unmute"](member.guild, str(muted[0]), self, guild=True, silenced=True)
+            return
 
         # Regive level roles
-        
         try:
             level = database_handle.cursor.execute('''SELECT LEVEL FROM LEVELS WHERE ID=:member_id''',
                                           {'member_id': member.id}).fetchone()[0]
         except:
-            level = 0
+            # No level, first join
+            return
 
         await levels.give_level_up_roles(member, level)
 
