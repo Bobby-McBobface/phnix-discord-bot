@@ -51,17 +51,12 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
     member = util.get_member_by_id_or_name(message, parameters)
 
     if member is None:
-        # See if it is a member ID (for banned/kicked users)
-        try:
-            user_id = parameters.strip("<@!>")
-            user_id = int(user_id)
-        except:
-            raise CommandSyntaxError('You must specify a valid user.')
-        if len(str(user_id)) not in range(17, 20):
-            raise CommandSyntaxError('You must specify a valid user.')
-    else:
-        user_id = member.id
+        user_id = util.try_get_valid_user_id(parameters)
+        if not user_id:
+            raise CommandSyntaxError("You must specify a valid user!")
 
+    user_id = member.id
+    
     warn_list = database_handle.cursor.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id''',
                                     {'member_id': user_id}).fetchall()
     
@@ -165,7 +160,7 @@ async def mute(message: discord.Message, parameters: str, client: discord.Client
                 forbidden_role_list.append(role)
 
     if forbidden_role_list:
-        await message.channel.send("Unable to remove roles: {forbidden_role_list}")
+        await message.channel.send(f"Unable to remove roles: {forbidden_role_list}")
 
     await warn(message, f'{member_reason[0].id} MUTE - {member_reason[1]}', client, action_name="muted")
 
@@ -192,22 +187,11 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
         member = util.get_member_by_id_or_name(message, parameters)
 
     if member is None:
-        # See if it is a member ID (for banned/kicked/left users)
-        try:
-            user_id = parameters.strip("<@!>")
-            user_id = int(user_id)
-        except Exception:
-            if not silenced:
-                raise CommandSyntaxError('You must specify a valid user.')
-            else:
-                return 
-        if len(str(user_id)) not in range(17, 20):
-            if not silenced:
-                raise CommandSyntaxError('You must specify a valid user.')
-            else:
-                return 
-    else:
-        user_id = member.id
+        user_id = util.try_get_valid_user_id(parameters)
+        if not user_id:
+            raise CommandSyntaxError("You must specify a valid user!")
+
+    user_id = member.id
 
     roles = database_handle.cursor.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
                                     {'member_id': user_id}).fetchone()
@@ -216,7 +200,6 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
                         {'member_id': user_id})
     database_handle.client.commit()
     
-
     if roles is None:
         # If it's an empty array, they're in the database, elif None, they're not
         await message.channel.send("User is not muted")
