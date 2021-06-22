@@ -60,66 +60,77 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
         else:
             user_id = member.id
 
-
-
         total_warns = database_handle.cursor.execute(
             '''SELECT COUNT(*) FROM WARNS WHERE ID=:member_id''', {"member_id": user_id}).fetchone()[0]
 
         if total_warns == 0:
             await message.channel.send("User has no warns.")
-            return
+        elif total_warns <= 10:
+            # TOOO: stop repeating code, keep it dry
+            warn_list = database_handle.cursor.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id LIMIT 10''',
+                                    {'member_id': parameters}).fetchall()
+            warn_text = ''
+            timestamp_text = ''
 
-        response = await message.channel.send(embed=discord.Embed(title="Loading"))
-        await response.add_reaction("◀️")
-        await response.add_reaction("▶️")
-    
-        await warns(response, user_id, client, op=message.author.id, first_execution=False, page=0, total_warns_cache=total_warns)
-        return
-    
-    warn_list = database_handle.cursor.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id LIMIT 10 OFFSET :offset''',
-                                    {'member_id': parameters, "offset": page * 10}).fetchall()
-    
-    warn_text = ''
-    timestamp_text = ''
+            for warn in warn_list:
+                warn_text += str(warn[0]) + '\n'
+                timestamp_text += f"<t:{warn[1]}:R> \n"
+            warn_embed = discord.Embed(title=f"Warns. Total of {total_warns}", description=f"<@{parameters}>") \
+                    .add_field(name="Reason", value=warn_text) \
+                    .add_field(name="Timestamp", value=timestamp_text)
 
-    for warn in warn_list:
-        warn_text += str(warn[0]) + '\n'
-        timestamp_text += f"<t:{warn[1]}:R> \n"
-
-    warn_embed = discord.Embed(title=f"Warns. Total of {total_warns_cache}", description=f"<@{parameters}>") \
-                        .add_field(name="Reason", value=warn_text) \
-                        .add_field(name="Timestamp", value=timestamp_text) \
-                        .set_footer(text=f"Page: {page+1}/{total_warns_cache//10+1}")
-
-    await message.edit(embed=warn_embed)
-
-    def check(reaction, user):
-        if op != user.id:
-            return False
-
-        if reaction.message.id != message.id:
-            return False
-
-        emoji = reaction.emoji
-
-        valid = emoji == "◀️" or emoji == "▶️"
-        if not valid:
-            return False
-        asyncio.get_running_loop().create_task(reaction.remove(user))
-        nonlocal page
-        if emoji == "◀️" and page > 0:
-            page += -1
-        elif emoji == "▶️" and page < total_warns_cache // 10:
-            page += 1
+            await message.channel.send(embed=warn_embed)
         else:
-            return False
-        return True
+            response = await message.channel.send(embed=discord.Embed(title="Loading"))
+            await response.add_reaction("◀️")
+            await response.add_reaction("▶️")
+        
+            await warns(response, user_id, client, op=message.author.id, first_execution=False, page=0, total_warns_cache=total_warns)
+    else:
+        warn_list = database_handle.cursor.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id LIMIT 10 OFFSET :offset''',
+                                        {'member_id': parameters, "offset": page * 10}).fetchall()
+        
+        warn_text = ''
+        timestamp_text = ''
 
-    try:
-        await client.wait_for('reaction_add', timeout=30.0, check=check)
-        await warns(message, parameters, client, first_execution=False, op=op, page=page, total_warns_cache=total_warns_cache)
-    except asyncio.TimeoutError:
-        await message.clear_reactions()
+        for warn in warn_list:
+            warn_text += str(warn[0]) + '\n'
+            timestamp_text += f"<t:{warn[1]}:R> \n"
+
+        warn_embed = discord.Embed(title=f"Warns. Total of {total_warns_cache}", description=f"<@{parameters}>") \
+                            .add_field(name="Reason", value=warn_text) \
+                            .add_field(name="Timestamp", value=timestamp_text) \
+                            .set_footer(text=f"Page: {page+1}/{total_warns_cache//10+1}")
+
+        await message.edit(embed=warn_embed)
+
+        def check(reaction, user):
+            if op != user.id:
+                return False
+
+            if reaction.message.id != message.id:
+                return False
+
+            emoji = reaction.emoji
+
+            valid = emoji == "◀️" or emoji == "▶️"
+            if not valid:
+                return False
+            asyncio.get_running_loop().create_task(reaction.remove(user))
+            nonlocal page
+            if emoji == "◀️" and page > 0:
+                page += -1
+            elif emoji == "▶️" and page < total_warns_cache // 10:
+                page += 1
+            else:
+                return False
+            return True
+
+        try:
+            await client.wait_for('reaction_add', timeout=30.0, check=check)
+            await warns(message, parameters, client, first_execution=False, op=op, page=page, total_warns_cache=total_warns_cache)
+        except asyncio.TimeoutError:
+            await message.clear_reactions()
 
 @command({
     "syntax": "mywarns",
