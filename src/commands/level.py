@@ -36,7 +36,7 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
 
     ranks = configuration.LEVEL_ROLES.filter(lambda key, value: level - 1 < value[1])
     if ranks.lenght() > 0:
-        rank = ranks[ranks.lenght() - 1].value()
+        rank = ranks[len(ranks) - 1].value()
         next_rank = f"<@&{rank[0]}> | Level: {str(rank[1])}"
     else:
         next_rank = "Maximum rank reached."
