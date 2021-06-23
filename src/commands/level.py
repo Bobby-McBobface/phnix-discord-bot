@@ -34,7 +34,7 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
 
     avatar = member.avatar_url_as(format=None, static_format='png', size=1024)
 
-    ranks = dict(filter(lambda elem: level < elem[1][1], configuration.LEVEL_ROLES.items()))
+    ranks = dict(filter(lambda elem: level - 1< elem[1][1], configuration.LEVEL_ROLES.items()))
     if len(ranks) > 0:
         rank = ranks[len(ranks) - 1].value()
         next_rank = f"<@&{rank[0]}> | Level: {str(rank[1])}"
