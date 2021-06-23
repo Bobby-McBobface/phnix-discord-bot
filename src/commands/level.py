@@ -34,11 +34,18 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
 
     avatar = member.avatar_url_as(format=None, static_format='png', size=1024)
 
+    ranks = configuration.LEVEL_ROLES.filter(lambda key, value: level - 1 < value[1])
+    if ranks.lenght() > 0:
+        rank = ranks[ranks.lenght() - 1].value()
+        next_rank = f"<@&{rank[0]}> | Level: {str(rank[1])}"
+    else:
+        next_rank = "Maximum rank reached."
     rank_embed = discord.Embed(description=f"Rank for <@{member.id}>") \
         .add_field(name="Total XP:", value=user_xp[0]) \
         .add_field(name="Level:", value=(user_xp[1]-1)) \
         .add_field(name="Rank:", value="#" + str(user_rank[0])) \
         .add_field(name="XP until level up:", value=levels.xp_needed_for_level(user_xp[1]) - user_xp[0]) \
+        .add_field(name="Next rank:", value=next_rank) \
         .set_author(name=f"{member.name}#{member.discriminator}", icon_url=avatar.__str__())
     # Internally, levels start at 1, but users want it to start at 0, so there is a fix for that
 
