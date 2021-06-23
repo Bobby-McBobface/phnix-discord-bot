@@ -15,10 +15,11 @@ class PhnixBotClient(discord.Client):
     async def on_ready(self) -> None:
         """Runs when the bot is operational"""
         print('PhnixBot is ready')
+        
+        asyncio.get_running_loop().create_task(levels.clear_chatted_loop())
+        asyncio.get_running_loop().create_task(youtube.youtube(self))
+        asyncio.get_running_loop().create_task(twitch.twitch(self))
         await self.remute_on_startup()
-        asyncio.ensure_future(levels.clear_chatted_loop())
-        asyncio.ensure_future(youtube.youtube(self))
-        asyncio.ensure_future(twitch.twitch(self))
 
     async def on_member_join(self, member) -> None:
         welcome_channel = self.get_channel(configuration.WELCOME_CHANNEL)
@@ -56,8 +57,11 @@ class PhnixBotClient(discord.Client):
                 else str(after.id)  # idk lol set it to their user id I guess
             await after.edit(nick=new_nick, reason="Invisible nickname detected")
 
+    async def _remute_on_startup(self, guild, mute) -> None:
+        await asyncio.sleep(mute[1] - time())
+        await commands.command_aliases_dict["unmute"](guild, str(mute[0]), self, guild=True, silenced=True)
+
     async def remute_on_startup(self) -> None:
-        
         mute_list = database_handle.cursor.execute(
             '''SELECT ID, TIMESTAMP FROM MUTES''').fetchall()
 
@@ -66,8 +70,7 @@ class PhnixBotClient(discord.Client):
 
         for mute in mute_list:
             if mute[1] - time() > 0:
-                await asyncio.sleep(mute[1] - time())
-                await commands.command_aliases_dict["unmute"](guild, mute[0], self, guild=True, silenced=True)
+                asyncio.get_event_loop().create_task(self._remute_on_startup(guild, mute))
             elif mute[1] - time() < 0:
                 await commands.command_aliases_dict["unmute"](guild, str(mute[0]), self, guild=True, silenced=True)
 
