@@ -5,6 +5,7 @@ import levels
 import discord
 import util
 import database_handle
+import configuration
 
 # Registers all the commands; takes as a parameter the decorator factory to use.
 
@@ -34,11 +35,18 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
 
     avatar = member.avatar_url_as(format=None, static_format='png', size=1024)
 
+    ranks = dict(filter(lambda elem: user_xp[1] - 1 < elem[1][1], configuration.LEVEL_ROLES.items()))
+    if len(ranks) > 0:
+        rank = list(ranks.items())[len(ranks) - 1][1]
+        next_rank = f"<@&{rank[0]}> | Level: {str(rank[1])}"
+    else:
+        next_rank = "Maximum rank reached."
     rank_embed = discord.Embed(description=f"Rank for <@{member.id}>") \
         .add_field(name="Total XP:", value=user_xp[0]) \
         .add_field(name="Level:", value=(user_xp[1]-1)) \
         .add_field(name="Rank:", value="#" + str(user_rank[0])) \
         .add_field(name="XP until level up:", value=levels.xp_needed_for_level(user_xp[1]) - user_xp[0]) \
+        .add_field(name="Next rank:", value=next_rank) \
         .set_author(name=f"{member.name}#{member.discriminator}", icon_url=avatar.__str__())
     # Internally, levels start at 1, but users want it to start at 0, so there is a fix for that
 
