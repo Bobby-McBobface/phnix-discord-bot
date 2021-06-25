@@ -43,7 +43,7 @@ for user in users:
             DO UPDATE SET XP=:xp, LEVEL=:level''',
             {'id': user["id"],
             'xp': user["xp"],
-            'level': user["level"]+1})
+            'level': user["level"]})
     print(user["id"],user["xp"],user["level"])
     database_handle.client.commit()
 
@@ -56,3 +56,7 @@ database_handle.cursor.execute(f'''INSERT INTO LEVELS (ID, XP, LEVEL) \
                        'level': 9000})
 database_handle.client.commit()"""
 
+'''import database_handle as db
+for i in range(67):
+  db.cursor.execute(f"""UPDATE LEVELS SET LEVEL={i-1} WHERE LEVEL={i}""")
+  db.client.commit()'''

@@ -17,8 +17,6 @@ async def add_exp(member: discord.User, message: discord.Message) -> None:
     if len(message.content) < 3:
         return
 
-    xp_gain = randint(configuration.XP_GAIN_MIN, configuration.XP_GAIN_MAX)
-
     chatted.append(member.id)
 
     user_xp = database_handle.cursor.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
@@ -27,19 +25,16 @@ async def add_exp(member: discord.User, message: discord.Message) -> None:
     if user_xp == None:
         user_xp = (0, 0)
 
+    xp_gain = randint(configuration.XP_GAIN_MIN, configuration.XP_GAIN_MAX)
+
     xp = user_xp[0] + xp_gain
     level = user_xp[1]
 
-    if xp >= xp_needed_for_level(level):
-        # level up
-
+    if xp >= xp_needed_for_level(level + 1):
+        # Level 0 needs 0 xp, so we start at level 1
         level += 1
 
-        # Internally, levels are one more than MEE6 was, so there is a compensation
-        if level - 1 != 0:
-            await message.channel.send(f"<@!{member.id}> reached level {level-1}! <:poglin:798531675634139176>", allowed_mentions=discord.AllowedMentions(users=True))
-
-        # Give level roles
+        await message.channel.send(f"<@!{member.id}> reached level {level}! <:poglin:798531675634139176>", allowed_mentions=discord.AllowedMentions(users=True))
         await give_level_up_roles(member, level)
 
     database_handle.cursor.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
@@ -71,7 +66,7 @@ async def give_level_up_roles(member, level) -> None:
     ranks = configuration.LEVEL_ROLES.values()
 
     for index, value in enumerate(ranks):
-        if level - 1 >= value[1]:
+        if level >= value[1]:
             try:
                 await member.add_roles(member.guild.get_role(value[0]))
                 await member.remove_roles(member.guild.get_role(list(ranks)[index + 1][0]))
