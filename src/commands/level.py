@@ -5,6 +5,7 @@ import levels
 import discord
 import util
 import database_handle
+import configuration
 
 # Registers all the commands; takes as a parameter the decorator factory to use.
 
