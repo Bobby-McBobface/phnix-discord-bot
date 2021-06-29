@@ -40,7 +40,7 @@ async def ping(message: discord.Message, parameters: str, client: discord.Client
     start_time = (message.id >> 22) + 1420070400000
     ping_message = await message.channel.send("Pong! :ping_pong:")
     end_time = (ping_message.id >> 22) + 1420070400000
-    await ping_message.edit(content=f'Pong! Round trip: {end_time-start_time}ms | Websocket: {str(client.latency*100).split(".")[0]}ms', suppress=True)
+    await ping_message.edit(content=f'Pong! Round trip: {end_time-start_time}ms | Websocket: {round(client.latency*1000)} ms', suppress=True)
 
 command_list_already_preprocessed = False
 
