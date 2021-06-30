@@ -166,7 +166,7 @@ async def delwarn(message: discord.Message, parameters: str, client: discord.Cli
     
 
 @command({
-    "syntax": "mute <member> | <duration><s|m|h|d|y> [reason]",
+    "syntax": "mute <member> | <duration><s|m|h|d|w|y> [reason]",
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION,
     "description": "Mute a user for a specified duration"
@@ -178,7 +178,7 @@ async def mute(message: discord.Message, parameters: str, client: discord.Client
 
     try:
         time_reason = member_reason[1].split(maxsplit=1)
-        multiplier = configuration.TIME_MULIPLIER[time_reason[0][-1]]
+        multiplier = configuration.TIME_MULTIPLIER[time_reason[0][-1]]
         mute_time = int(time_reason[0][:-1]) * multiplier
     except:
         raise CommandSyntaxError('You must specify a valid duration.')

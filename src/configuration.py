@@ -1,6 +1,6 @@
 PREFIX = "!"
 
-VERSION = "1.8"
+VERSION = "1.8.1"
 
 DATABASE_PATH = r"bot_database.db"
 
@@ -49,13 +49,14 @@ LEVEL_ROLES = {
 DISALLOWED_XP_GAIN = [329235461929435137, 334929304561647617]
 
 # Mute
-TIME_MULIPLIER = {
+TIME_MULTIPLIER = {
     's': 1,
     'm': 60,
-    'h': 3600,
-    'd': 86400,
-    '_': 2635200,  # 30.5 days in a month
-    'y': 31557600  # 365.25 days in a year
+    'h': 60 * 60,
+    'd': 60 * 60 * 24,
+    'w': 60 * 60 * 24 * 7,
+    '_': 60 * 60 * 24 * 30.5,  # 30.5 days in a month
+    'y': 60 * 60 * 24 * 365.25  # 365.25 days in a year
 }
 
 # sequence of characters that shouldn't be someone's entire nickname
