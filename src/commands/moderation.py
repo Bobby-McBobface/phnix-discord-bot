@@ -335,8 +335,8 @@ async def ban(message: discord.Message, parameters: str, client: discord.Client)
     if member_reason[0] is None:
         raise CommandSyntaxError('You must specify a valid user.')
     
-    if not message.guild.me.guild_permissions.kick_members:
-        await message.channel.send("I don't have permissions to kick.")
+    if not message.guild.me.guild_permissions.ban_members:
+        await message.channel.send("I don't have permissions to ban.")
         return
 
     if message.guild.me.top_role <= member_reason[0].top_role:
@@ -346,6 +346,14 @@ async def ban(message: discord.Message, parameters: str, client: discord.Client)
     # if message.author.top_role <= member_reason[0].top_role:
     #     await message.channel.send("You are not high enough in the role hierarchy.")
     #     return
+
+    if message.guild.me.guild_permissions.manage_guild:
+        invites = await message.guild.invites()
+        for invite in invites:
+            if invite.inviter == member_reason[0]:
+                await invite.delete()
+    else:
+        await message.channel.send("I need the `manage_guild` permission to view and delete their invites.")
 
     await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", client, action_name="banned")
     await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
