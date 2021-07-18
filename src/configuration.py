@@ -74,6 +74,12 @@ STRINGS_PUN = [
     "{hugger} couldn't figure out how to hug themselves"
 ]
 
+WORDS_CENSORED = [
+    "horny",
+    "word2",
+    "word3"
+]
+
 ########################
 # Preformatted Strings #
 ########################
