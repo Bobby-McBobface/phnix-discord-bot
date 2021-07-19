@@ -83,7 +83,7 @@ class PhnixBotClient(discord.Client):
 
         # EXP/leveling system and censoring
         if any(word.lower in message.content.lower for word in configuration.WORDS_CENSORED):
-            await message.delete(message)
+            await message.delete()
             return
         else:
             if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
