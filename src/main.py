@@ -80,11 +80,24 @@ class PhnixBotClient(discord.Client):
         # Ignore bot accounts
         if message.author.bot:
             return
+        
+        # word blacklist
+        text_lowercase = message.content.lower()
+        # Iterate through all words in the blacklist
+        for word in configuration.WORDS_CENSORED:
+            if word in text_lowercase:
+                # Delete messages containing items in WORDS_CENSORED
+                await message.delete()
+                # DM the user what their original message was
+                # with a fancy embed thing
+                censored_word_embed = discord.Embed(
+                    description="Your message was deleted because it contained a blacklisted word.
+                ).add_field(name="Your message", value=message.content)
+                await message.author.send(embed=censored_word_embed)
+                # Do not continue processing this message
+                return
 
-        # EXP/leveling system and censoring
-        if word.lower() in configuration.WORDS_CENSORED:
-            await message.delete()
-            return
+        # EXP/leveling system
         if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
             await levels.add_exp(message.author, message)
         
