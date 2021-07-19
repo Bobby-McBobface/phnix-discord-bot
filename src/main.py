@@ -85,9 +85,8 @@ class PhnixBotClient(discord.Client):
         if any(word.lower in message.content.lower for word in configuration.WORDS_CENSORED):
             await message.delete()
             return
-        else:
-            if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
-                await levels.add_exp(message.author, message)
+        if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
+            await levels.add_exp(message.author, message)
         
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
         command_text = util.check_for_and_strip_prefixes(
