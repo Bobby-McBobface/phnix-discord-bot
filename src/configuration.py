@@ -74,6 +74,7 @@ STRINGS_PUN = [
     "{hugger} couldn't figure out how to hug themselves"
 ]
 
+# TODO: regex match to avoid bypass of the filters.
 WORDS_CENSORED = [
     "horny",
     "word2",
