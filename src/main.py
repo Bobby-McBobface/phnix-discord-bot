@@ -85,7 +85,8 @@ class PhnixBotClient(discord.Client):
         text_lowercase = message.content.lower()
         # Iterate through all words in the blacklist
         for word in configuration.WORDS_CENSORED:
-            if word in text_lowercase:
+            # Make word lowercase to avoid always false match on listed words with capitalized letters
+            if word.lower() in text_lowercase:
                 # Store the content before we delete it
                 original_content = message.content
                 # Delete messages containing items in WORDS_CENSORED
