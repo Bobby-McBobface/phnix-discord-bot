@@ -9,6 +9,7 @@ import util
 import youtube
 import twitch
 import database_handle
+import automod
 
 
 class PhnixBotClient(discord.Client):
@@ -81,24 +82,9 @@ class PhnixBotClient(discord.Client):
         if message.author.bot:
             return
         
-        # word blacklist
-        text_lowercase = message.content.lower()
-        # Iterate through all words in the blacklist
-        for word in configuration.WORDS_CENSORED:
-            # Make word lowercase to avoid always false match on listed words with capitalized letters
-            if word.lower() in text_lowercase:
-                # Store the content before we delete it
-                original_content = message.content
-                # Delete messages containing items in WORDS_CENSORED
-                await message.delete()
-                # DM the user what their original message was
-                # with a fancy embed thing
-                censored_word_embed = discord.Embed(
-                    description="Your message was deleted because it contained a blacklisted word."
-                ).add_field(name="Your message", value=original_content)
-                await message.author.send(embed=censored_word_embed)
-                # Do not continue processing this message
-                return
+        if await automod.automod(message):
+            # If automod returns True, message violated rules
+            return
 
         # EXP/leveling system
         if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
@@ -136,9 +122,8 @@ class PhnixBotClient(discord.Client):
             # We got the command's function!
 
             # bot-nether check
-            if message.guild.get_role(configuration.MODERATOR_ROLE) not in message.author.roles \
-                    and message.guild.id == configuration.GUILD_ID:
-                # Mod bypass and other server bypass
+            if not util.check_mod_or_test_server(message):
+            # Mod bypass and other server bypass
 
                 if message.channel.id not in command_function.command_data["allowed_channels"] \
                         and message.channel.id not in configuration.ALLOWED_COMMAND_CHANNELS:

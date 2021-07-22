@@ -1,6 +1,6 @@
 PREFIX = "!"
 
-VERSION = "1.8.1"
+VERSION = "1.9.1"
 
 DATABASE_PATH = r"bot_database.db"
 
@@ -76,9 +76,9 @@ STRINGS_PUN = [
 
 # TODO: regex match to avoid bypass of the filters.
 WORDS_CENSORED = [
-    "horny",
-    "word2",
-    "word3"
+    "nigga",
+    "nigger",
+    "pornhub.com"
 ]
 
 ########################
