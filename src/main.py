@@ -81,6 +81,10 @@ class PhnixBotClient(discord.Client):
         # Ignore bot accounts
         if message.author.bot:
             return
+
+        # Ignore messages in DMs
+        if type(message.channel) != discord.channel.TextChannel:
+            return
         
         if await automod.automod(message):
             # If automod returns True, message violated rules
