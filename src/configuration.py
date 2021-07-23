@@ -1,6 +1,6 @@
 PREFIX = "!"
 
-VERSION = "1.8.1"
+VERSION = "1.9.1"
 
 DATABASE_PATH = r"bot_database.db"
 
@@ -72,6 +72,13 @@ STRINGS_HUG = [
 STRINGS_PUN = [
     "{hugger} tried to self-hug; gets tangled up",
     "{hugger} couldn't figure out how to hug themselves"
+]
+
+# TODO: regex match to avoid bypass of the filters.
+WORDS_CENSORED = [
+    "nigga",
+    "nigger",
+    "pornhub.com"
 ]
 
 ########################

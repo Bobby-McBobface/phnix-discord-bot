@@ -97,6 +97,12 @@ def check_if_string_invisible(string: str) -> bool:
     # If the for loop ended, then every character must be invisible.
     return True
 
+def check_mod_or_test_server(message: discord.Message) -> bool:
+    if message.guild.get_role(configuration.MODERATOR_ROLE) in message.author.roles \
+        or message.guild.id != configuration.GUILD_ID:
+        return True
+    return False
+
 
 
         

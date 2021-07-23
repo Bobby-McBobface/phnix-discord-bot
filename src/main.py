@@ -9,6 +9,7 @@ import util
 import youtube
 import twitch
 import database_handle
+import automod
 
 
 class PhnixBotClient(discord.Client):
@@ -81,10 +82,18 @@ class PhnixBotClient(discord.Client):
         if message.author.bot:
             return
 
+        # Ignore messages in DMs
+        if type(message.channel) != discord.channel.TextChannel:
+            return
+        
+        if await automod.automod(message):
+            # If automod returns True, message violated rules
+            return
+
         # EXP/leveling system
         if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
             await levels.add_exp(message.author, message)
-
+        
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
         command_text = util.check_for_and_strip_prefixes(
             message.content,
@@ -117,9 +126,8 @@ class PhnixBotClient(discord.Client):
             # We got the command's function!
 
             # bot-nether check
-            if message.guild.get_role(configuration.MODERATOR_ROLE) not in message.author.roles \
-                    and message.guild.id == configuration.GUILD_ID:
-                # Mod bypass and other server bypass
+            if not util.check_mod_or_test_server(message):
+            # Mod bypass and other server bypass
 
                 if message.channel.id not in command_function.command_data["allowed_channels"] \
                         and message.channel.id not in configuration.ALLOWED_COMMAND_CHANNELS:
