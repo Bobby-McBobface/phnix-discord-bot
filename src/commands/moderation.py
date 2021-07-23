@@ -4,11 +4,11 @@ import sqlite3
 from time import time
 
 import discord
-from discord import embeds
 import configuration
 import util
 from commands import Category, CommandSyntaxError, command
 import database_handle
+import logger
 
 # Registers all the commands; takes as a parameter the decorator factory to use.
 @command({
@@ -35,10 +35,11 @@ async def warn(message: discord.Message, parameters: str, client: discord.Client
                         .add_field(name="Reason", value=member_reason[1])
     
     await message.channel.send(embed=warn_embed)
+    await logger.log_moderation(message, warn_embed, client)
+
     try:
         # DM user
-        #await member_reason[0].send(content=f"You have been **{action_name}** in {message.guild.name}!", embed=warn_embed)
-        pass
+        await member_reason[0].send(content=f"You have been **{action_name}** in {message.guild.name}!", embed=warn_embed)
     except discord.errors.Forbidden:
         await message.channel.send("Unable to DM user")
 

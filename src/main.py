@@ -1,6 +1,8 @@
 import discord
 from time import time
 import asyncio
+import traceback
+import sys
 
 import commands
 import configuration
@@ -10,17 +12,24 @@ import youtube
 import twitch
 import database_handle
 import automod
+import logger
 
 
 class PhnixBotClient(discord.Client):
     async def on_ready(self) -> None:
         """Runs when the bot is operational"""
         print('PhnixBot is ready')
-        
+
         asyncio.get_running_loop().create_task(levels.clear_chatted_loop())
         asyncio.get_running_loop().create_task(youtube.youtube(self))
         asyncio.get_running_loop().create_task(twitch.twitch(self))
         await self.remute_on_startup()
+
+    async def on_error(self, event_method, *args, **kwargs) -> None:
+        print(f'Ignoring exception in {event_method}', file=sys.stderr)
+        error = traceback.format_exc()
+        print(error)
+        await logger.log_error(error, self)
 
     async def on_member_join(self, member) -> None:
         welcome_channel = self.get_channel(configuration.WELCOME_CHANNEL)
@@ -36,7 +45,7 @@ class PhnixBotClient(discord.Client):
         # Regive level roles
         try:
             level = database_handle.cursor.execute('''SELECT LEVEL FROM LEVELS WHERE ID=:member_id''',
-                                          {'member_id': member.id}).fetchone()[0]
+                                                   {'member_id': member.id}).fetchone()[0]
         except:
             # No level, first join
             return
@@ -85,7 +94,7 @@ class PhnixBotClient(discord.Client):
         # Ignore messages in DMs
         if type(message.channel) != discord.channel.TextChannel:
             return
-        
+
         if await automod.automod(message):
             # If automod returns True, message violated rules
             return
@@ -93,7 +102,7 @@ class PhnixBotClient(discord.Client):
         # EXP/leveling system
         if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
             await levels.add_exp(message.author, message)
-        
+
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
         command_text = util.check_for_and_strip_prefixes(
             message.content,
@@ -127,7 +136,7 @@ class PhnixBotClient(discord.Client):
 
             # bot-nether check
             if not util.check_mod_or_test_server(message):
-            # Mod bypass and other server bypass
+                # Mod bypass and other server bypass
 
                 if message.channel.id not in command_function.command_data["allowed_channels"] \
                         and message.channel.id not in configuration.ALLOWED_COMMAND_CHANNELS:
@@ -148,7 +157,7 @@ class PhnixBotClient(discord.Client):
                     roles_string = " or ".join([f"`{message.guild.get_role(role_id).name}`" for role_id in
                                                 command_function.command_data['role_requirements'] if
                                                 message.guild.get_role(role_id) != None])
-                    error_message = await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")  
+                    error_message = await message.channel.send(f"You don't have permission to do that! You need {roles_string}.")
                     await asyncio.sleep(configuration.DELETE_ERROR_MESSAGE_TIME)
                     await error_message.delete()
                     return
@@ -165,7 +174,7 @@ class PhnixBotClient(discord.Client):
                 error_syntax = command_function.command_data['syntax']
                 # Put it all together
                 error_text = f"Invalid syntax{error_details}Usage: `{error_syntax}`"
-                error_message = await message.channel.send(error_text)             
+                error_message = await message.channel.send(error_text)
                 await asyncio.sleep(configuration.DELETE_ERROR_MESSAGE_TIME)
                 await error_message.delete()
 
