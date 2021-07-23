@@ -26,10 +26,13 @@ class PhnixBotClient(discord.Client):
         await self.remute_on_startup()
 
     async def on_error(self, event_method, *args, **kwargs) -> None:
-        print(f'Ignoring exception in {event_method}', file=sys.stderr)
-        error = traceback.format_exc()
-        print(error)
-        await logger.log_error(error, self)
+        try:
+            print(f'Ignoring exception in {event_method}', file=sys.stderr)
+            error = traceback.format_exc()
+            print(error)
+            await logger.log_error(error, self)
+        except Exception as e:
+            print("Caught error in on_error:", e)
 
     async def on_member_join(self, member) -> None:
         welcome_channel = self.get_channel(configuration.WELCOME_CHANNEL)
