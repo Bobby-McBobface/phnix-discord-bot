@@ -101,7 +101,7 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
         warn_embed = discord.Embed(title=f"Warns. Total of {total_warns_cache}", description=f"<@{parameters}>") \
                             .add_field(name="Reason", value=warn_text) \
                             .add_field(name="Timestamp", value=timestamp_text) \
-                            .set_footer(text=f"Page: {page+1}/{total_warns_cache//10+1}")
+                            .set_footer(text=f"Page: {page+1}/{(total_warns_cache-1) // 10 + 1}")
 
         await message.edit(embed=warn_embed)
 
@@ -121,7 +121,7 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
             nonlocal page
             if emoji == "◀️" and page > 0:
                 page += -1
-            elif emoji == "▶️" and page < total_warns_cache // 10:
+            elif emoji == "▶️" and page < (total_warns_cache-1) // 10:
                 page += 1
             else:
                 return False

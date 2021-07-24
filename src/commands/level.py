@@ -63,16 +63,19 @@ async def leaderboards(message: discord.Message, parameters: str, client: discor
     try:
         page = int(parameters)
     except:
-        # Human friendly compensation
-        page = 0
+        page = 1
 
     if first_execution:
+
+        # Human friendly compensation
+        page = page - 1
+
         response = await message.channel.send(embed=discord.Embed(title="Loading"))
         await response.add_reaction("◀️")
         await response.add_reaction("▶️")
 
-        total_pages = database_handle.cursor.execute(
-            '''SELECT COUNT(*) FROM LEVELS''').fetchone()[0] // 10
+        total_pages = (database_handle.cursor.execute(
+            '''SELECT COUNT(*) FROM LEVELS''').fetchone()[0] - 1) // 10
 
         await leaderboards(response, page, client, first_execution=False, op=message.author.id, page_cache=total_pages)
         return
