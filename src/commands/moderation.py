@@ -75,7 +75,7 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
 
             for warn in warn_list:
                 warn_text += str(warn[0]) + '\n'
-                timestamp_text += f"<t:{warn[1]}:R> \n"
+                timestamp_text += f"<t:{warn[1]}:f> \n"
             warn_embed = discord.Embed(title=f"Warns. Total of {total_warns}", description=f"<@{parameters}>") \
                     .add_field(name="Reason", value=warn_text) \
                     .add_field(name="Timestamp", value=timestamp_text)
