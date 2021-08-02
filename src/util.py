@@ -2,7 +2,6 @@ from random import choice
 import discord
 
 import configuration
-import database_handle
 
 
 def get_member_by_id_or_name(message, user: str) -> discord.Member or None:
@@ -65,27 +64,9 @@ def try_get_valid_user_id(id: str) -> int:
     return user_id
 
 
-def check_for_and_strip_prefixes(string: str, prefixes: tuple) -> str:
-    """
-    If `string` starts with one of the given prefixes,
-    return the string and the prefix. Otherwise, returns None.
-    """
-
-    for prefix in prefixes:
-        if string.startswith(prefix):
-            return string[len(prefix):].lstrip()
-    # If the loop ended, it failed to find a prefix
-    return None
-
-
 def choose_random(choices: list):
     """Returns a random item from `choices`"""
     return choice(choices)
-
-
-def get_muted_status(member: discord.Member) -> "tuple[int, int]":
-    return database_handle.cursor.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
-                                          {'member_id': member.id, }).fetchone()
 
 
 def check_if_string_invisible(string: str) -> bool:

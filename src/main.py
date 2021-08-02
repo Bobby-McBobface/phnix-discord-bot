@@ -39,7 +39,8 @@ class PhnixBotClient(discord.Client):
         await welcome_channel.send(configuration.welcome_msg.format("<@" + str(member.id) + ">"))
 
         # Check if member is muted and give appropriate role:
-        muted = util.get_muted_status(member)
+        muted = database_handle.cursor.execute('''SELECT ID, TIMESTAMP FROM MUTES WHERE ID=:member_id''',
+                                          {'member_id': member.id,}).fetchone()
 
         if muted and muted[1] - time() > 0:
             await member.add_roles(member.guild.get_role(configuration.MUTED_ROLE))
@@ -107,12 +108,15 @@ class PhnixBotClient(discord.Client):
             await levels.add_exp(message.author, message)
 
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
-        command_text = util.check_for_and_strip_prefixes(
-            message.content,
-            (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>"))
+        for prefix in (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>"):
+            if message.content.startswith(prefix):
+                command_text = message.content[len(prefix):].lstrip()
+                break
+            # If the loop ended, it failed to find a prefix
+            return 
 
-        # If there was a command prefix...
-        if command_text is not None and command_text != '':
+        # If there was a command prefix and command text...
+        if command_text != '':
 
             # Split the command into 2 parts, command name and parameters
             split_command_text = command_text.split(maxsplit=1)
