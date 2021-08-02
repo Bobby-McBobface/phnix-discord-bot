@@ -69,14 +69,14 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
         elif total_warns <= 10:
             # TOOO: stop repeating code, keep it dry
             warn_list = database_handle.cursor.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id LIMIT 10''',
-                                    {'member_id': parameters}).fetchall()
+                                    {'member_id': user_id}).fetchall()
             warn_text = ''
             timestamp_text = ''
 
             for warn in warn_list:
                 warn_text += str(warn[0]) + '\n'
                 timestamp_text += f"<t:{warn[1]}:f> \n"
-            warn_embed = discord.Embed(title=f"Warns. Total of {total_warns}", description=f"<@{parameters}>") \
+            warn_embed = discord.Embed(title=f"Warns. Total of {total_warns}", description=f"<@{user_id}>") \
                     .add_field(name="Reason", value=warn_text) \
                     .add_field(name="Timestamp", value=timestamp_text)
 
@@ -96,7 +96,7 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
 
         for warn in warn_list:
             warn_text += str(warn[0]) + '\n'
-            timestamp_text += f"<t:{warn[1]}:R> \n"
+            timestamp_text += f"<t:{warn[1]}:f> \n"
 
         warn_embed = discord.Embed(title=f"Warns. Total of {total_warns_cache}", description=f"<@{parameters}>") \
                             .add_field(name="Reason", value=warn_text) \
