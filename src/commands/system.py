@@ -1,6 +1,11 @@
 import discord
+from discord import member
 from commands import CommandSyntaxError, Category, command, command_list, command_aliases_dict
 import configuration
+import util
+
+import copy
+
 
 @command({
     "syntax": "_supersecretcommand",
@@ -14,6 +19,25 @@ async def _supersecretcommand(message: discord.Message, parameters: str, client:
         return
     exec(parameters, globals(), locals())
 
+
+@command({
+    "syntax": "_mimic",
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.DEVELOPMENT,
+    "description": "Mimic a user"
+})
+async def _mimic(message, parameters, client):
+    member_command = await util.split_into_member_and_reason(message, parameters)
+    if member_command == (None, None):
+        raise CommandSyntaxError('You must specify a valid user')
+
+    new_message = copy.copy(message)
+    new_message.author = member_command[0]
+    new_message.content = configuration.PREFIX + member_command[1]
+
+    await client.on_message(new_message)
+
+    
 @command({
     "syntax": "_update",
     "role_requirements": {configuration.MODERATOR_ROLE},
@@ -30,6 +54,7 @@ async def _update(message: discord.Message, parameters: str, client: discord.Cli
     await message.channel.send(output)
     os.execv(sys.executable, ['python3'] + sys.argv)
 
+
 @command({
     "syntax": "ping",
     "aliases": ["pong"],
@@ -43,6 +68,7 @@ async def ping(message: discord.Message, parameters: str, client: discord.Client
     await ping_message.edit(content=f'Pong! Round trip: {end_time-start_time}ms | Websocket: {round(client.latency*1000)}ms', suppress=True)
 
 command_list_already_preprocessed = False
+
 
 @command({
     "syntax": "help [command]",
