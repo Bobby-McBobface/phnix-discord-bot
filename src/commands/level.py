@@ -35,7 +35,8 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
 
     avatar = member.avatar_url_as(format=None, static_format='png', size=1024)
 
-    ranks = dict(filter(lambda elem: user_xp[1] < elem[1][1], configuration.LEVEL_ROLES.items()))
+    ranks = dict(
+        filter(lambda elem: user_xp[1] < elem[1][1], configuration.LEVEL_ROLES.items()))
     if len(ranks) > 0:
         rank = list(ranks.items())[-1][1]
         next_rank = f"<@&{rank[0]}> | Level: {str(rank[1])}"
@@ -61,62 +62,29 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
 })
 async def leaderboards(message: discord.Message, parameters: str, client: discord.Client, first_execution=True, op=None, page_cache=0) -> None:
     try:
-        page = int(parameters)
+        page = int(parameters) - 1
     except:
-        page = 1
+        page = 0
 
-    if first_execution:
+    total_pages = (database_handle.cursor.execute(
+        '''SELECT COUNT(*) FROM LEVELS''').fetchone()[0] - 1) // 10
 
-        # Human friendly compensation
-        page = page - 1
+    response = await message.channel.send(embed=discord.Embed(title="Loading"))
+    reaction_page_handle = util.ReactionPageHandle(
+        client, response, message.author, leaderboard_embed_generator, page, total_pages)
+    await reaction_page_handle.start()
 
-        response = await message.channel.send(embed=discord.Embed(title="Loading"))
-        await response.add_reaction("◀️")
-        await response.add_reaction("▶️")
 
-        total_pages = (database_handle.cursor.execute(
-            '''SELECT COUNT(*) FROM LEVELS''').fetchone()[0] - 1) // 10
-
-        await leaderboards(response, page, client, first_execution=False, op=message.author.id, page_cache=total_pages)
-        return
-
+def leaderboard_embed_generator(page, total_pages):
     data_list = database_handle.cursor.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
                                                {"offset": page * 10}).fetchall()
 
     lb_list = ''.join(
-        f"{page * 10 + index + 1}: <@{data[0]}> | Level: {data[1]} | Total XP: {data[2]}\n" for index, data in enumerate(data_list))
+        f"{page * 10 + index + 1}: <@{data[0]}> | Level: {data[1]} | Total XP: {data[2]}\n"
+        for index, data in enumerate(data_list))
 
     if not lb_list:
         lb_list = "No data on this page!"
 
-    embed = discord.Embed(title="Leaderboard", description=lb_list).set_footer(
-        text=f"Page: {page + 1}/{page_cache + 1}")
-    await message.edit(embed=embed)
-
-    def check(reaction, user):
-        if op != user.id:
-            return False
-
-        if reaction.message.id != message.id:
-            return False
-
-        emoji = reaction.emoji
-
-        valid = emoji == "◀️" or emoji == "▶️"
-        if not valid:
-            return False
-        asyncio.get_running_loop().create_task(reaction.remove(user))
-        nonlocal page
-        if emoji == "◀️" and page > 0:
-            page += -1
-        elif emoji == "▶️" and page < page_cache:
-            page += 1
-        else:
-            return False
-        return True
-
-    try:
-        await client.wait_for('reaction_add', timeout=30.0, check=check)
-        await leaderboards(message, page, client, first_execution=False, op=op, page_cache=page_cache)
-    except asyncio.TimeoutError:
-        await message.clear_reactions()
+    return discord.Embed(title="Leaderboard", description=lb_list).set_footer(
+        text=f"Page: {page + 1}/{total_pages + 1}")

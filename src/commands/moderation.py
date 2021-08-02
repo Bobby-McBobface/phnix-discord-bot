@@ -11,6 +11,8 @@ import database_handle
 import logger
 
 # Registers all the commands; takes as a parameter the decorator factory to use.
+
+
 @command({
     "syntax": "warn <member> | [reason]",
     "role_requirements": {configuration.MODERATOR_ROLE},
@@ -22,18 +24,18 @@ async def warn(message: discord.Message, parameters: str, client: discord.Client
 
     if member_reason[0] == None:
         raise CommandSyntaxError('You must specify a valid user.')
-    
+
     database_handle.cursor.execute('''INSERT INTO WARNS (ID, REASON, TIMESTAMP) \
     VALUES(:member_id, :reason, :time)''',
-                            {'member_id': member_reason[0].id, 'reason': str(member_reason[1]),
-                            'time': round(time())})
+                                   {'member_id': member_reason[0].id, 'reason': str(member_reason[1]),
+                                    'time': round(time())})
     database_handle.client.commit()
-    
+
     # Send a message to the channel that the command was used in
     warn_embed = discord.Embed(title=action_name.title(),
-                                description=member_reason[0].mention) \
-                        .add_field(name="Reason", value=member_reason[1])
-    
+                               description=member_reason[0].mention) \
+        .add_field(name="Reason", value=member_reason[1])
+
     await message.channel.send(embed=warn_embed)
     await logger.log_moderation(message, warn_embed, client)
 
@@ -43,95 +45,50 @@ async def warn(message: discord.Message, parameters: str, client: discord.Client
     except Exception:
         await message.channel.send("Unable to DM user")
 
+
 @command({
     "syntax": "warns <member>",
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION,
     "description": "List the warns of a user"
 })
-async def warns(message: discord.Message, parameters: str, client: discord.Client, op:discord.Member=None, first_execution: bool=True, page:int=0, total_warns_cache:int=0) -> None:
-    if first_execution:
-        member = util.get_member_by_id_or_name(message, parameters)
+async def warns(message: discord.Message, parameters: str, client: discord.Client) -> None:
+    member = util.get_member_by_id_or_name(message, parameters)
 
-        if member is None:
-            user_id = util.try_get_valid_user_id(parameters)
-            if not user_id:
-                raise CommandSyntaxError("You must specify a valid user!")
-
-        else:
-            user_id = member.id
-
-        total_warns = database_handle.cursor.execute(
-            '''SELECT COUNT(*) FROM WARNS WHERE ID=:member_id''', {"member_id": user_id}).fetchone()[0]
-
-        if total_warns == 0:
-            await message.channel.send("User has no warns.")
-        elif total_warns <= 10:
-            # TOOO: stop repeating code, keep it dry
-            warn_list = database_handle.cursor.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id LIMIT 10''',
-                                    {'member_id': user_id}).fetchall()
-            warn_text = ''
-            timestamp_text = ''
-
-            for warn in warn_list:
-                warn_text += str(warn[0]) + '\n'
-                timestamp_text += f"<t:{warn[1]}:f> \n"
-            warn_embed = discord.Embed(title=f"Warns. Total of {total_warns}", description=f"<@{user_id}>") \
-                    .add_field(name="Reason", value=warn_text) \
-                    .add_field(name="Timestamp", value=timestamp_text)
-
-            await message.channel.send(embed=warn_embed)
-        else:
-            response = await message.channel.send(embed=discord.Embed(title="Loading"))
-            await response.add_reaction("◀️")
-            await response.add_reaction("▶️")
-        
-            await warns(response, user_id, client, op=message.author.id, first_execution=False, page=0, total_warns_cache=total_warns)
+    if member is None:
+        user_id = util.try_get_valid_user_id(parameters)
+        if not user_id:
+            raise CommandSyntaxError("You must specify a valid user!")
     else:
+        user_id = member.id
+
+    def warn_embed_generator(page: int, total_pages: int):
         warn_list = database_handle.cursor.execute('''SELECT REASON, TIMESTAMP FROM WARNS WHERE ID = :member_id LIMIT 10 OFFSET :offset''',
-                                        {'member_id': parameters, "offset": page * 10}).fetchall()
-        
-        warn_text = ''
-        timestamp_text = ''
+                                                   {'member_id': user_id, "offset": page * 10}).fetchall()
+
+        warn_text = timestamp_text = ''
 
         for warn in warn_list:
-            warn_text += str(warn[0]) + '\n'
-            timestamp_text += f"<t:{warn[1]}:f> \n"
+            warn_text += f"{warn[0]}\n"
+            timestamp_text += f"<t:{warn[1]}:f>\n"
 
-        warn_embed = discord.Embed(title=f"Warns. Total of {total_warns_cache}", description=f"<@{parameters}>") \
-                            .add_field(name="Reason", value=warn_text) \
-                            .add_field(name="Timestamp", value=timestamp_text) \
-                            .set_footer(text=f"Page: {page+1}/{(total_warns_cache-1) // 10 + 1}")
+        return discord.Embed(title=f"Warns. Total of {total_warns}", description=f"<@{user_id}>") \
+            .add_field(name="Reason", value=warn_text) \
+            .add_field(name="Timestamp", value=timestamp_text) \
+            .set_footer(text=f"Page: {page+1}/{total_pages+1}")
 
-        await message.edit(embed=warn_embed)
+    total_warns = database_handle.cursor.execute(
+        '''SELECT COUNT(*) FROM WARNS WHERE ID=:member_id''', {"member_id": user_id}).fetchone()[0]
 
-        def check(reaction, user):
-            if op != user.id:
-                return False
+    if total_warns == 0:
+        await message.channel.send("User has no warns.")
+    elif total_warns <= 10:
+        await message.channel.send(embed=warn_embed_generator(0,0))
+    else:
+        response = await message.channel.send(embed=discord.Embed(title="Loading"))
+        reaction_handler = util.ReactionPageHandle(client, response, message.author, warn_embed_generator, 0, (total_warns - 1) // 10)
+        await reaction_handler.start()
 
-            if reaction.message.id != message.id:
-                return False
-
-            emoji = reaction.emoji
-
-            valid = emoji == "◀️" or emoji == "▶️"
-            if not valid:
-                return False
-            asyncio.get_running_loop().create_task(reaction.remove(user))
-            nonlocal page
-            if emoji == "◀️" and page > 0:
-                page += -1
-            elif emoji == "▶️" and page < (total_warns_cache-1) // 10:
-                page += 1
-            else:
-                return False
-            return True
-
-        try:
-            await client.wait_for('reaction_add', timeout=30.0, check=check)
-            await warns(message, parameters, client, first_execution=False, op=op, page=page, total_warns_cache=total_warns_cache)
-        except asyncio.TimeoutError:
-            await message.clear_reactions()
 
 @command({
     "syntax": "mywarns",
@@ -140,6 +97,7 @@ async def warns(message: discord.Message, parameters: str, client: discord.Clien
 })
 async def mywarns(message: discord.Message, parameters: str, client: discord.Client) -> None:
     await warns(message, str(message.author.id), client)
+
 
 @command({
     "syntax": "delwarn <member> <timestamp of warn>",
@@ -151,9 +109,9 @@ async def delwarn(message: discord.Message, parameters: str, client: discord.Cli
     member_reason = await util.split_into_member_and_reason(message, parameters)
     if member_reason == (None, None):
         raise CommandSyntaxError('You must specify a valid user')
-    
+
     warn = database_handle.cursor.execute('''SELECT REASON FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
-                                    {"timestamp": member_reason[1], "id": member_reason[0].id}).fetchone()
+                                          {"timestamp": member_reason[1], "id": member_reason[0].id}).fetchone()
 
     if warn is not None:
         await message.channel.send(f"Deleting warn from {member_reason[0].name}#{member_reason[0].discriminator} ({member_reason[0].id}) about {warn[0]}")
@@ -162,9 +120,9 @@ async def delwarn(message: discord.Message, parameters: str, client: discord.Cli
         return
 
     database_handle.cursor.execute('''DELETE FROM WARNS WHERE TIMESTAMP=:timestamp AND ID=:id''',
-                            {"timestamp": member_reason[1], "id": member_reason[0].id})
+                                   {"timestamp": member_reason[1], "id": member_reason[0].id})
     database_handle.client.commit()
-    
+
 
 @command({
     "syntax": "mute <member> | <duration><s|m|h|d|w|y> [reason]",
@@ -194,18 +152,18 @@ async def mute(message: discord.Message, parameters: str, client: discord.Client
     roles = member_reason[0].roles
     # Remove @everyone role
     roles = roles[1:]
-    
+
     try:
         database_handle.cursor.execute('''INSERT INTO MUTES (ID, TIMESTAMP, ROLES) \
         VALUES(:member_id, :timestamp, :roles) ''',
-                                {'member_id': member_reason[0].id, 'timestamp': round(time()) + mute_time,
-                                'roles': str([role.id for role in roles])})
+                                       {'member_id': member_reason[0].id, 'timestamp': round(time()) + mute_time,
+                                        'roles': str([role.id for role in roles])})
     except sqlite3.IntegrityError:
         await message.channel.send('User is already muted')
         return
 
     database_handle.client.commit()
-    
+
     # Remove all roles
     forbidden_role_list = []
     for role in roles:
@@ -222,6 +180,7 @@ async def mute(message: discord.Message, parameters: str, client: discord.Client
 
     await asyncio.sleep(mute_time)
     await unmute(message, str(member_reason[0].id), client, silenced=True)
+
 
 @command({
     "syntax": "unmute <member>",
@@ -251,12 +210,12 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
         user_id = member.id
 
     roles = database_handle.cursor.execute('''SELECT ROLES FROM MUTES WHERE ID=:member_id''',
-                                    {'member_id': user_id}).fetchone()
-        
+                                           {'member_id': user_id}).fetchone()
+
     database_handle.cursor.execute('''DELETE FROM MUTES WHERE ID=:member_id''',
-                        {'member_id': user_id})
+                                   {'member_id': user_id})
     database_handle.client.commit()
-    
+
     if roles is None:
         # If it's an empty array, they're in the database, elif None, they're not
         await message.channel.send("User is not muted")
@@ -296,6 +255,7 @@ async def unmute(message: discord.Message, parameters: str, client: discord.Clie
     if not silenced:
         await message.channel.send(f'Unmuted {member.name}#{member.discriminator} ({member.id})')
 
+
 @command({
     "syntax": "kick <member> | [reason]",
     "aliases": ["kcik"],
@@ -308,7 +268,7 @@ async def kick(message: discord.Message, parameters: str, client: discord.Client
 
     if member_reason[0] is None:
         raise CommandSyntaxError('You must specify a valid user.')
-    
+
     if not message.guild.me.guild_permissions.kick_members:
         await message.channel.send("I don't have permissions to kick.")
         return
@@ -324,6 +284,7 @@ async def kick(message: discord.Message, parameters: str, client: discord.Client
     await warn(message, f"{member_reason[0].id} KICK - {member_reason[1]}", client, action_name="kicked")
     await message.guild.kick(member_reason[0], reason=member_reason[1])
 
+
 @command({
     "syntax": "ban <member> | [reason]",
     "role_requirements": {configuration.MODERATOR_ROLE},
@@ -335,7 +296,7 @@ async def ban(message: discord.Message, parameters: str, client: discord.Client)
 
     if member_reason[0] is None:
         raise CommandSyntaxError('You must specify a valid user.')
-    
+
     if not message.guild.me.guild_permissions.ban_members:
         await message.channel.send("I don't have permissions to ban.")
         return
@@ -358,4 +319,3 @@ async def ban(message: discord.Message, parameters: str, client: discord.Client)
 
     await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", client, action_name="banned")
     await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
-

@@ -1,6 +1,8 @@
 from random import choice
-import discord
+import asyncio
+from typing import Callable
 
+import discord
 import configuration
 
 
@@ -78,12 +80,56 @@ def check_if_string_invisible(string: str) -> bool:
     # If the for loop ended, then every character must be invisible.
     return True
 
+
 def check_mod_or_test_server(message: discord.Message) -> bool:
     if message.guild.get_role(configuration.MODERATOR_ROLE) in message.author.roles \
-        or message.guild.id != configuration.GUILD_ID:
+            or message.guild.id != configuration.GUILD_ID:
         return True
     return False
 
 
+class ReactionPageHandle():
+    def __init__(self, client: discord.Client, message: discord.Message, op: discord.Member,
+                       data_source: Callable[[int, int], discord.Embed], page: int, total_pages: int):
 
-        
+        self.client = client
+        self.message = message
+        self.op = op
+        self.data_source = data_source
+        self.page = page
+        self.total_pages = total_pages
+    
+    async def start(self):
+        await self.message.add_reaction("◀️")
+        await self.message.add_reaction("▶️")
+
+        await self.page_change()
+
+
+    def check(self, reaction: discord.Reaction, user: discord.Member):
+        if self.op.id != user.id or reaction.message.id != self.message.id:
+            return False
+
+        emoji = reaction.emoji
+
+        if emoji != "◀️" and emoji != "▶️":
+            return False
+
+        asyncio.get_running_loop().create_task(reaction.remove(user))
+
+        if emoji == "◀️" and self.page > 0:
+            self.page += -1
+        elif emoji == "▶️" and self.page < self.total_pages:
+            self.page += 1
+        else:
+            return False
+        return True
+
+    async def page_change(self):
+        new_page_embed = self.data_source(self.page, self.total_pages)
+        await self.message.edit(embed=new_page_embed)
+        try:
+            await self.client.wait_for('reaction_add', timeout=30.0, check=self.check)
+            await self.page_change()
+        except asyncio.TimeoutError:
+            await self.message.clear_reactions()
