@@ -13,7 +13,7 @@ async def log_error(error: str, client: discord.Client) -> None:
     await send_logs("", client, error_embed)
 
 
-async def send_logs(message: str, client: discord.Client, embed: Union[discord.Client, None]) -> None:
+async def send_logs(message: str, client: discord.Client, embed: Union[discord.Embed, None]) -> None:
     try:
         await client.get_guild(configuration.GUILD_ID).get_channel(configuration.LOG_CHANNEL).send(message, embed=embed, allowed_mentions=discord.AllowedMentions(users=False))
     except Exception as e:
