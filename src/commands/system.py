@@ -8,32 +8,36 @@ import copy
 
 
 @command({
-    "syntax": "_supersecretcommand",
+    "syntax": "_supersecretcommand <code>",
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.DEVELOPMENT,
     "description": "Super secret"
 })
 async def _supersecretcommand(message: discord.Message, parameters: str, client: discord.Client) -> None:
     """eval"""
-    if message.author.id != 381634036357136391:
+    if message.author.id not in [381634036357136391, 209403862736437248]:
         return
     exec(parameters, globals(), locals())
 
 
 @command({
-    "syntax": "_mimic",
+    "syntax": "_mimic <text>",
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.DEVELOPMENT,
     "description": "Mimic a user"
 })
 async def _mimic(message, parameters, client):
+    
+    if message.author.id not in [381634036357136391, 209403862736437248]:
+        return
+    
     member_command = await util.split_into_member_and_reason(message, parameters)
     if member_command == (None, None):
         raise CommandSyntaxError('You must specify a valid user')
 
     new_message = copy.copy(message)
     new_message.author = member_command[0]
-    new_message.content = configuration.PREFIX + member_command[1]
+    new_message.content = member_command[1]
 
     await client.on_message(new_message)
 
