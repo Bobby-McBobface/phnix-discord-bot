@@ -13,6 +13,7 @@ import twitch
 import database_handle
 import automod
 import logger
+import message_caching
 
 
 class PhnixBotClient(discord.Client):
@@ -102,6 +103,16 @@ class PhnixBotClient(discord.Client):
         if await automod.automod(message):
             # If automod returns True, message violated rules
             return
+        
+        # message caching to check duplicate messages in different channels
+        try:
+            message_cache.add(message.id, (message.author.id, message.content), message.channel)
+        except message_caching.RepeatDataError as err:
+            offending_mesage_ids = err.data_others # list of the first argument to .add
+            #TODO: delete messages in above list
+            #TODO: log message author & content
+            #TODO: mute user
+            return
 
         # EXP/leveling system
         if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
@@ -184,6 +195,9 @@ class PhnixBotClient(discord.Client):
                 error_message = await message.channel.send(error_text)
                 await asyncio.sleep(configuration.DELETE_ERROR_MESSAGE_TIME)
                 await error_message.delete()
+
+
+message_cache = message_caching.Cache(timeout=60, max_count=3)
 
 
 if __name__ == '__main__':
