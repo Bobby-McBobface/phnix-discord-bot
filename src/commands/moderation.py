@@ -287,6 +287,7 @@ async def kick(message: discord.Message, parameters: str, client: discord.Client
 
 @command({
     "syntax": "ban <member> | [reason]",
+    "aliases": ["snipe"],
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION,
     "description": "Bans a user"
