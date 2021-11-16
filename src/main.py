@@ -16,6 +16,9 @@ import logger
 
 
 class PhnixBotClient(discord.Client):
+    
+    DEBUG_SPY_MODE = False
+    
     async def on_ready(self) -> None:
         """Runs when the bot is operational"""
         print('PhnixBot is ready')
@@ -90,6 +93,9 @@ class PhnixBotClient(discord.Client):
 
     async def on_message(self, message) -> None:
         """Runs every time the bot notices a message being sent anywhere."""
+        
+        if self.DEBUG_SPY_MODE:
+            print(message.content)
 
         # Ignore bot accounts
         if message.author.bot:
@@ -108,14 +114,14 @@ class PhnixBotClient(discord.Client):
             await levels.add_exp(message.author, message)
 
         # COMMANDS: Check if it has our command prefix, or starts with a mention of our bot
+        command_text = ''
+        # Find the command_text from stripping a command prefix
         for prefix in (configuration.PREFIX, self.user.mention, f"<@!{self.user.id}>"):
             if message.content.startswith(prefix):
                 command_text = message.content[len(prefix):].lstrip()
                 break
-            # If the loop ended, it failed to find a prefix
-            return 
 
-        # If there was a command prefix and command text...
+        # If there was a command prefix and command text found...
         if command_text != '':
 
             # Split the command into 2 parts, command name and parameters

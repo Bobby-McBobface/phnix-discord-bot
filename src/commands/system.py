@@ -15,8 +15,13 @@ import copy
 })
 async def _supersecretcommand(message: discord.Message, parameters: str, client: discord.Client) -> None:
     """eval"""
-    if message.author.id not in [381634036357136391, 209403862736437248]:
+    if message.author.id not in [381634036357136391, 209403862736437248, 292383690313695232]:
         return
+    if (parameters.startswith("```") 
+    and parameters.endswith("```")):
+        parameters = parameters[3:-3]
+        if parameters.startswith("python\n"):
+            parameters = parameters[len("python\n"):]
     exec(parameters, globals(), locals())
 
 
