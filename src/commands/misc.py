@@ -42,10 +42,18 @@ async def hug(message: discord.Message, parameters: str, client: discord.Client)
     # Get users
     hugger = message.author.mention
     target = parameters
+    
     if str(message.author.id) in target:
         #reply message should be a pun
         reply = util.choose_random(configuration.STRINGS_PUN).format(hugger=hugger)
     else:
+        
+        if target.lower() == "me":
+            await message.channel.send("Aw, do you need a hug?")
+            # Make Modertron hug the user instead
+            target = hugger
+            hugger = client.user.mention
+        
         # Get a random message and fill it in
         choice = util.choose_random(configuration.STRINGS_HUG)
         reply = choice.format(hugger=hugger, target=target)
