@@ -90,3 +90,61 @@ async def replytome(message: discord.Message, parameters: str, client: discord.C
 })
 async def aa(message: discord.Message, parameters: str, client: discord.Client) -> None:
     await message.channel.send(content="AAAAAAAAAAAAAAAAAAAAAAAA", reference=message)
+
+
+@command({
+    "syntax": "villager <message>",
+    "aliases": ["h" + "m"*i for i in range(1, 6)],
+    "description": "Translates a message to villager",
+    "category": Category.OTHER
+})
+async def villager(message: discord.Message, parameters: str, client: discord.Client) -> None:
+    """Villager command by LeeSpork
+    Originally developed for Obsidion bot
+    """
+    last_was_alpha = False  # Was the last character part of the alphabet? Used to detect the start of a word
+    last_was_h = False  # Was the last character converted to an H or h? Used to prevent 'H's without 'm's
+    last_was_lower_m = False  # Was the last character converted to a lowercase m? Used to make "HmmHmm" instead of "HmmMmm"
+    sentence = "" # Output string
+    original_sentance = parameters
+
+    for char in original_sentance:
+
+        if char.isalpha():  # Is it an alphabetical letter? If so, replace with 'Hmm'
+
+            if not last_was_alpha:  # First letter of alphabetical string
+                sentence += "H" if char.isupper() else "h"
+                last_was_h = True
+                last_was_lower_m = False
+
+            else:  # Non-first letter
+                if not char.isupper():
+                    sentence += "m"
+                    last_was_lower_m = True
+                    last_was_h = False
+                else:
+                    # Use an 'H' instead to allow CamelCase 'HmmHmm's
+                    if last_was_lower_m:
+                        sentence += "H"
+                        last_was_h = True
+                    else:
+                        sentence += "M"
+                        last_was_h = False
+                    last_was_lower_m = False
+
+            last_was_alpha = True  # Remember for next potential 'M'
+
+        else:  # Non-alphabetical letters -- Do not replace
+            # Add an m after 'H's without 'm's
+            if last_was_h:
+                sentence += "m"
+                last_was_h = False
+            # Add non-letter character without changing it
+            sentence += char
+            last_was_alpha = False
+
+    # If the laster character is an H, add a final 'm'
+    if last_was_h:
+        sentence += "m"
+    
+    await message.channel.send(content=sentence)
