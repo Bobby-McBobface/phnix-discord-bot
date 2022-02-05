@@ -105,7 +105,7 @@ class PhnixBotClient(discord.Client):
         if type(message.channel) != discord.channel.TextChannel:
             return
 
-        if await automod.automod(message):
+        if await automod.automod(message, self):
             # If automod returns True, message violated rules
             return
 
