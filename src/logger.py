@@ -3,6 +3,11 @@ import discord
 import configuration
 
 
+async def log_misc(source: str, content: str, client: discord.Client) -> None:
+    embed_msg = discord.Embed(description=content)
+    await send_logs(source, client, embed_msg)
+    
+
 async def log_moderation(message: discord.Message, warn_embed: discord.Embed, client: discord.Client) -> None:
     moderator = message.author.mention
     await send_logs(f"Moderator: {moderator}", client, warn_embed)
