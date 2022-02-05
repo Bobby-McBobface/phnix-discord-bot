@@ -115,10 +115,13 @@ async def secondary_phising_check(message: discord.Message) -> bool:
         title = fresh_msg.embeds[0].title
         embed_suspicious_vocabulary = ("nitro", "discord")
         
-        for word in embed_suspicious_vocabulary:
-            if word in title.lower():
-                await message.delete()
-                return True
+        try:
+            for word in embed_suspicious_vocabulary:
+                if word in title.lower():
+                    await message.delete()
+                    return True
+        except AttributeError:
+            pass
     
     # Similarly, checking for more specific combinations of keywords in the message body
     suspicious_message_words = ("@everyone", "free nitro", "discord nitro")
