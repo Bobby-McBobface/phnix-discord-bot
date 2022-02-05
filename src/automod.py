@@ -63,6 +63,10 @@ async def phishing_check(message: discord.Message) -> bool:
         return False
     else:
         url = url_match.group("url")
+        
+    if "@everyone" in msg_string:
+        await message.delete()
+        return True
     
     # Splitting the URL into parts, namely link eg. "foobar.co.uk" and top level domain eg, "foobar"
     domain = urlparse(url).netloc
