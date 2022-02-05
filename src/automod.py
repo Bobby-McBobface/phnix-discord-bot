@@ -127,7 +127,7 @@ async def secondary_phising_check(message: discord.Message) -> bool:
     suspicious_message_words = ("@everyone", "free nitro", "discord nitro")
     msg_string = message.content.lower()
     
-    for word in suspicious_words:
+    for word in suspicious_message_words:
         if word in msg_string:
             await message.delete()
             return True
