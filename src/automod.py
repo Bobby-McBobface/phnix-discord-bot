@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 import asyncio
 import logger
 
-async def automod(message: discord.Message) -> bool:
+async def automod(message: discord.Message, client: discord.Client) -> bool:
     # Returns True if message is dealt with, False otherwise
 
     if util.check_mod_or_test_server(message):
@@ -23,7 +23,7 @@ async def automod(message: discord.Message) -> bool:
             ).add_field(name="Your message", value=message.content)
         await message.author.send(embed=phishing_link_embed)
         
-        await logger.log_misc("Phishing check triggered", f"{message.author.mention}\n\n{message.content}")
+        await logger.log_misc("Phishing check triggered", f"{message.author.mention}\n\n{message.content}", client)
         
         return True
     
