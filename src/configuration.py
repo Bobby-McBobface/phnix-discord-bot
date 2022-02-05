@@ -82,6 +82,15 @@ WORDS_CENSORED = [
     "pornhub.com"
 ]
 
+DOMAIN_WHITELIST = [
+            "discordgift.site",
+            "dlscord.life",
+            "discordgift.site",
+            "dis.cord.gifts",
+            "tenor.com",
+            "",
+            ""]
+
 ########################
 # Preformatted Strings #
 ########################
