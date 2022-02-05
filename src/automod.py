@@ -5,6 +5,7 @@ import re
 import jellyfish
 from urllib.parse import urlparse
 import asyncio
+import logger
 
 async def automod(message: discord.Message) -> bool:
     # Returns True if message is dealt with, False otherwise
@@ -21,6 +22,8 @@ async def automod(message: discord.Message) -> bool:
                 description="Your message was deleted because a phishing link was detected."
             ).add_field(name="Your message", value=message.content)
         await message.author.send(embed=phishing_link_embed)
+        
+        await logger.log_misc("Phishing check triggered", f"{message.author.mention}\n\n{message.content}")
         
         return True
     
