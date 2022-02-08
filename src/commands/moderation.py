@@ -286,7 +286,7 @@ async def kick(message: discord.Message, parameters: str, client: discord.Client
 
 
 @command({
-    "syntax": "ban <member> | [reason]",
+    "syntax": "ban <member> | (optional) [delete message days, 0-7] | [reason]",
     "aliases": ["snipe"],
     "role_requirements": {configuration.MODERATOR_ROLE},
     "category": Category.MODERATION,
@@ -317,6 +317,15 @@ async def ban(message: discord.Message, parameters: str, client: discord.Client)
                 await invite.delete()
     else:
         await message.channel.send("I need the `manage_guild` permission to view and delete their invites.")
+    
+    # See if the optional parameter for message deletion has been set.
+    try:
+        delete_days = int(member_reason[1][0])
+        if delete_days > 7:
+            delete_days = 0
+    except (ValueError, TypeError) as e :
+        delete_days = 0
+        
 
     await warn(message, f"{member_reason[0].id} BAN - {member_reason[1]}", client, action_name="banned")
-    await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=0)
+    await message.guild.ban(member_reason[0], reason=member_reason[1], delete_message_days=delete_days)
