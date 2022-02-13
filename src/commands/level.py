@@ -12,7 +12,7 @@ import configuration
 
 @command({
     "syntax": "rank [user]",
-    "aliases": ["wank", "level"],
+    "aliases": ["wank", "level", "lifewasted"],
     "category": Category.LEVELING,
     "description": "Check how much XP you have"
 })
@@ -56,7 +56,7 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
 
 @command({
     "syntax": "leaderboards [page number]",
-    "aliases": ["lb", "levels"],
+    "aliases": ["lb", "levels", "leaderboard"],
     "category": Category.LEVELING,
     "description": "Shows a list of all users and their XP"
 })
