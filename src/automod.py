@@ -116,7 +116,7 @@ async def secondary_phising_check(message: discord.Message) -> bool:
     # Checking for the appearance of keywords within the message embed
     if fresh_msg.embeds:
         title = fresh_msg.embeds[0].title
-        embed_suspicious_vocabulary = ("nitro", "discord", "steam")
+        embed_suspicious_vocabulary = ("nitro", "discord")
         
         try:
             for word in embed_suspicious_vocabulary:
