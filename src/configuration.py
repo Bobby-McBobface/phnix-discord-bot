@@ -62,6 +62,8 @@ TIME_MULTIPLIER = {
 
 # sequence of characters that shouldn't be someone's entire nickname
 INVISIBLE_CHARACTERS = " ᲼឵឵"
+INVISIBLE_CHARACTERS += "឵"
+INVISIBLE_CHARACTERS += "̣"
 
 # Messages
 STRINGS_HUG = [
