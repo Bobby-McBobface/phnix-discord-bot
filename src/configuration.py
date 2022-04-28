@@ -90,6 +90,7 @@ DOMAIN_WHITELIST = [
             "discordgift.site",
             "dis.cord.gifts",
             "tenor.com",
+            "discordapp.com",
             "",
             ""]
 
