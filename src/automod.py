@@ -81,7 +81,7 @@ async def phishing_check(message: discord.Message) -> bool:
     
     # Running a word similarity test on the top level domain, comparing it to "discord". (Lower = more similar)
     # https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
-    distance = jellyfish.damerau_levenshtein_distance(domain_parts[0], 'discord')
+    distance = jellyfish.damerau_levenshtein_distance(domain_parts[-2], 'discord')
     
     # If the distance is 0, the domain is "discord", which isn't used by any illegitemate website
     if distance == 0:
