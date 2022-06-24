@@ -1,4 +1,7 @@
 # phnix-discord-bot
+
+This Discord bot was created when I had little knowledge of Python and Discord bots. I had no idea discord.ext.commmands existed in discord.py. The bot was for a (at the time) 10k member server. The bot will not run on any other servers unless you change some hardcoded ids.
+
 ```
 A command needs: 
 • function (aka the code)
