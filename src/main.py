@@ -105,9 +105,9 @@ class PhnixBotClient(discord.Client):
         if type(message.channel) != discord.channel.TextChannel:
             return
 
-        if await automod.automod(message, self):
+        # if await automod.automod(message, self):
             # If automod returns True, message violated rules
-            return
+            # return
 
         # EXP/leveling system
         if message.channel.id not in configuration.DISALLOWED_XP_GAIN:
