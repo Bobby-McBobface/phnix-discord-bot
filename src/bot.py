@@ -85,6 +85,10 @@ def main():
     async def _restrict_servers(ctx: commands.Context):
         return ctx.guild.id in ALLOWED_GUILD_IDS if ctx.guild else False
 
+    @bot.check
+    async def _restrict_channels(ctx: commands.Context):
+        return ctx.channel.id in (329235461929435137, 334929304561647617)
+
     bot.run(os.environ["TOKEN"])
 
 

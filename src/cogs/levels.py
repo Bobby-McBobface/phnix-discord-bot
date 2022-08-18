@@ -152,6 +152,8 @@ class Levels(commands.Cog):
         65: 731769341246177348,
     }
 
+    XP_DISALLOWED_CHANNELS = (329235461929435137, 334929304561647617)
+
     def __init__(self, bot) -> None:
         self.bot = bot
         bot.add_view(EternalReactionRole(), message_id=1009757335977201725)
@@ -172,6 +174,10 @@ class Levels(commands.Cog):
     async def give_xp(self, message: discord.Message):
         """Adds XP if the user hasn't chatted in this interval."""
         if not message.guild or message.guild.id not in ALLOWED_GUILD_IDS:
+            return
+        if message.channel.id in self.XP_DISALLOWED_CHANNELS:
+            return
+        if len(message.content) <= 2:
             return
         if message.author.id in self.chatted:
             return
