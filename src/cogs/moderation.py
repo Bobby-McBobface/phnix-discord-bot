@@ -26,7 +26,7 @@ class WarnPaginator(Paginator):
 class Moderation(commands.Cog):
     """Cog for moderation related functionality."""
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.has_permissions(manage_messages=True)
     async def warn(
         self, ctx: commands.Context, user: discord.User | discord.Member, reason: str
@@ -51,7 +51,7 @@ class Moderation(commands.Cog):
         except discord.HTTPException:
             await response.edit(content=response.content + "\nUnable to DM user.")
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.has_permissions(moderate_members=True)
     @commands.bot_has_permissions(moderate_members=True)
     async def mute(
@@ -62,7 +62,7 @@ class Moderation(commands.Cog):
         await ctx.reply(f"timeouted {user.id} for {seconds}s")
         await ctx.invoke(self.warn, user, reason)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.has_permissions(manage_messages=True)
     async def warns(self, ctx: commands.Context, user: discord.User | discord.Member):
         """See a user's warns."""
@@ -70,7 +70,7 @@ class Moderation(commands.Cog):
         view = WarnPaginator(user, invoker_id=ctx.author.id, page=1, page_total=1)
         await ctx.reply(**await view.get_content(ctx), view=view)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 2)
     async def mywarns(self, ctx: commands.Context):
         """See a user's warns."""

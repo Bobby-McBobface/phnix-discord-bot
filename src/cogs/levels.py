@@ -225,7 +225,7 @@ class Levels(commands.Cog):
             if old_role_id and (role := message.guild.get_role(old_role_id)):
                 await message.author.remove_roles(role)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 1, commands.BucketType.user)
     async def rank(self, ctx: commands.Context[MyBot], user: discord.User | None):
         """Check your rank!"""
@@ -277,7 +277,7 @@ class Levels(commands.Cog):
             )
         await ctx.reply(embed=embed)
 
-    @commands.command(aliases=("lb", "levels", "leaderboards"))
+    @commands.hybrid_command(aliases=("lb", "levels", "leaderboards"))
     @commands.cooldown(1, 2, commands.BucketType.user)
     async def leaderboard(self, ctx: commands.Context, page: int = 1):
         """See leaderboard"""
@@ -291,7 +291,7 @@ class Levels(commands.Cog):
         await view.disable_buttons()
         await message.edit(view=view)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.has_permissions(manage_roles=True)
     async def reactionrolessetup(self, ctx: commands.Context):
         await ctx.send(view=EternalReactionRole())
