@@ -49,7 +49,7 @@ class MyBot(commands.Bot):
         await self.add_cog(Moderation())
         await self.add_cog(Miscellaneous())
         await self.add_cog(Starboard(self))
-        await self.add_cog(YouTubeTwitch())
+        # await self.add_cog(YouTubeTwitch())
 
     async def on_command_error(self, context, exception, /) -> None:
         if isinstance(exception, discord.errors.DiscordException):

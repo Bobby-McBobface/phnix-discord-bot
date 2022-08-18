@@ -172,11 +172,13 @@ class Levels(commands.Cog):
     @commands.Cog.listener("on_message")
     async def give_xp(self, message: discord.Message):
         """Adds XP if the user hasn't chatted in this interval."""
-        if not message.guild or message.guild.id not in ALLOWED_GUILD_IDS:
-            return
-        if message.channel.id in self.XP_DISALLOWED_CHANNELS:
-            return
-        if len(message.content) <= 2:
+        if (
+            not message.guild
+            or message.guild.id not in ALLOWED_GUILD_IDS
+            or message.channel.id in self.XP_DISALLOWED_CHANNELS
+            or len(message.content) <= 2
+            or message.author.bot
+        ):
             return
         if message.author.id in self.chatted:
             return
