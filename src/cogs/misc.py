@@ -25,6 +25,17 @@ class Miscellaneous(commands.Cog):
                 random.choice(["Nope", "Nah", "No.", "Better luck next time!", ":("])
             )
 
+    @commands.hybrid_command()
+    async def ping(self, ctx: commands.Context[MyBot]):
+        """Pong! Checks latency between the bot and Discord."""
+        ping_message = await ctx.reply("Pong! :ping_pong:")
+        start_time = ctx.message.id >> 22
+        end_time = ping_message.id >> 22
+        await ping_message.edit(
+            content=f"Pong! Round trip: {end_time-start_time}ms | "
+            f"Websocket: {round(ctx.bot.latency*1000)}ms"
+        )
+
     @commands.command()
     @commands.is_owner()
     async def synccommandtree(self, ctx: commands.Context[MyBot]):
