@@ -1,1 +1,1 @@
-# discord-bot-2
+# phnix-discord-bot

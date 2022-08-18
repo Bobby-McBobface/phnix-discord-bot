@@ -1,0 +1,19 @@
+CREATE TABLE IF NOT EXISTS levels (
+    xp        INT NOT NULL DEFAULT 0,
+    level     INT NOT NULL DEFAULT 0,
+    user_id   INT NOT NULL,
+    PRIMARY KEY(user_id, server_id)
+);
+
+CREATE TABLE IF NOT EXISTS warns (
+    reason    TEXT,
+    user_id   INT NOT NULL,
+    server_id INT NOT NULL,
+    timestamp INT NOT NULL DEFAULT (strftime('%s', 'now'))
+);
+
+CREATE TABLE IF NOT EXISTS starboard (
+    original_id  INT NOT NULL PRIMARY KEY,
+    channel_id   INT NOT NULL,
+    message_id   INT NOT NULL
+);

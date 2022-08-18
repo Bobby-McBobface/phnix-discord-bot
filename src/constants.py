@@ -1,0 +1,3 @@
+"""Global constants for the bot"""
+
+ALLOWED_GUILD_IDS = (329226224759209985, 695174909219045416)
