@@ -36,7 +36,7 @@ class MyBot(commands.Bot):
             case_insensitive=True,
             strip_after_prefix=True,
             intents=intents,
-            allowed_mentions=discord.AllowedMentions(everyone=False),
+            allowed_mentions=discord.AllowedMentions(everyone=False, roles=False),
         )
 
     async def setup_hook(self):
