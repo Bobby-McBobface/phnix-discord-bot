@@ -17,7 +17,8 @@ class WarnPaginator(Paginator):
     async def get_content(self, ctx):
         assert isinstance(ctx.guild, discord.Guild)
         warns = await async_db_execute(
-            "SELECT rowid, reason, date FROM warns WHERE user_id=? AND server_id=?",
+            "SELECT rowid, reason, timestamp FROM warns "
+            "WHERE user_id=? AND server_id=?",
             (self.target.id, ctx.guild.id),
         )
         return {"content": "Warns: " + str(warns)}
