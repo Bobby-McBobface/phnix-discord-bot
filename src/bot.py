@@ -32,7 +32,7 @@ class MyBot(commands.Bot):
         intents.guild_reactions = True
         # pylint: enable=assigning-non-slot
         super().__init__(
-            commands.when_mentioned_or("!!"),
+            commands.when_mentioned_or("!"),
             case_insensitive=True,
             strip_after_prefix=True,
             intents=intents,
