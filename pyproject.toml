@@ -7,7 +7,7 @@ license = "AGPL-3.0-or-later"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-"discord.py" = {version="^2.0.0", extras = ["speed"]}
+"discord.py" = {version="^2.1.0", extras = ["speed"]}
 aiosqlite = "^0.17.0"
 python-dotenv = "^0.20.0"
 uvloop = {version = "^0.16.0", optional = true}
