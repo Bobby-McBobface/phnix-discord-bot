@@ -17,7 +17,9 @@ class YouTubeTwitch(commands.Cog):
     FEED_WEBHOOK_URL = ""
 
     def __init__(self) -> None:
-        self.FEED_WEBHOOK_URL = os.environ.get("FEED_WEBHOOK")
+        self.FEED_WEBHOOK_URL = os.environ.get(
+            "FEED_WEBHOOK"
+        )  # pylint: disable=invalid-name
         if not self.FEED_WEBHOOK_URL:
             raise ValueError("Feed webhook not provided")
         if not os.environ.get("TWITCH_HMAC"):
@@ -71,7 +73,7 @@ class YouTubeTwitch(commands.Cog):
         """YouTube PubSubbHubBub subscription handler"""
         challenge = request.query.get("hub.challenge")
         if challenge:
-            # TODO: put in database instead of resubscribing every restart
+            # TODO: put in database and resubscribe pylint: disable=fixme
             # I can't be bothered to fix this, fix later
             # Just get a cron job to do it idk
             # lease_seconds = int(request.query.get("hub.lease_seconds", 60))
