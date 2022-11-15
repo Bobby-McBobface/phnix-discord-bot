@@ -11,7 +11,8 @@ from cogs.levels import Levels
 from cogs.misc import Miscellaneous
 from cogs.moderation import Moderation
 from cogs.starboard import Starboard
-from cogs.youtube_twitch import YouTubeTwitch
+
+# from cogs.youtube_twitch import YouTubeTwitch
 from constants import ALLOWED_GUILD_IDS
 
 try:
@@ -52,11 +53,21 @@ class MyBot(commands.Bot):
         # await self.add_cog(YouTubeTwitch())
 
     async def on_command_error(self, context, exception, /) -> None:
-        if isinstance(exception, discord.errors.DiscordException):
+        if isinstance(exception, commands.CommandNotFound):
+            return
+        if isinstance(
+            exception,
+            (
+                commands.CheckFailure,
+                commands.UserInputError,
+                commands.CommandOnCooldown,
+            ),
+        ):
             await context.reply(str(exception))
-        else:
-            await context.reply("An unknown error occured")
-            await self.on_error(str(context.command))
+            return
+
+        await context.reply("An unknown error occured")
+        raise exception  # Will get handled in self.on_error
 
     async def on_error(self, event_method: str, /, *args, **kwargs) -> None:
         await super().on_error(event_method, *args, **kwargs)
@@ -84,10 +95,6 @@ def main():
     @bot.check
     async def _restrict_servers(ctx: commands.Context):
         return ctx.guild.id in ALLOWED_GUILD_IDS if ctx.guild else False
-
-    @bot.check
-    async def _restrict_channels(ctx: commands.Context):
-        return ctx.channel.id in (329235461929435137, 334929304561647617)
 
     bot.run(os.environ["TOKEN"])
 
