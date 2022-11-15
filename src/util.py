@@ -52,7 +52,7 @@ class Paginator(ui.View, ABC):
             if isinstance(child, ui.Button):
                 child.disabled = True
 
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+    async def interaction_check(self, interaction: discord.Interaction, /) -> bool:
         """
         Checks if we should respond to the interaction.
         Defaults to if original invoker pressed the button.

@@ -121,7 +121,8 @@ class Starboard(commands.Cog):
             embed=embed,
         )
         await async_db_execute(
-            "INSERT INTO starboard(original_id, message_id, channel_id) values (?, ?, ?)",
+            "INSERT INTO starboard(original_id, message_id, channel_id) "
+            "values (?, ?, ?)",
             (
                 payload.message_id,
                 new_starboard_message.id,

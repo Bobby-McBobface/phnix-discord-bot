@@ -280,7 +280,7 @@ class Levels(commands.Cog):
 
         if query_user.id in (770548285656006666, 603889155147038752):
             embed.set_thumbnail(
-                url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/480px-Python-logo-notext.svg.png"  # noqa
+                url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/480px-Python-logo-notext.svg.png"  # pylint: disable=line-too-long
             )
         await ctx.reply(embed=embed)
 
@@ -301,4 +301,5 @@ class Levels(commands.Cog):
     @commands.hybrid_command()
     @commands.has_permissions(manage_roles=True)
     async def reactionrolessetup(self, ctx: commands.Context):
+        """Sends a reaction role message."""
         await ctx.send(view=EternalReactionRole())
