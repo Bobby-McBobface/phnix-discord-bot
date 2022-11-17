@@ -1,6 +1,8 @@
 import discord
 import configuration
 import util
+import asyncio
+import time
 from commands import Category, CommandSyntaxError, command
 
 # Registers all the commands; takes as a parameter the decorator factory to use.
@@ -148,3 +150,70 @@ async def villager(message: discord.Message, parameters: str, client: discord.Cl
         sentence += "m"
     
     await message.channel.send(content=sentence)
+
+
+
+@command({
+    "syntax": "faderolecolour <role> <colour> <duration>",
+    "aliases": ["fadecolour"],
+    "role_requirements": {configuration.MODERATOR_ROLE},
+    "category": Category.OTHER,
+    "description": "Fades the colour of a role to an other colour (hex) in a certain time period (h, d or m)"
+})
+async def faderolecolour(message: discord.Message, parameters: str, client: discord.Client) -> None:
+    if len(parameters.split(' ')) != 3:
+        await message.channel.send(content="Try `!faderolecolour <role> <colour> <duration>`.")             
+        return
+    
+    guild = client.get_guild(configuration.GUILD_ID)
+    
+    # Specify which role is requested to be colour-updated
+    role_id = (parameters.split(' ')[0]).lstrip("<@&").rstrip(">")
+    role = guild.get_role(int(role_id))
+    if role is None:
+        await message.channel.send(content="I couldn't find the role @" + role_id + "! :tired_face:")
+        return
+    
+    # Specify clearly that colour is in hex form
+    new_colour = parameters.split(' ')[1]
+    if not util.is_hex(new_colour.lstrip('#')):
+        await message.channel.send(content="Hm...:thinking: " + new_colour + " does not look like a colour in hex form!")
+        return
+
+    initial_colour = str(role.colour)
+    final_colour = str(new_colour)
+    
+    # Set samples scale and specify samples
+    samples = parameters.split(' ')[2]                        
+    if isinstance(samples[-1],str):
+        if samples[-1] == 'd':             # for days
+            samples_scale = 60
+            samples = util.is_valid_duration(samples[:-1],24)
+        else:
+            if samples[-1] == 'h':         # for hours
+                samples_scale = 60
+                samples = util.is_valid_duration(samples[:-1],1)
+            elif samples[-1] == 'm':       # for minutes
+                samples_scale = 1
+                samples = util.is_valid_duration(samples[:-1],1)
+            else:
+                samples = None
+    else:
+        samples = None
+
+    if samples is None:
+        await message.channel.send(content="This does not look like a valid period... Try something like 3**d** for days, "\
+            + "3**h** for hours or 3**m** for minutes.")
+        return 
+    
+    # Set the gradient and sampling routine
+    gradient = util.linear_gradient(initial_colour,final_colour,samples)
+    for i in range(0,samples):
+        sample_colour = int(str(gradient['hex'][i]).lstrip('#'),16)
+        await role.edit(colour=discord.Colour(sample_colour))
+        await asyncio.sleep(60*samples_scale)
+    else:   # If duration is non-positive, imediatly update colour to the requested one
+        sample_colour = int(str(gradient['hex'][-1]).lstrip('#'),16)
+        await role.edit(colour=discord.Colour(sample_colour))
+
+
