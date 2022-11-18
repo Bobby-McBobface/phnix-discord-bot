@@ -186,17 +186,16 @@ async def faderolecolour(message: discord.Message, parameters: str, client: disc
     # Set samples scale and specify samples
     samples = parameters.split(' ')[2]                        
     if isinstance(samples[-1],str):
-        if samples[-1] == 'd':             # for days
+        if samples[-1] == 'd':  # for days
             samples_scale = 60
             samples = util.is_valid_duration(samples[:-1],24)
+        elif samples[-1] == 'h':  # for hours
+            samples_scale = 60
+            samples = util.is_valid_duration(samples[:-1],1)
+        elif samples[-1] == 'm':  # for minutes
+            samples_scale = 1
+            samples = util.is_valid_duration(samples[:-1],1)
         else:
-            if samples[-1] == 'h':         # for hours
-                samples_scale = 60
-                samples = util.is_valid_duration(samples[:-1],1)
-            elif samples[-1] == 'm':       # for minutes
-                samples_scale = 1
-                samples = util.is_valid_duration(samples[:-1],1)
-            else:
                 samples = None
     else:
         samples = None
