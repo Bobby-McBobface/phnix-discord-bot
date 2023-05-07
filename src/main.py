@@ -178,7 +178,7 @@ class PhnixBotClient(discord.Client):
             # Run the found function
             try:
                 await command_function(message, parameters, self)
-
+               
             except commands.CommandSyntaxError as err:
                 # If the command raised CommandSyntaxError, send some information to the user:
                 error_details = f": {str(err)}\n" if str(
@@ -190,6 +190,10 @@ class PhnixBotClient(discord.Client):
                 error_message = await message.channel.send(error_text)
                 await asyncio.sleep(configuration.DELETE_ERROR_MESSAGE_TIME)
                 await error_message.delete()
+
+            except discord.errors.Forbidden as err:
+                # Intercept the error, adding more context to it. (Hopefully the error message Python shows should show the original traceback?)
+                raise RuntimeError(f"'{str(err)}' when running a command function.\nTriggering message URL: {message.jump_url}\n Command text: {repr(command_text)}") from err
 
 
 if __name__ == '__main__':

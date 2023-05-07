@@ -12,7 +12,14 @@ import configuration
 
 @command({
     "syntax": "rank [user]",
-    "aliases": ["wank", "level", "lifewasted"],
+    "aliases": [
+        "level", "score", "lifewasted",
+        "bank", "wank", "tank",
+        "frank", # credit: cobysack1
+        "hank", # credit: masochist#1615
+        "wotismyrankplsOwO", # credit: cobysack1
+        "rnk"
+    ] + ["ra"+"a"*n+"nk" for n in range(1, 5)],
     "category": Category.LEVELING,
     "description": "Check how much XP you have"
 })
