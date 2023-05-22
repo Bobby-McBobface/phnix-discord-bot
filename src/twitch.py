@@ -1,9 +1,11 @@
-import discord
-from urllib3 import PoolManager
-from json import loads
-import configuration
 import asyncio
 import traceback
+from json import loads
+
+import discord
+from urllib3 import PoolManager
+
+import configuration
 
 http = PoolManager()
 
@@ -43,7 +45,8 @@ async def refresh_token() -> None:
         secret = file.read()
 
     r = http.request(
-        "POST", f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={secret}&grant_type=client_credentials")
+        "POST",
+        f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={secret}&grant_type=client_credentials")
 
     data = loads(r.data.decode('utf-8'))
 
@@ -52,10 +55,10 @@ async def refresh_token() -> None:
 
 
 async def get_stream(client: discord.Client) -> None:
-    '''
+    """
     Args:
     client: discord.Client
-    '''
+    """
 
     with open("env/twitch_client_id") as file:
         client_id = file.read()
@@ -72,7 +75,7 @@ async def get_stream(client: discord.Client) -> None:
 
     data = loads(r.data.decode('utf-8'))["data"]
 
-    if data != []:
+    if data:
         stream_id = data[0]["id"]
 
         with open("last_stream.ini", "r+") as file:
@@ -89,4 +92,5 @@ async def post_stream(client: discord.Client) -> None:
     guild = client.get_guild(configuration.GUILD_ID)
     channel = guild.get_channel(configuration.FEED_CHANNEL)
 
-    await channel.send(f"Hey <@&{configuration.TWITCH_PING}>, {title} at https://twitch.tv/PhoenixSCLive !", allowed_mentions=discord.AllowedMentions(roles=True))
+    await channel.send(f"Hey <@&{configuration.TWITCH_PING}>, {title} at https://twitch.tv/PhoenixSCLive !",
+                       allowed_mentions=discord.AllowedMentions(roles=True))

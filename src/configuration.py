@@ -25,7 +25,7 @@ YOUTUBE_SLEEP = 60 * 1.5
 ALLOWED_COMMAND_CHANNELS = [329235461929435137, 334929304561647617]
 DEFAULT_COMMAND_CHANNEL = 329235461929435137
 
-DELETE_ERROR_MESSAGE_TIME = 15 # Seconds
+DELETE_ERROR_MESSAGE_TIME = 15  # Seconds
 
 # Level/EXP system
 XP_MESSAGE_INTERVAL = 60  # SecondS
@@ -77,7 +77,6 @@ STRINGS_PUN = [
     "{hugger} couldn't figure out how to hug themselves"
 ]
 
-# TODO: regex match to avoid bypass of the filters.
 WORDS_CENSORED = [
     "nigga",
     "nigger",
@@ -85,17 +84,17 @@ WORDS_CENSORED = [
 ]
 
 DOMAIN_WHITELIST = [
-            "discordgift.site",
-            "dlscord.life",
-            "discordgift.site",
-            "dis.cord.gifts",
-            "tenor.com",
-            "discordapp.com",
-            "",
-            ""]
+    "discordgift.site",
+    "dlscord.life",
+    "discordgift.site",
+    "dis.cord.gifts",
+    "tenor.com",
+    "discordapp.com",
+    "",
+    ""]
 
 ########################
 # Preformatted Strings #
 ########################
-welcome_msg = "{} has joined the game!"
-farewell_msg = "{} has left the game."
+WELCOME_MSG = "{} has joined the game!"
+FAREWELL_MSG = "{} has left the game."

@@ -1,10 +1,12 @@
 # copied from reddit bot
-from feedparser import parse
-from datetime import datetime
-import discord
-import configuration
 import asyncio
 import traceback
+from datetime import datetime
+
+import discord
+from feedparser import parse
+
+import configuration
 
 main_channel = "UCj4zC1Hfj-uc90FUXzRamNw"
 sucks_at = "UC9T9mnA5u12DlQjeywuonpw"
@@ -29,7 +31,7 @@ async def youtube(client: discord.Client) -> None:
     except FileNotFoundError:
         with open(f"last_video_{main_channel}.ini", "w") as file:
             file.write(str(datetime.now()))
-        
+
     try:
         with open(f"last_video_{sucks_at}.ini", "r") as file:
             pass
@@ -47,7 +49,6 @@ async def youtube(client: discord.Client) -> None:
             print("Youtube error:", e)
             traceback.print_exc()
             await asyncio.sleep(configuration.YOUTUBE_SLEEP)
-            
 
 
 async def handle_feed(channel_id: str, client: discord.Client) -> None:
@@ -88,7 +89,6 @@ async def handle_feed(channel_id: str, client: discord.Client) -> None:
     # Update if updated #
 
     if updated:
-
         # yt_post_flair = config['yt_post_flair']
 
         # calls function to post video
@@ -102,7 +102,8 @@ async def handle_feed(channel_id: str, client: discord.Client) -> None:
         last_entry.close()
 
 
-async def postvid(title: str, url: str, channel: str, client: discord.Client) -> None:  # function that handles video posts
+async def postvid(title: str, url: str, channel: str,
+                  client: discord.Client) -> None:  # function that handles video posts
     """
     Posts the video to Reddit with the specified configuration parameters.
     Arguments:
@@ -118,4 +119,5 @@ async def postvid(title: str, url: str, channel: str, client: discord.Client) ->
     guild = client.get_guild(configuration.GUILD_ID)
     channel = guild.get_channel(configuration.FEED_CHANNEL)
 
-    await channel.send(f"Hey <@&{configuration.YOUTUBE_PING}>, {title} at {url}!", allowed_mentions=discord.AllowedMentions(roles=True))
+    await channel.send(f"Hey <@&{configuration.YOUTUBE_PING}>, {title} at {url}!",
+                       allowed_mentions=discord.AllowedMentions(roles=True))

@@ -1,11 +1,11 @@
-import asyncio
+import discord
+
+import configuration
+import database_handle
+import levels
+import util
 from commands import Category, CommandSyntaxError, command
 
-import levels
-import discord
-import util
-import database_handle
-import configuration
 
 # Registers all the commands; takes as a parameter the decorator factory to use.
 
@@ -13,17 +13,17 @@ import configuration
 @command({
     "syntax": "rank [user]",
     "aliases": [
-        "level", "score", "lifewasted",
-        "bank", "wank", "tank",
-        "frank", # credit: cobysack1
-        "hank", # credit: masochist#1615
-        "wotismyrankplsOwO", # credit: cobysack1
-        "rnk"
-    ] + ["ra"+"a"*n+"nk" for n in range(1, 5)],
+                   "level", "score", "lifewasted",
+                   "bank", "wank", "tank",
+                   "frank",  # credit: cobysack1
+                   "hank",  # credit: masochist#1615
+                   "wotismyrankplsOwO",  # credit: cobysack1
+                   "rnk"
+               ] + ["ra" + "a" * n + "nk" for n in range(1, 5)],
     "category": Category.LEVELING,
     "description": "Check how much XP you have"
 })
-async def rank(message: discord.Message, parameters: str, client: discord.Client) -> None:
+async def rank(message: discord.Message, parameters: str) -> None:
     if parameters != "":
         member = util.get_member_by_id_or_name(message, parameters)
         if member is None:
@@ -31,13 +31,15 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
     else:
         member = message.author
 
-    user_xp = database_handle.cursor.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
+    user_xp = database_handle.cursor.execute\
+        ('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
                                              {'user_id': member.id}).fetchone()
     if user_xp is None:
         await message.channel.send("The user isn't ranked yet.")
         return
 
-    user_rank = database_handle.cursor.execute('''SELECT COUNT(*)+1 FROM LEVELS WHERE XP > :user_xp''',
+    user_rank = database_handle.cursor.execute\
+        ('''SELECT COUNT(*)+1 FROM LEVELS WHERE XP > :user_xp''',
                                                {'user_xp': user_xp[0]}).fetchone()
 
     avatar = member.avatar_url_as(format=None, static_format='png', size=1024)
@@ -52,11 +54,12 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
 
     rank_embed = discord.Embed(description=f"Rank for <@{member.id}>") \
         .add_field(name="Total XP:", value=user_xp[0]) \
-        .add_field(name="Level:", value=(user_xp[1])) \
+        .add_field(name="Level:", value=user_xp[1]) \
         .add_field(name="Rank:", value="#" + str(user_rank[0])) \
-        .add_field(name="XP until level up:", value=levels.xp_needed_for_level(user_xp[1] + 1) - user_xp[0]) \
+        .add_field(name="XP until level up:",
+                   value=levels.xp_needed_for_level(user_xp[1] + 1) - user_xp[0]) \
         .add_field(name="Next rank:", value=next_rank) \
-        .set_author(name=f"{member.name}#{member.discriminator}", icon_url=avatar.__str__())
+        .set_author(name=f"{member.name}#{member.discriminator}", icon_url=avatar)
 
     await message.channel.send(embed=rank_embed)
 
@@ -67,10 +70,11 @@ async def rank(message: discord.Message, parameters: str, client: discord.Client
     "category": Category.LEVELING,
     "description": "Shows a list of all users and their XP"
 })
-async def leaderboards(message: discord.Message, parameters: str, client: discord.Client, first_execution=True, op=None, page_cache=0) -> None:
+async def leaderboards(message: discord.Message, parameters: str,
+                       client: discord.Client) -> None:
     try:
         page = int(parameters) - 1
-    except:
+    except Exception as e:
         page = 0
 
     total_pages = (database_handle.cursor.execute(
@@ -83,8 +87,9 @@ async def leaderboards(message: discord.Message, parameters: str, client: discor
 
 
 def leaderboard_embed_generator(page, total_pages):
-    data_list = database_handle.cursor.execute('''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
-                                               {"offset": page * 10}).fetchall()
+    data_list = database_handle.cursor.execute(
+        '''SELECT ID, LEVEL, XP FROM LEVELS ORDER BY XP DESC LIMIT 10 OFFSET :offset''',
+        {"offset": page * 10}).fetchall()
 
     lb_list = ''.join(
         f"{page * 10 + index + 1}: <@{data[0]}> | Level: {data[1]} | Total XP: {data[2]}\n"
