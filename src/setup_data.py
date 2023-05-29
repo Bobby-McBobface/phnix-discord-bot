@@ -1,15 +1,17 @@
+import sys
+
 import database_handle
 
 print("CHECK CONTENTS OF THIS SCRIPT BEFORE RUNNING!!!")
 answer = input("Are you sure you want to run this? (y/n)")
 if answer != "y":
-    exit(code=0)
+    sys.exit(code=0)
 
 print("Setting up data...")
 
-#database_handle.cursor.execute('''DROP TABLE LEVELS''')
-#database_handle.cursor.execute('''DROP TABLE WARNS''')
-#database_handle.cursor.execute('''DROP TABLE MUTES''')
+# database_handle.cursor.execute('''DROP TABLE LEVELS''')
+# database_handle.cursor.execute('''DROP TABLE WARNS''')
+# database_handle.cursor.execute('''DROP TABLE MUTES''')
 
 database_handle.cursor.execute('''CREATE TABLE IF NOT EXISTS LEVELS ( \
     ID INT PRIMARY KEY NOT NULL, \

@@ -1,10 +1,10 @@
+import copy
+
 import discord
-from discord import member
-from commands import CommandSyntaxError, Category, command, command_list, command_aliases_dict
+
 import configuration
 import util
-
-import copy
+from commands import CommandSyntaxError, Category, command, command_list, command_aliases_dict
 
 
 @command({
@@ -13,12 +13,14 @@ import copy
     "category": Category.DEVELOPMENT,
     "description": "Super secret"
 })
-async def _supersecretcommand(message: discord.Message, parameters: str, client: discord.Client) -> None:
+async def _supersecretcommand(message: discord.Message,
+                              parameters: str,
+                              client: discord.Client) -> None:
     """eval"""
     if message.author.id not in [381634036357136391, 209403862736437248, 292383690313695232]:
         return
-    if (parameters.startswith("```") 
-    and parameters.endswith("```")):
+    if (parameters.startswith("```")
+            and parameters.endswith("```")):
         parameters = parameters[3:-3]
         if parameters.startswith("python\n"):
             parameters = parameters[len("python\n"):]
@@ -32,10 +34,9 @@ async def _supersecretcommand(message: discord.Message, parameters: str, client:
     "description": "Mimic a user"
 })
 async def _mimic(message, parameters, client):
-    
     if message.author.id not in [381634036357136391, 209403862736437248]:
         return
-    
+
     member_command = await util.split_into_member_and_reason(message, parameters)
     if member_command == (None, None):
         raise CommandSyntaxError('You must specify a valid user')
@@ -46,7 +47,7 @@ async def _mimic(message, parameters, client):
 
     await client.on_message(new_message)
 
-    
+
 @command({
     "syntax": "_update",
     "role_requirements": {configuration.MODERATOR_ROLE},
@@ -74,9 +75,12 @@ async def ping(message: discord.Message, parameters: str, client: discord.Client
     start_time = (message.id >> 22) + 1420070400000
     ping_message = await message.channel.send("Pong! :ping_pong:")
     end_time = (ping_message.id >> 22) + 1420070400000
-    await ping_message.edit(content=f'Pong! Round trip: {end_time-start_time}ms | Websocket: {round(client.latency*1000)}ms', suppress=True)
+    await ping_message.edit(
+        content=f'Pong! Round trip: {end_time - start_time}ms | Websocket: {round(client.latency * 1000)}ms',
+        suppress=True)
 
-command_list_already_preprocessed = False
+
+COMMAND_LIST_ALREADY_PREPROCESSED = False
 
 
 @command({
@@ -136,7 +140,8 @@ async def help(message: discord.Message, parameters: str, client: discord.Client
             cmd = command_aliases_dict[parameters]
         except KeyError:
             await message.channel.send(
-                f"Unknown command `{parameters}`.\nUse this command without any parameters for a list of valid commands.")
+                f"Unknown command `{parameters}`.\nUse this command\
+                 without any parameters for a list of valid commands.")
             return
 
         # Get info

@@ -1,8 +1,13 @@
 from enum import Enum
+from . import misc
+from . import moderation
+from . import level
+from . import system
 
 # Custom exceptions we can raise
 class CommandSyntaxError(Exception):
     pass
+
 
 class Category(Enum):
     MODERATION = {
@@ -26,6 +31,7 @@ class Category(Enum):
         'priority': -1
     }
 
+
 # --------------------------------------------------#
 # COMMAND LIST POPULATOR #
 # --------------------------------------------------#
@@ -46,12 +52,13 @@ Make a command by decorating a function with
 command_list = []
 command_aliases_dict = {}
 
+
 def command(cmdinfo):
     # Set stuff to default values
     cmdinfo["aliases"] = cmdinfo.get("aliases", [])
     cmdinfo["allowed_channels"] = cmdinfo.get("allowed_channels", [])
     cmdinfo["category"] = cmdinfo.get("category", Category.OTHER)
-    
+
     def actual_decorator(cmdfunc):
         cmdfunc.command_data = cmdinfo
         command_list.append(cmdfunc)
@@ -59,13 +66,12 @@ def command(cmdinfo):
         for alias in cmdinfo["aliases"]:
             command_aliases_dict[alias.lower()] = cmdfunc
         return cmdfunc
+
     return actual_decorator
 
-from . import misc
-from . import moderation
-from . import level
-from . import system
+
+
 
 # Sort command list by priority for help
 command_list.sort(
-        key=lambda a: a.command_data["category"].value["priority"], reverse=True)
+    key=lambda a: a.command_data["category"].value["priority"], reverse=True)

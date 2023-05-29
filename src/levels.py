@@ -1,8 +1,9 @@
 import asyncio
 from random import randint
 
-import configuration
 import discord
+
+import configuration
 import database_handle
 
 chatted = []
@@ -22,7 +23,7 @@ async def add_exp(member: discord.User, message: discord.Message) -> None:
     user_xp = database_handle.cursor.execute('''SELECT XP, LEVEL FROM LEVELS WHERE ID=:user_id''',
                                              {'user_id': member.id}).fetchone()
 
-    if user_xp == None:
+    if user_xp is None:
         user_xp = (0, 0)
 
     xp_gain = randint(configuration.XP_GAIN_MIN, configuration.XP_GAIN_MAX)
@@ -34,7 +35,9 @@ async def add_exp(member: discord.User, message: discord.Message) -> None:
         # Level 0 needs 0 xp, so we start at level 1
         level += 1
 
-        await message.channel.send(f"<@!{member.id}> reached level {level}! <:poglin:798531675634139176>", allowed_mentions=discord.AllowedMentions(users=True))
+        await message.channel.send(f"<@!{member.id}> reached level {level}\
+        ! <:poglin:798531675634139176>",
+                                   allowed_mentions=discord.AllowedMentions(users=True))
         await give_level_up_roles(member, level)
 
     database_handle.cursor.execute('''INSERT INTO LEVELS (ID, XP, LEVEL) \
@@ -58,7 +61,7 @@ async def clear_chatted_loop() -> None:
 
 
 def xp_needed_for_level(level: int) -> int:
-    return int(5/6*((2*(level)**3)+(27*(level)**2)+(91*(level))))
+    return int(5 / 6 * ((2 * level ** 3) + (27 * level ** 2) + (91 * level)))
 
 
 async def give_level_up_roles(member, level) -> None:
