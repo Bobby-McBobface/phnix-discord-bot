@@ -13,7 +13,7 @@ from cogs.moderation import Moderation
 from cogs.starboard import Starboard
 
 # from cogs.youtube_twitch import YouTubeTwitch
-from constants import ALLOWED_GUILD_IDS
+from constants import ALLOWED_GUILD_IDS, OWNER_IDS
 
 try:
     import uvloop  # type: ignore
@@ -39,6 +39,7 @@ class MyBot(commands.Bot):
             intents=intents,
             allowed_mentions=discord.AllowedMentions(everyone=False, roles=False),
         )
+        self.owner_ids = OWNER_IDS
 
     async def setup_hook(self):
         # self.loop.set_debug(True)
