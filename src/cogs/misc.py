@@ -29,6 +29,16 @@ class Miscellaneous(commands.Cog):
             )
 
     @commands.hybrid_command()
+     async def hug(self, ctx: commands.Context, *, target: Union[Member, str]):
+        """Hug someone! (or something)"""
+        if target == ctx.me:
+            await ctx.send('thanks')
+        elif target == ctx.author:
+            await ctx.send('tangled')
+        else:
+            await ctx.send('success')
+
+    @commands.hybrid_command()
     async def ping(self, ctx: commands.Context[MyBot]):
         """Pong! Checks latency between the bot and Discord."""
         ping_message = await ctx.reply("Pong! :ping_pong:")
