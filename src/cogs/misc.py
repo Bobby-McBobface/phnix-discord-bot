@@ -18,7 +18,7 @@ class Miscellaneous(commands.Cog):
     """Cog for miscellaneous functionality."""
 
     @commands.hybrid_command()
-    @commands.cooldown(rate=1, per=60 * 60 * 60 * 24, type=BucketType.guild)
+    @commands.cooldown(rate=1, per=2, type=BucketType.guild)
     async def poop(self, ctx: commands.Context):
         """Poop."""
         if random.randint(1, 10) == 10:
@@ -29,6 +29,7 @@ class Miscellaneous(commands.Cog):
             )
 
     @commands.hybrid_command()
+    @commands.cooldown(rate=1, per=2, type=BucketType.user)
      async def hug(self, ctx: commands.Context, *, target: Union[Member, str]):
         """Hug someone! (or something)"""
         if target == ctx.me:
