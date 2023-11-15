@@ -29,7 +29,7 @@ class Miscellaneous(commands.Cog):
             )
 
     @commands.hybrid_command()
-     async def hug(self, ctx: commands.Context, *, target: Union[Member, str]):
+    async def hug(self, ctx: commands.Context, target: commands.MemberConverter):
         """Hug someone! (or something)"""
         if target == ctx.me:
             await ctx.send('thanks')
