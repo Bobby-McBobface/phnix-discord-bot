@@ -7,6 +7,7 @@ import subprocess
 import sys
 import typing
 
+import discord
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 
@@ -38,6 +39,23 @@ class Miscellaneous(commands.Cog):
             content=f"Pong! Round trip: {end_time-start_time}ms | "
             f"Websocket: {round(ctx.bot.latency*1000)}ms"
         )
+
+    @commands.hybrid_command()
+    async def hug(self, ctx: commands.Context[MyBot], *, target: str):
+        """Hug someone! (or something)"""
+        hugger = ctx.author.mention
+        reply = random.choice(
+            [
+                "{hugger} hugs {target}",
+                "{hugger} gives a big hug to {target}",
+                "{hugger} 🫂 {target}",
+            ]
+        ).format(hugger=hugger, target=target)
+        # Make a fancy embed so people don't complain about getting pinged twice
+        R, G, B = 256 * 256, 256, 1
+        embed = discord.Embed(description=reply, colour=(46 * R + 204 * G + 113 * B))
+
+        await ctx.reply(embed=embed)
 
     @commands.command()
     @commands.is_owner()

@@ -86,7 +86,7 @@ class MyBot(commands.Bot):
 def main():
     """Runs the bot."""
     try:
-        uvloop.install() # type: ignore
+        uvloop.install()  # type: ignore
     except NameError:  # only on linux
         pass
 
