@@ -57,6 +57,10 @@ class Miscellaneous(commands.Cog):
 
         await ctx.reply(embed=embed)
 
+    @commands.hybrid_command()
+    async def replytome(self, ctx: commands.Context[MyBot], *, message: str):
+        await ctx.reply(message)
+
     @commands.command()
     @commands.is_owner()
     async def synccommandtree(self, ctx: commands.Context[MyBot]):
