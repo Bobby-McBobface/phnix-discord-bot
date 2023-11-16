@@ -61,6 +61,13 @@ class Miscellaneous(commands.Cog):
     async def replytome(self, ctx: commands.Context[MyBot], *, message: str):
         await ctx.reply(message)
 
+    @commands.hybrid_command(aliases=["a" * x for x in range(3, 10)])
+    async def aaaaaaaaaa(
+        self,
+        ctx: commands.Context[MyBot],
+    ):
+        await ctx.reply(content="AAAAAAAAAAAAAAAAAAAAAAAA")
+
     @commands.command()
     @commands.is_owner()
     async def synccommandtree(self, ctx: commands.Context[MyBot]):
