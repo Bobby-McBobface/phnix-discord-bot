@@ -19,7 +19,7 @@ class Miscellaneous(commands.Cog):
     """Cog for miscellaneous functionality."""
 
     @commands.hybrid_command()
-    @commands.cooldown(rate=1, per=7 * 60 * 60 * 24, type=BucketType.guild)
+    @commands.cooldown(rate=1, per=60 * 60 * 24 * 7, type=BucketType.user)
     async def poop(self, ctx: commands.Context):
         """Poop."""
         if random.randint(1, 10) == 10:
@@ -28,6 +28,16 @@ class Miscellaneous(commands.Cog):
             await ctx.reply(
                 random.choice(["Nope", "Nah", "No.", "Better luck next time!", ":("])
             )
+
+    @commands.hybrid_command()
+    async def hug(self, ctx: commands.Context, target: commands.MemberConverter):
+        """Hug someone! (or something)"""
+        if target == ctx.me:
+            await ctx.send('thanks')
+        elif target == ctx.author:
+            await ctx.send('tangled')
+        else:
+            await ctx.send('success')
 
     @commands.hybrid_command()
     async def ping(self, ctx: commands.Context[MyBot]):
