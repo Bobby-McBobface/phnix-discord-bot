@@ -7,18 +7,19 @@ license = "AGPL-3.0-or-later"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-"discord.py" = {version="^2.1.0", extras = ["speed"]}
-aiosqlite = "^0.17.0"
-python-dotenv = "^0.20.0"
-uvloop = {version = "^0.16.0", optional = true}
+"discord.py" = {version="^2.3.2", extras = ["speed"]}
+aiosqlite = "^0.19.0"
+python-dotenv = "^1.0.0"
+uvloop = {version = "^0.19.0", optional = true}
+feedparser = "^6.0.10"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.14.1"
-black = "^22.3.0"
-poetry = "^1.1.13"
-isort = "^5.10.1"
-pre-commit = "^2.19.0"
-pyright = "^1.1.254"
+black = "^23.11.0"
+poetry = "^1.7.0"
+isort = "^5.12.0"
+pre-commit = "^3.5.0"
+pyright = "^1.1.335"
 
 [tool.pylint.format]
 max-line-length = "88"
