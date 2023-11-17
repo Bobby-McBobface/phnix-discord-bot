@@ -232,7 +232,12 @@ class Levels(commands.Cog):
             if old_role_id and (role := message.guild.get_role(old_role_id)):
                 await message.author.remove_roles(role)
 
-    @commands.hybrid_command()
+    @commands.hybrid_command(aliases=("level", "score", "lifewasted",
+        "bank", "wank", "tank",
+        "frank", # credit: cobysack1
+        "hank", # credit: masochist#1615
+        "wotismyrankplsOwO", # credit: cobysack1
+        "rnk"))
     @commands.cooldown(1, 1, commands.BucketType.user)
     async def rank(self, ctx: commands.Context[MyBot], user: discord.User | None):
         """Check your rank!"""
