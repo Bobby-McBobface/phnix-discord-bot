@@ -38,9 +38,10 @@ class Starboard(commands.Cog):
         if message.author.bot:
             return
         # possible TOCTOU error?
-        count = next(x for x in message.reactions if str(x.emoji) == "⭐").count
-        if count < self.STARBOARD_THRESHOLD:
-            return
+        try:
+            count = next(x for x in message.reactions if str(x.emoji) == "⭐").count
+        except StopIteration:
+            count = 0
         starboard_info = await async_db_execute(
             "SELECT message_id, channel_id FROM starboard WHERE original_id=?",
             (payload.message_id,),
@@ -48,22 +49,42 @@ class Starboard(commands.Cog):
         if starboard_info:
             starboard_info: list[tuple[int, int]]
             (message_id, channel_id) = starboard_info[0]
-            await self._update_starboard_entry(payload, message_id, channel_id, count)
+
+            starboard_channel = self.bot.get_channel(channel_id)
+            if starboard_channel is None:
+                return
+            assert isinstance(starboard_channel, discord.TextChannel)
+            starboard_message = starboard_channel.get_partial_message(message_id)
+
+            if count < self.STARBOARD_THRESHOLD:
+                await self._delete_starboard_entry(starboard_message)
+            else:
+                await self._update_starboard_entry(payload, starboard_message, count)
         else:
             await self._new_starboard_entry(payload, message, count)
+
+    async def _delete_starboard_entry(
+        self,
+        starboard_message: discord.PartialMessage,
+    ):
+        await async_db_execute(
+            "DELETE starboard WHERE message_id=? AND channel_id=?",
+            (
+                starboard_message.id,
+                starboard_message.channel.id,
+            ),
+        )
+        try:
+            await starboard_message.delete()
+        except discord.HTTPException:
+            return
 
     async def _update_starboard_entry(
         self,
         payload: discord.RawReactionActionEvent,
-        message_id: int,
-        channel_id: int,
+        starboard_message: discord.PartialMessage,
         star_count: int,
     ):
-        starboard_channel = self.bot.get_channel(channel_id)
-        if starboard_channel is None:
-            return
-        assert isinstance(starboard_channel, discord.TextChannel)
-        starboard_message = starboard_channel.get_partial_message(message_id)
         try:
             await starboard_message.edit(
                 content=f"{await self.emote_from_count(star_count)}"
