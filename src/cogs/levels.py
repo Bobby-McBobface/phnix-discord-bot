@@ -214,11 +214,16 @@ class Levels(commands.Cog):
 
     async def handle_level_up(self, message: discord.Message, level: int):
         """Sends level up message and gives rank reward roles if needed."""
-        await message.channel.send(
-            f"<@{message.author.id}> reached level {level:,}!"
-            "<:poglin:798531675634139176>"
-        )
+        try:
+            await message.channel.send(
+                f"<@{message.author.id}> reached level {level:,}!"
+                "<:poglin:798531675634139176>"
+            )
+        except Exception as e:
+            print(e)
+
         if new_role_id := self.ROLES.get(level):
+            await message.channel.send('ill fix it later, good job on getting a role though - chatgrill')
             old_role_index = bisect.bisect_left(list(self.ROLES.keys()), level)
             old_role_id = (
                 list(self.ROLES.values())[old_role_index]
