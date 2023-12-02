@@ -14,7 +14,7 @@ class Starboard(commands.Cog):
     STARBOARD_THRESHOLD = 7
     STAR_EMOTE_MAP = {0: "⭐", 10: "🌟", 20: "💫", 30: "✨"}
 
-    STARBOARD_CHANNEL_ID = 329226224759209985
+    STARBOARD_CHANNEL_ID = 782430559862915114
 
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -60,7 +60,7 @@ class Starboard(commands.Cog):
                 await self._delete_starboard_entry(starboard_message)
             else:
                 await self._update_starboard_entry(payload, starboard_message, count)
-        else:
+        elif count >= self.STARBOARD_THRESHOLD:
             await self._new_starboard_entry(payload, message, count)
 
     async def _delete_starboard_entry(
@@ -68,7 +68,7 @@ class Starboard(commands.Cog):
         starboard_message: discord.PartialMessage,
     ):
         await async_db_execute(
-            "DELETE starboard WHERE message_id=? AND channel_id=?",
+            "DELETE FROM starboard WHERE message_id=? AND channel_id=?",
             (
                 starboard_message.id,
                 starboard_message.channel.id,
