@@ -10,7 +10,7 @@ from discord.ext import commands
 from cogs.levels import Levels
 from cogs.misc import Miscellaneous
 from cogs.moderation import Moderation
-from cogs.starboard import Starboard
+# from cogs.starboard import Starboard
 
 # from cogs.youtube_twitch import YouTubeTwitch
 from constants import ALLOWED_GUILD_IDS, OWNER_IDS
@@ -50,7 +50,7 @@ class MyBot(commands.Bot):
         await self.add_cog(Levels(self))
         await self.add_cog(Moderation())
         await self.add_cog(Miscellaneous())
-        await self.add_cog(Starboard(self))
+        # await self.add_cog(Starboard(self))
         # await self.add_cog(YouTubeTwitch())
 
     async def on_command_error(self, context, exception, /) -> None:
