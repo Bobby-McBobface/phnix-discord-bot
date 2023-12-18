@@ -222,20 +222,18 @@ class Levels(commands.Cog):
         except Exception as e:
             print(e)
 
-        if new_role_id := self.ROLES.get(level):
-            await message.channel.send('ill fix it later, good job on getting a role though - chatgrill')
-            old_role_index = bisect.bisect_left(list(self.ROLES.keys()), level)
-            old_role_id = (
-                list(self.ROLES.values())[old_role_index]
-                if old_role_index > 0
-                else None
-            )
-            assert isinstance(message.author, discord.Member)
-            assert isinstance(message.guild, discord.Guild)
-            if role := message.guild.get_role(new_role_id):
-                await message.author.add_roles(role)
-            if old_role_id and (role := message.guild.get_role(old_role_id)):
-                await message.author.remove_roles(role)
+        new_role_id = self.ROLES.get(level)
+        await message.channel.send('ill fix it later, good job on getting a role though - chatgrill')
+        old_level = level - 1
+        old_role_id = self.ROLES.get(old_level) if old_level > 0 else None
+        
+        assert isinstance(message.author, discord.Member)
+        assert isinstance(message.guild, discord.Guild)
+        new_role = message.guild.get_role(new_role_id)
+        await message.author.add_roles(new_role)
+        old_role = message.guild.get_role(old_role_id)
+        if old_role_id:
+            await message.author.remove_roles(role)
 
     @commands.hybrid_command(aliases=("level", "score", "lifewasted",
         "bank", "wank", "tank",
