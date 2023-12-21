@@ -214,6 +214,7 @@ class Levels(commands.Cog):
 
     @commands.Cog.listener("on_member_join")
     async def regive_level_roles(self, member: discord.Member):
+        """Regive a user's rank roles on rejoin"""
         if member.guild.id not in ALLOWED_GUILD_IDS:
             return
 
