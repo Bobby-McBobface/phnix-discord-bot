@@ -88,15 +88,18 @@ class Moderation(commands.Cog):
         """See a user's warns."""
         assert isinstance(ctx.guild, discord.Guild)
 
-        (page_total,) = await async_db_execute(
+        ((warns_count,),) = await async_db_execute(
             "SELECT COUNT(*) FROM warns WHERE user_id=? AND server_id=?",
             (user.id, ctx.guild.id),
         )
-        page_total = page_total[0] // 10
+        if warns_count == 0:
+            await ctx.reply("The user has no warns! :tada:")
+
+        page_total = warns_count // 10 + 1
         view = WarnPaginator(
             user, invoker_id=ctx.author.id, page=1, page_total=page_total
         )
-        msg = await ctx.reply(**await view.get_content(ctx), view=view)  # type:ignore
+        msg = await ctx.reply(**await view.get_content(ctx), view=view)  # type: ignore
         await view.wait()
         await view.disable_buttons()
         await msg.edit(view=view)

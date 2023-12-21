@@ -324,9 +324,13 @@ class Levels(commands.Cog):
     async def leaderboard(self, ctx: commands.Context, page: int = 1):
         """See leaderboard"""
         assert isinstance(ctx.guild, discord.Guild)
-        (page_total,) = await async_db_execute("SELECT COUNT(*) FROM LEVELS")
+        ((users_count,),) = await async_db_execute("SELECT COUNT(*) FROM LEVELS")
+
+        if users_count == 0:
+            await ctx.reply("Start chatting! The database is empty :(")
+
         # Round up, 10 per page
-        page_total = page_total[0] // 10
+        page_total = users_count // 10 + 1
         view = LeaderboardPaginator(ctx.author.id, page, page_total)
         msg = await ctx.reply(**await view.get_content(ctx), view=view)  # type: ignore
         await view.wait()
