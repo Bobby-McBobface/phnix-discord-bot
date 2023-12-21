@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import discord
 from discord.ext import commands
 
-from util import Paginator, async_db_execute
+from util import Paginator, async_db_execute, parse_timeframe_ms
 
 
 class WarnPaginator(Paginator):
@@ -73,13 +73,16 @@ class Moderation(commands.Cog):
         self,
         ctx: commands.Context,
         user: discord.Member,
-        seconds: int,
+        timeframe: str,
         *,
         reason: str,
     ):
         """Timeout someone with a custom duration and warn them."""
-        await user.timeout(timedelta(seconds=seconds))
-        await ctx.reply(f"timeouted {user.id} for {seconds}s")
+        timeout_duration = parse_timeframe_ms(timeframe)
+        if not timeout_duration:
+            return ctx.reply(f"The timeframe you provided, {timeframe}, is invalid.")
+        await user.timeout(timedelta(milliseconds=timeout_duration))
+        await ctx.reply(f"timeouted {user.id} for {timeout_duration}ms")
         await ctx.invoke(self.warn, user, reason=reason)
 
     @commands.hybrid_command()

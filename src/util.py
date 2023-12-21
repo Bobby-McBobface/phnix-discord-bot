@@ -1,4 +1,5 @@
 """Util functions for bot."""
+import re
 from abc import ABC, abstractmethod
 from typing import Any, Iterable, Sequence, TypedDict
 
@@ -122,3 +123,46 @@ class Paginator(ui.View, ABC):
             button.disabled = True
         self._backward.disabled = False
         await self._on_page_change(interaction)
+
+
+# Copyright (c) 2022 Vercel, Inc.
+# https://github.com/vercel/ms
+
+
+# pylint: disable=line-too-long, too-many-return-statements
+def parse_timeframe_ms(string) -> float | None:
+    """Converts human readable timeframes to milliseconds"""
+    if len(string > 100):
+        raise ValueError("Value exceeds the maximum length of 100 characters.")
+
+    match = re.match(
+        r"^(?P<value>-?(?:\d+)?\.?\d+) *(?P<type>milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$",  # pylint
+        string,
+    )
+
+    if not match:
+        return None
+
+    value = float(match.group("value"))
+    multiplier_type = match.group("type").lower() or "ms"
+
+    match multiplier_type:
+        case "years" | "year" | "yrs" | "yr" | "y":
+            return value * 1000 * 60 * 60 * 24 * 365.25
+        case "weeks" | "week" | "w":
+            return value * 1000 * 60 * 60 * 24 * 7
+        case "days" | "day" | "d":
+            return value * 1000 * 60 * 60 * 24
+        case "hours" | "hour" | "hrs" | "hr" | "h":
+            return value * 1000 * 60 * 60
+        case "minutes" | "minute" | "mins" | "min" | "m":
+            return value * 1000 * 60
+        case "seconds" | "second" | "secs" | "sec" | "s":
+            return value * 1000
+        case "milliseconds" | "millisecond" | "msecs" | "msec" | "ms":
+            return value
+        case _:
+            # This should never occur.
+            raise ValueError(
+                f"The unit {multiplier_type} was matched, but no matching case exists."
+            )
