@@ -1,4 +1,6 @@
 """Join and leave messages"""
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import discord
@@ -20,6 +22,7 @@ class WelcomeAndFarewell(commands.Cog):
 
     @commands.Cog.listener("on_member_join")
     async def on_member_join(self, member: discord.Member):
+        """Sends a welcome message on member join."""
         if member.guild.id not in ALLOWED_GUILD_IDS:
             return
         welcome_channel = self.bot.fetch_channel(self.WELCOME_FAREWELL_CHANNEL_ID)
@@ -27,10 +30,10 @@ class WelcomeAndFarewell(commands.Cog):
 
     @commands.Cog.listener("on_member_remove")
     async def on_member_remove(self, member: discord.Member) -> None:
+        """Sends a farewell message on member join"""
         if member.guild.id not in ALLOWED_GUILD_IDS:
             return
         farewell_message = f"{member} has left the game."
-        # Escape Discord markdown formatting, e.g. so underscores in their name doesn't turn into italics
         farewell_message = discord.utils.escape_markdown(farewell_message)
         farewell_channel = self.bot.fetch_channel(self.WELCOME_FAREWELL_CHANNEL_ID)
         await farewell_channel.send(farewell_message)
