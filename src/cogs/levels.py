@@ -212,6 +212,22 @@ class Levels(commands.Cog):
             ),
         )
 
+    @commands.Cog.listener("on_member_join")
+    async def regive_level_roles(self, member: discord.Member):
+        if member.guild.id not in ALLOWED_GUILD_IDS:
+            return
+
+        ((level,),) = await async_db_execute(
+            "SELECT level FROM levels WHERE user_id=?",
+            (member.id,),
+        )
+
+        role_index = bisect.bisect_left(list(self.ROLES.keys()), **level)
+        role_id = list(self.ROLES.values())[role_index] if role_index > 0 else None
+
+        if role_id and (role := member.guild.get_role(role_id)):
+            await member.add_roles(role)
+
     async def handle_level_up(self, message: discord.Message, level: int):
         """Sends level up message and gives rank reward roles if needed."""
         try:
