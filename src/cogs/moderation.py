@@ -1,5 +1,5 @@
 """Moderation related functionality."""
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import discord
 from discord.ext import commands
@@ -14,14 +14,28 @@ class WarnPaginator(Paginator):
         super().__init__(*args, **kwargs)
         self.target = target
 
-    async def get_content(self, ctx):
+    async def get_content(self, ctx) -> Paginator.GetContentReturnType:
         assert isinstance(ctx.guild, discord.Guild)
         warns = await async_db_execute(
             "SELECT rowid, reason, timestamp FROM warns "
-            "WHERE user_id=? AND server_id=?",
-            (self.target.id, ctx.guild.id),
+            "WHERE user_id=? AND server_id=? "
+            "LIMIT 10 OFFSET ?",
+            (self.target.id, ctx.guild.id, (self.page - 1) * 10),
         )
-        return {"content": "Warns: " + str(warns)}
+        # return {"content": "Warns: " + str(warns)}
+
+        embed = discord.Embed()
+        embed.set_thumbnail(url=self.target.avatar.url if self.target.avatar else None)
+        description = ""
+        for index, data in enumerate(warns):
+            _, reason, timestamp = data
+            index += (self.page - 1) * 10 + 1
+            description += f"**#{index:,}**: {reason} <t:{timestamp}>\n"
+        embed.title = f"Warns for {self.target.name}"
+        embed.description = description
+        embed.timestamp = datetime.now()
+
+        return {"embed": embed}
 
 
 class Moderation(commands.Cog):
@@ -30,7 +44,7 @@ class Moderation(commands.Cog):
     @commands.hybrid_command()
     @commands.has_permissions(manage_messages=True)
     async def warn(
-        self, ctx: commands.Context, user: discord.User | discord.Member, reason: str
+        self, ctx: commands.Context, user: discord.User | discord.Member, *, reason: str
     ):
         """Warn someone for breaking the rules."""
         assert isinstance(ctx.guild, discord.Guild)
@@ -56,20 +70,36 @@ class Moderation(commands.Cog):
     @commands.has_permissions(moderate_members=True)
     @commands.bot_has_permissions(moderate_members=True)
     async def mute(
-        self, ctx: commands.Context, user: discord.Member, reason: str, seconds: int
+        self,
+        ctx: commands.Context,
+        user: discord.Member,
+        seconds: int,
+        *,
+        reason: str,
     ):
         """Timeout someone with a custom duration and warn them."""
         await user.timeout(timedelta(seconds=seconds))
         await ctx.reply(f"timeouted {user.id} for {seconds}s")
-        await ctx.invoke(self.warn, user, reason)
+        await ctx.invoke(self.warn, user, reason=reason)
 
     @commands.hybrid_command()
     @commands.has_permissions(manage_messages=True)
     async def warns(self, ctx: commands.Context, user: discord.User | discord.Member):
         """See a user's warns."""
         assert isinstance(ctx.guild, discord.Guild)
-        view = WarnPaginator(user, invoker_id=ctx.author.id, page=1, page_total=1)
-        await ctx.reply(**await view.get_content(ctx), view=view)
+
+        (page_total,) = await async_db_execute(
+            "SELECT COUNT(*) FROM warns WHERE user_id=? AND server_id=?",
+            (user.id, ctx.guild.id),
+        )
+        page_total = page_total[0] // 10
+        view = WarnPaginator(
+            user, invoker_id=ctx.author.id, page=1, page_total=page_total
+        )
+        msg = await ctx.reply(**await view.get_content(ctx), view=view)  # type:ignore
+        await view.wait()
+        await view.disable_buttons()
+        await msg.edit(view=view)
 
     @commands.hybrid_command()
     @commands.cooldown(1, 2)

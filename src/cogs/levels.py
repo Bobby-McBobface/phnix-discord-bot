@@ -219,30 +219,39 @@ class Levels(commands.Cog):
                 f"<@{message.author.id}> reached level {level:,}!"
                 "<:poglin:798531675634139176>"
             )
-        except Exception as e:
-            print(e)
+        except discord.DiscordException as err:
+            print(err)
 
-        if new_role_id := self.ROLES.get(level):
-            await message.channel.send('ill fix it later, good job on getting a role though - chatgrill')
-            old_role_index = bisect.bisect_left(list(self.ROLES.keys()), level)
-            old_role_id = (
-                list(self.ROLES.values())[old_role_index]
-                if old_role_index > 0
-                else None
-            )
-            assert isinstance(message.author, discord.Member)
-            assert isinstance(message.guild, discord.Guild)
-            if role := message.guild.get_role(new_role_id):
-                await message.author.add_roles(role)
-            if old_role_id and (role := message.guild.get_role(old_role_id)):
-                await message.author.remove_roles(role)
+        if new_role_id := self.ROLES.get(level) is None:
+            return
 
-    @commands.hybrid_command(aliases=("level", "score", "lifewasted",
-        "bank", "wank", "tank",
-        "frank", # credit: cobysack1
-        "hank", # credit: masochist#1615
-        "wotismyrankplsOwO", # credit: cobysack1
-        "rnk"))
+        old_role_index = bisect.bisect_left(list(self.ROLES.keys()), level)
+        old_role_id = (
+            list(self.ROLES.values())[old_role_index - 1]
+            if old_role_index > 0
+            else None
+        )
+        assert isinstance(message.author, discord.Member)
+        assert isinstance(message.guild, discord.Guild)
+        if role := message.guild.get_role(new_role_id):
+            await message.author.add_roles(role)
+        if old_role_id and (role := message.guild.get_role(old_role_id)):
+            await message.author.remove_roles(role)
+
+    @commands.hybrid_command(
+        aliases=(
+            "level",
+            "score",
+            "lifewasted",
+            "bank",
+            "wank",
+            "tank",
+            "frank",  # credit: cobysack1
+            "hank",  # credit: masochist#1615
+            "wotismyrankplsOwO",  # credit: cobysack1
+            "rnk",
+        )
+    )
     @commands.cooldown(1, 1, commands.BucketType.user)
     async def rank(self, ctx: commands.Context[MyBot], user: discord.User | None):
         """Check your rank!"""
@@ -303,10 +312,10 @@ class Levels(commands.Cog):
         # Round up, 10 per page
         page_total = page_total[0] // 10
         view = LeaderboardPaginator(ctx.author.id, page, page_total)
-        message = await ctx.reply(**await view.get_content(ctx), view=view)
+        msg = await ctx.reply(**await view.get_content(ctx), view=view)  # type: ignore
         await view.wait()
         await view.disable_buttons()
-        await message.edit(view=view)
+        await msg.edit(view=view)
 
     @commands.hybrid_command()
     @commands.has_permissions(manage_roles=True)

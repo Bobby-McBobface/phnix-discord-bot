@@ -52,13 +52,13 @@ class Miscellaneous(commands.Cog):
             ]
         ).format(hugger=hugger, target=target)
         # Make a fancy embed so people don't complain about getting pinged twice
-        R, G, B = 256 * 256, 256, 1
-        embed = discord.Embed(description=reply, colour=(46 * R + 204 * G + 113 * B))
+        embed = discord.Embed(description=reply, colour=discord.Colour(3066993))
 
         await ctx.reply(embed=embed)
 
     @commands.hybrid_command()
     async def replytome(self, ctx: commands.Context[MyBot], *, message: str):
+        """Echos the user provided message."""
         await ctx.reply(message)
 
     @commands.hybrid_command(aliases=["a" * x for x in range(3, 10)])
@@ -66,6 +66,7 @@ class Miscellaneous(commands.Cog):
         self,
         ctx: commands.Context[MyBot],
     ):
+        """AAAAAAAAAAAAAAAAAAAAAAAA"""
         await ctx.reply(content="AAAAAAAAAAAAAAAAAAAAAAAA")
 
     @commands.command()

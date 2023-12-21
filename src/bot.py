@@ -10,10 +10,12 @@ from discord.ext import commands
 from cogs.levels import Levels
 from cogs.misc import Miscellaneous
 from cogs.moderation import Moderation
-# from cogs.starboard import Starboard
 
 # from cogs.youtube_twitch import YouTubeTwitch
 from constants import ALLOWED_GUILD_IDS, OWNER_IDS
+
+# from cogs.starboard import Starboard
+
 
 try:
     import uvloop  # type: ignore
