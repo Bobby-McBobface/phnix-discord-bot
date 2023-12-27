@@ -112,3 +112,17 @@ class Moderation(commands.Cog):
     async def mywarns(self, ctx: commands.Context):
         """See a user's warns."""
         await ctx.invoke(self.warns, ctx.author)
+
+    @commands.command()
+    @commands.is_owner()
+    async def transferwarns(
+        self, ctx: commands.Context, old_user: discord.User, new_user: discord.User
+    ):
+        """Transfers a user's warns from one account to another"""
+        await async_db_execute(
+            "UPDATE warns SET user_id = ? WHERE user_id = ?",
+            (new_user.id, old_user.id),
+        )
+        await ctx.reply(
+            f"Successfully transferred FROM {old_user.mention} TO {new_user.mention}"
+        )

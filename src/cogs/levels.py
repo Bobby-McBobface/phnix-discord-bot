@@ -343,3 +343,15 @@ class Levels(commands.Cog):
     async def reactionrolessetup(self, ctx: commands.Context):
         """Sends a reaction role message."""
         await ctx.send(view=EternalReactionRole())
+
+    @commands.command()
+    @commands.is_owner()
+    async def setxp(
+        self, ctx: commands.Context, user: discord.User, xp: int, level: int
+    ):
+        """Sets a user's XP and level."""
+        await async_db_execute(
+            "UPDATE levels SET xp = ?, level = ? WHERE user_id = ?",
+            (xp, level, user.id),
+        )
+        await ctx.reply(f"Successfully set {user.mention} to {xp} XP and level {level}")
