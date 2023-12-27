@@ -250,10 +250,10 @@ class Levels(commands.Cog):
         )
         assert isinstance(message.author, discord.Member)
         assert isinstance(message.guild, discord.Guild)
-        if role := message.guild.get_role(new_role_id):
-            await message.author.add_roles(role)
-        if old_role_id and (role := message.guild.get_role(old_role_id)):
-            await message.author.remove_roles(role)
+        if new_role := message.guild.get_role(new_role_id):
+            await message.author.add_roles(new_role)
+        if old_role_id and (old_role := message.guild.get_role(old_role_id)):
+            await message.author.remove_roles(old_role)
 
     @commands.hybrid_command(
         aliases=(
@@ -328,7 +328,7 @@ class Levels(commands.Cog):
         ((users_count,),) = await async_db_execute("SELECT COUNT(*) FROM LEVELS")
 
         if users_count == 0:
-            await ctx.reply("Start chatting! The database is empty :(")
+            return await ctx.reply("Start chatting! The database is empty :(")
 
         # Round up, 10 per page
         page_total = users_count // 10 + 1

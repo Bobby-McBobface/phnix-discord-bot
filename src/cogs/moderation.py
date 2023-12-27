@@ -96,7 +96,7 @@ class Moderation(commands.Cog):
             (user.id, ctx.guild.id),
         )
         if warns_count == 0:
-            await ctx.reply("The user has no warns! :tada:")
+            return await ctx.reply("The user has no warns! :tada:")
 
         page_total = warns_count // 10 + 1
         view = WarnPaginator(
