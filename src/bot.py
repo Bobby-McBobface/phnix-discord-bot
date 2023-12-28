@@ -12,7 +12,7 @@ from cogs.misc import Miscellaneous
 from cogs.moderation import Moderation
 
 # from cogs.youtube_twitch import YouTubeTwitch
-from constants import ALLOWED_GUILD_IDS, OWNER_IDS
+from constants import ALLOWED_GUILD_IDS, OWNER_IDS, ALLOWED_CHANNEL_IDS
 
 # from cogs.starboard import Starboard
 
@@ -98,7 +98,9 @@ def main():
     @bot.check
     async def _restrict_servers(ctx: commands.Context):
         return ctx.guild.id in ALLOWED_GUILD_IDS if ctx.guild else False
-
+    @bot.check
+    async def _restrict_channels(ctx: commands.Context):
+        return ctx.channel.id in ALLOWED_CHANNEL_IDS if ctx.guild else False
     bot.run(os.environ["TOKEN"])
 
 
