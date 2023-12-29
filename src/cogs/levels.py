@@ -239,7 +239,7 @@ class Levels(commands.Cog):
         except discord.DiscordException as err:
             print(err)
 
-        if new_role_id := self.ROLES.get(level) is None:
+        if (new_role_id := self.ROLES.get(level)) is None:
             return
 
         old_role_index = bisect.bisect_left(list(self.ROLES.keys()), level)
@@ -250,9 +250,14 @@ class Levels(commands.Cog):
         )
         assert isinstance(message.author, discord.Member)
         assert isinstance(message.guild, discord.Guild)
-        if new_role := message.guild.get_role(new_role_id):
-            await message.author.add_roles(new_role)
-        if old_role_id and (old_role := message.guild.get_role(old_role_id)):
+
+        new_role = message.guild.get_role(new_role_id)
+        assert new_role is not None
+        await message.author.add_roles(new_role)
+
+        if old_role_id:
+            old_role = message.guild.get_role(old_role_id)
+            assert old_role is not None
             await message.author.remove_roles(old_role)
 
     @commands.hybrid_command(
