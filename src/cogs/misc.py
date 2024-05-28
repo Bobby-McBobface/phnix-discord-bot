@@ -8,6 +8,7 @@ import sys
 import typing
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 
@@ -56,10 +57,10 @@ class Miscellaneous(commands.Cog):
 
         await ctx.reply(embed=embed)
 
-    @commands.hybrid_command()
-    async def replytome(self, ctx: commands.Context[MyBot], *, message: str):
+    @app_commands.command()
+    async def replytome(self, ctx: discord.Interaction, *, message: str):
         """Echos the user provided message."""
-        await ctx.reply(message)
+        await ctx.response.send_message(message)
 
     @commands.hybrid_command(aliases=["a" * x for x in range(3, 10)])
     async def aaaaaaaaaa(
