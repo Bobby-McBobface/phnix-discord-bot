@@ -1,4 +1,5 @@
 """Util functions for bot."""
+import asyncio
 import re
 from abc import ABC, abstractmethod
 from typing import Any, Iterable, Sequence, TypedDict
@@ -58,10 +59,21 @@ class Paginator(ui.View, ABC):
         Checks if we should respond to the interaction.
         Defaults to if original invoker pressed the button.
         """
-        should_respond = interaction.user.id == self.invoker_id
-        if not should_respond:
-            await interaction.response.defer(thinking=False)
-        return should_respond
+        same_author = interaction.user.id == self.invoker_id
+        if not same_author:
+            paginator_copy = self.__class__(
+                interaction.user.id,
+                self.page,
+                self.page_total,
+                timeout=self.timeout or 180,
+            )
+            asyncio.create_task(paginator_copy.wait())
+            await interaction.response.send_message(
+                **await paginator_copy.get_content(interaction),  # type: ignore
+                view=paginator_copy,
+                ephemeral=True,
+            )
+        return same_author
 
     class GetContentReturnType(TypedDict, total=False):
         """What Paginator.get_content should return."""

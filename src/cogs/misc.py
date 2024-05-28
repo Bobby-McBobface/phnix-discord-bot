@@ -84,3 +84,17 @@ class Miscellaneous(commands.Cog):
         output = process.communicate()[0]
         await ctx.reply(str(output) if output else "No output.")
         os.execv(sys.executable, ["python3"] + sys.argv)
+
+    @commands.command()
+    @commands.is_owner()
+    async def mimic(
+        self,
+        ctx: commands.Context[MyBot],
+        user: discord.User | discord.Member,
+        *,
+        message: str,
+    ):
+        "Mimics a user invoking a command."
+        ctx.message.author = user
+        ctx.message.content = message
+        await ctx.bot.on_message(ctx.message)

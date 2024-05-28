@@ -87,7 +87,9 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command()
     @commands.has_permissions(manage_messages=True)
-    async def warns(self, ctx: commands.Context, user: discord.User | discord.Member):
+    async def warns(
+        self, ctx: commands.Context, user: discord.User | discord.Member, ephemeral=True
+    ):
         """See a user's warns."""
         assert isinstance(ctx.guild, discord.Guild)
 
@@ -102,16 +104,16 @@ class Moderation(commands.Cog):
         view = WarnPaginator(
             user, invoker_id=ctx.author.id, page=1, page_total=page_total
         )
-        msg = await ctx.reply(**await view.get_content(ctx), view=view)  # type: ignore
+        msg = await ctx.reply(**await view.get_content(ctx), view=view, ephemeral=ephemeral)  # type: ignore
         await view.wait()
         await view.disable_buttons()
         await msg.edit(view=view)
 
     @commands.hybrid_command()
     @commands.cooldown(1, 2)
-    async def mywarns(self, ctx: commands.Context):
+    async def mywarns(self, ctx: commands.Context, ephemeral=True):
         """See a user's warns."""
-        await ctx.invoke(self.warns, ctx.author)
+        await ctx.invoke(self.warns, ctx.author, ephemeral)
 
     @commands.command()
     @commands.is_owner()
