@@ -148,7 +148,7 @@ class Levels(commands.Cog):
         45: 420174387166314506,
         55: 731769341246177340,
         64: 847681970539724851,
-        65: 731769341246177348,
+        65: 731769341246177340,
     }
 
     XP_DISALLOWED_CHANNELS = (329235461929435137, 334929304561647617)
@@ -212,6 +212,11 @@ class Levels(commands.Cog):
             ),
         )
 
+    @commands.command()
+    @commands.is_owner()
+    async def fake_rejoin(self, ctx):
+        await self.regive_level_roles(ctx.author)
+
     @commands.Cog.listener("on_member_join")
     async def regive_level_roles(self, member: discord.Member):
         """Regive a user's rank roles on rejoin"""
@@ -223,8 +228,8 @@ class Levels(commands.Cog):
             (member.id,),
         )
 
-        role_index = bisect.bisect_left(list(self.ROLES.keys()), **level)
-        role_id = list(self.ROLES.values())[role_index] if role_index > 0 else None
+        role_index = bisect.bisect_left(list(self.ROLES.keys()), level)
+        role_id = list(self.ROLES.values())[role_index - 1] if role_index > 0 else None
 
         if role_id and (role := member.guild.get_role(role_id)):
             await member.add_roles(role)
