@@ -33,6 +33,7 @@ class MyBot(commands.Bot):
         intents.guilds = True
         intents.guild_messages = True
         intents.guild_reactions = True
+        intents.members = True
         # pylint: enable=assigning-non-slot
         super().__init__(
             commands.when_mentioned_or("!"),
