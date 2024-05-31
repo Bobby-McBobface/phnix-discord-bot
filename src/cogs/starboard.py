@@ -1,4 +1,5 @@
 """Starboard related functionality."""
+
 import bisect
 
 import discord

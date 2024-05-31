@@ -1,4 +1,5 @@
 """Util functions for bot."""
+
 import asyncio
 import re
 from abc import ABC, abstractmethod
@@ -148,7 +149,7 @@ def parse_timeframe_ms(string) -> float | None:
         raise ValueError("Value exceeds the maximum length of 100 characters.")
 
     match = re.match(
-        r"^(?P<value>-?(?:\d+)?\.?\d+) *(?P<type>milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$",  # pylint
+        r"^(?P<value>-?(?:\d+)?\.?\d+) *(?P<type>milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$",
         string,
     )
 

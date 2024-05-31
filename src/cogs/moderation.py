@@ -1,4 +1,5 @@
 """Moderation related functionality."""
+
 from datetime import datetime, timedelta
 
 import discord
@@ -104,7 +105,11 @@ class Moderation(commands.Cog):
         view = WarnPaginator(
             user, invoker_id=ctx.author.id, page=1, page_total=page_total
         )
-        msg = await ctx.reply(**await view.get_content(ctx), view=view, ephemeral=ephemeral)  # type: ignore
+        msg = await ctx.reply(
+            **await view.get_content(ctx),  # type: ignore
+            view=view,
+            ephemeral=ephemeral,
+        )
         await view.wait()
         await view.disable_buttons()
         await msg.edit(view=view)

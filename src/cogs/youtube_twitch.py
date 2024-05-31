@@ -1,4 +1,5 @@
 """Cog to handle feeds from YouTube and Twitch."""
+
 import asyncio
 import hashlib
 import hmac

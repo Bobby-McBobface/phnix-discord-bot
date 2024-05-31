@@ -1,4 +1,5 @@
 """Leveling (XP system) related functionality."""
+
 from __future__ import annotations
 
 import asyncio
@@ -215,6 +216,7 @@ class Levels(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def fake_rejoin(self, ctx):
+        """Simulate user rejoin for level roles."""
         await self.regive_level_roles(ctx.author)
 
     @commands.Cog.listener("on_member_join")
