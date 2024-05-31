@@ -84,6 +84,8 @@ class Miscellaneous(commands.Cog):
         process = subprocess.Popen(["git", "pull"], stdout=subprocess.PIPE)
         process.wait()
         output = process.communicate()[0]
+        process = subprocess.Popen(["poetry", "install"], stdout=subprocess.PIPE)
+        process.wait()
         await ctx.reply(str(output) if output else "No output.")
         os.execv(sys.executable, ["python3"] + sys.argv)
 
