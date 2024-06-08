@@ -315,7 +315,7 @@ class Levels(commands.Cog):
         )
 
         embed = discord.Embed().set_author(
-            name=f"{query_user.name}#{query_user.discriminator}",
+            name=query_user.name,
             icon_url=query_user.display_avatar.url,
         )
         embed.timestamp = datetime.now()
