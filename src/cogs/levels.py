@@ -225,10 +225,14 @@ class Levels(commands.Cog):
         if member.guild.id not in ALLOWED_GUILD_IDS:
             return
 
-        ((level,),) = await async_db_execute(
+        result = await async_db_execute(
             "SELECT level FROM levels WHERE user_id=?",
             (member.id,),
         )
+
+        if not result:
+            return  # User has no level
+        _, level = result[0]
 
         role_index = bisect.bisect_left(list(self.ROLES.keys()), level)
         role_id = list(self.ROLES.values())[role_index - 1] if role_index > 0 else None
