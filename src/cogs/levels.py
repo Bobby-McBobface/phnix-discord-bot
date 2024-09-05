@@ -232,7 +232,7 @@ class Levels(commands.Cog):
 
         if not result:
             return  # User has no level
-        _, level = result[0]
+        level = result[0][0]
 
         role_index = bisect.bisect_left(list(self.ROLES.keys()), level)
         role_id = list(self.ROLES.values())[role_index - 1] if role_index > 0 else None
@@ -244,7 +244,7 @@ class Levels(commands.Cog):
         """Sends level up message and gives rank reward roles if needed."""
         try:
             await message.channel.send(
-                f"<@{message.author.id}> reached level {level:,}!"
+                f"<@{message.author.id}> reached level {level:,}! "
                 "<:poglin:798531675634139176>"
             )
         except discord.DiscordException as err:
