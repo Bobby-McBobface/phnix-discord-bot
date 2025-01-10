@@ -346,7 +346,7 @@ class Levels(commands.Cog):
         xp, level = result[0]
         rank: int = (
             await async_db_execute(
-                "SELECT COUNT(*)+1 FROM LEVELS WHERE XP > ?",
+                "SELECT COUNT(*)+1 FROM LEVELS WHERE XP > ? AND hidden=FALSE",
                 (xp,),
             )
         )[0][0]
