@@ -11,12 +11,7 @@ from discord.ext import commands
 from cogs.levels import Levels
 from cogs.misc import Miscellaneous
 from cogs.moderation import Moderation
-
-# from cogs.youtube_twitch import YouTubeTwitch
 from constants import ALLOWED_GUILD_IDS, OWNER_IDS
-
-# from cogs.starboard import Starboard
-
 
 try:
     import uvloop  # type: ignore
@@ -47,15 +42,10 @@ class MyBot(commands.Bot):
 
     async def setup_hook(self):
         # self.loop.set_debug(True)
-        # async with aiosqlite.connect(r"db.sqlite3") as conn:
-        #     with open(r"db.schema", encoding="utf-8") as file:
-        #         await conn.executescript(file.read())
-
         await self.add_cog(Levels(self))
         await self.add_cog(Moderation())
         await self.add_cog(Miscellaneous())
         # await self.add_cog(Starboard(self))
-        # await self.add_cog(YouTubeTwitch())
 
     async def on_command_error(self, context, exception, /) -> None:
         if isinstance(exception, commands.CommandNotFound):
