@@ -86,7 +86,8 @@ def main():
         pass
 
     # fix for windows
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    if os.name == "nt":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     dotenv.load_dotenv()
     bot = MyBot()
