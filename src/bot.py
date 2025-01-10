@@ -1,5 +1,6 @@
 """Main code to set up and run the bot."""
 
+import asyncio
 import os
 import traceback
 
@@ -83,6 +84,9 @@ def main():
         uvloop.install()  # type: ignore
     except NameError:  # only on linux
         pass
+
+    # fix for windows
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     dotenv.load_dotenv()
     bot = MyBot()

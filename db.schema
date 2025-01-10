@@ -1,9 +1,12 @@
 CREATE TABLE IF NOT EXISTS levels (
-    xp        INT NOT NULL DEFAULT 0,
-    level     INT NOT NULL DEFAULT 0,
-    user_id   INT NOT NULL,
-    PRIMARY KEY(user_id, server_id)
+    xp        INT     NOT NULL DEFAULT 0,
+    level     INT     NOT NULL DEFAULT 0,
+    user_id   INT     NOT NULL,
+    hidden    BOOLEAN NOT NULL DEFAULT FALSE,
+    PRIMARY KEY(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_leaderboard_xp ON levels (hidden, xp DESC);
 
 CREATE TABLE IF NOT EXISTS warns (
     reason    TEXT,

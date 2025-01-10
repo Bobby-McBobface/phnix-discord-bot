@@ -25,7 +25,7 @@ class LeaderboardPaginator(Paginator):
     async def get_content(self, ctx) -> Paginator.GetContentReturnType:
         assert isinstance(ctx.guild, discord.Guild)
         db_result = await async_db_execute(
-            "SELECT user_id, level, xp FROM levels ORDER BY xp DESC LIMIT 10 OFFSET ?",
+            "SELECT user_id, level, xp FROM levels WHERE hidden=FALSE ORDER BY xp DESC LIMIT 10 OFFSET ?",
             ((self.page - 1) * 10,),
         )
         embed = discord.Embed()
@@ -240,6 +240,53 @@ class Levels(commands.Cog):
         if role_id and (role := member.guild.get_role(role_id)):
             await member.add_roles(role)
 
+    @commands.Cog.listener("on_member_join")
+    async def show_on_leaderboard(self, member: discord.Member):
+        await async_db_execute(
+            "UPDATE levels SET hidden=FALSE WHERE user_id=?",
+            (member.id,),
+        )
+
+    @commands.Cog.listener("on_member_leave")
+    async def hide_from_leaderboard(self, member: discord.Member):
+        await async_db_execute(
+            "UPDATE levels SET hidden=TRUE WHERE user_id=?",
+            (member.id,),
+        )
+
+    @commands.command()
+    @commands.is_owner()
+    async def rebuild_leaderboard_members(
+        self, ctx: commands.Context[MyBot], amount: int = 10, offset: int = 0
+    ):
+        db_result = await async_db_execute(
+            "SELECT user_id, hidden FROM levels ORDER BY xp DESC LIMIT ? OFFSET ?",
+            (amount, offset),
+        )
+
+        assert ctx.guild
+        hidden = []
+        unhidden = []
+
+        for data in db_result:
+            user_id, is_hidden = data
+            member = ctx.guild.get_member(user_id)
+
+            if member and is_hidden:
+                unhidden.append(user_id)
+                await async_db_execute(
+                    "UPDATE levels SET hidden=FALSE WHERE user_id=?",
+                    (user_id,),
+                )
+            elif member is None and not is_hidden:
+                hidden.append(user_id)
+                await async_db_execute(
+                    "UPDATE levels SET hidden=TRUE WHERE user_id=?",
+                    (user_id,),
+                )
+
+        await ctx.reply(f"Successfully hid {hidden} and restored {unhidden}")
+
     async def handle_level_up(self, message: discord.Message, level: int):
         """Sends level up message and gives rank reward roles if needed."""
         try:
@@ -341,7 +388,9 @@ class Levels(commands.Cog):
     async def leaderboard(self, ctx: commands.Context, page: int = 1):
         """See leaderboard"""
         assert isinstance(ctx.guild, discord.Guild)
-        ((users_count,),) = await async_db_execute("SELECT COUNT(*) FROM LEVELS")
+        ((users_count,),) = await async_db_execute(
+            "SELECT COUNT(*) FROM LEVELS WHERE hidden=FALSE"
+        )
 
         if users_count == 0:
             return await ctx.reply("Start chatting! The database is empty :(")
