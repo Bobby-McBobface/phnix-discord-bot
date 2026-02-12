@@ -25,7 +25,8 @@ class LeaderboardPaginator(Paginator):
     async def get_content(self, ctx) -> Paginator.GetContentReturnType:
         assert isinstance(ctx.guild, discord.Guild)
         db_result = await async_db_execute(
-            "SELECT user_id, level, xp FROM levels WHERE hidden=FALSE ORDER BY xp DESC LIMIT 10 OFFSET ?",
+            "SELECT user_id, level, xp FROM levels WHERE hidden=FALSE"
+            "ORDER BY xp DESC LIMIT 10 OFFSET ?",
             ((self.page - 1) * 10,),
         )
         embed = discord.Embed()
@@ -242,6 +243,7 @@ class Levels(commands.Cog):
 
     @commands.Cog.listener("on_member_join")
     async def show_on_leaderboard(self, member: discord.Member):
+        """Show the user from the leaderboard if they rejoin."""
         await async_db_execute(
             "UPDATE levels SET hidden=FALSE WHERE user_id=?",
             (member.id,),
@@ -249,6 +251,7 @@ class Levels(commands.Cog):
 
     @commands.Cog.listener("on_member_leave")
     async def hide_from_leaderboard(self, member: discord.Member):
+        """Hide the user from the leaderboard if they leave."""
         await async_db_execute(
             "UPDATE levels SET hidden=TRUE WHERE user_id=?",
             (member.id,),
@@ -259,6 +262,7 @@ class Levels(commands.Cog):
     async def rebuild_leaderboard_members(
         self, ctx: commands.Context[MyBot], amount: int = 10, offset: int = 0
     ):
+        """Reindex each user to set their leaderboard state correctly."""
         db_result = await async_db_execute(
             "SELECT user_id, hidden FROM levels ORDER BY xp DESC LIMIT ? OFFSET ?",
             (amount, offset),

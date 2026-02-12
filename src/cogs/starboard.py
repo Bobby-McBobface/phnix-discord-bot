@@ -49,7 +49,7 @@ class Starboard(commands.Cog):
         )
         if starboard_info:
             starboard_info: list[tuple[int, int]]
-            (message_id, channel_id) = starboard_info[0]
+            message_id, channel_id = starboard_info[0]
 
             starboard_channel = self.bot.get_channel(channel_id)
             if starboard_channel is None:
