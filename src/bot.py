@@ -73,7 +73,7 @@ class MyBot(commands.Bot):
         async with aiohttp.ClientSession() as session:
             try:
                 err_webhook = discord.Webhook.from_url(err_webhook_url, session=session)
-                await err_webhook.send(content=traceback.format_exc())
+                await err_webhook.send(content=traceback.format_exc()[:2000])
             except discord.HTTPException:
                 print(f"Error sending error to webhook: {traceback.format_exc()}")
 
@@ -96,7 +96,7 @@ def main():
     async def _restrict_servers(ctx: commands.Context):
         return ctx.guild.id in ALLOWED_GUILD_IDS if ctx.guild else False
 
-    bot.run(os.environ["TOKEN"])
+    bot.run(os.environ["BOT_TOKEN"])
 
 
 if __name__ == "__main__":

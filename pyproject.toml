@@ -12,7 +12,6 @@ python = "^3.10"
 aiosqlite = "^0.22.1"
 python-dotenv = "^1.0.1"
 
-
 [tool.poetry.group.dev.dependencies]
 pylint = "^4.0.4"
 black = "^26.1.0"

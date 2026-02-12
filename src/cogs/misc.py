@@ -79,18 +79,6 @@ class Miscellaneous(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def updateandrestart(self, ctx: commands.Context[MyBot]):
-        """Pulls the latest commit from GitHub and restart the bot."""
-        process = subprocess.Popen(["git", "pull"], stdout=subprocess.PIPE)
-        process.wait()
-        output = process.communicate()[0]
-        process = subprocess.Popen(["poetry", "install"], stdout=subprocess.PIPE)
-        process.wait()
-        await ctx.reply(str(output) if output else "No output.")
-        os.execv(sys.executable, ["python3"] + sys.argv)
-
-    @commands.command()
-    @commands.is_owner()
     async def mimic(
         self,
         ctx: commands.Context[MyBot],

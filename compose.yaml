@@ -1,0 +1,8 @@
+services:
+  phnix-bot:
+    build: .
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      ERROR_WEBHOOK: ${ERROR_WEBHOOK}
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3 
