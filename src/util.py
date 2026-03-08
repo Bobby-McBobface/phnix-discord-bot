@@ -30,7 +30,13 @@ class Paginator(ui.View, ABC):
     """
 
     def __init__(
-        self, invoker_id: int, page: int, page_total: int, *, timeout: float = 180
+        self,
+        invoker_id: int,
+        page: int,
+        page_total: int,
+        *,
+        timeout: float = 180,
+        public: bool = False,
     ):
         super().__init__(timeout=timeout)
         if page_total < page:
@@ -47,6 +53,7 @@ class Paginator(ui.View, ABC):
         self.invoker_id = invoker_id
         self.page = page
         self.page_total = page_total
+        self.public = public
         self._page_display.label = f"{self.page}/{self.page_total}"
 
     async def disable_buttons(self) -> None:
@@ -61,7 +68,7 @@ class Paginator(ui.View, ABC):
         Defaults to if original invoker pressed the button.
         """
         same_author = interaction.user.id == self.invoker_id
-        if not same_author:
+        if not same_author and self.public:
             paginator_copy = self.__class__(
                 interaction.user.id,
                 self.page,

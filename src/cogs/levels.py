@@ -402,7 +402,7 @@ class Levels(commands.Cog):
 
         # Round up, 10 per page
         page_total = users_count // 10 + 1
-        view = LeaderboardPaginator(ctx.author.id, page, page_total)
+        view = LeaderboardPaginator(ctx.author.id, page, page_total, public=True)
         msg = await ctx.reply(**await view.get_content(ctx), view=view)  # type: ignore
         await view.wait()
         await view.disable_buttons()

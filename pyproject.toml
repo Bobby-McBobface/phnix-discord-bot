@@ -23,6 +23,7 @@ pyright = "^1.1.408"
 [tool.pylint.format]
 max-line-length = "88"
 good-names = "i,j,k,ex,Run,_,xp"
+max-args = 10
 
 [tool.isort]
 profile = "black"
