@@ -35,7 +35,7 @@ class Paginator(ui.View, ABC):
         page: int,
         page_total: int,
         *,
-        timeout: float = 180,
+        timeout: float | None = 600,
         public: bool = False,
     ):
         super().__init__(timeout=timeout)
@@ -73,7 +73,7 @@ class Paginator(ui.View, ABC):
                 interaction.user.id,
                 self.page,
                 self.page_total,
-                timeout=self.timeout or 180,
+                timeout=self.timeout,
             )
             asyncio.create_task(paginator_copy.wait())
             await interaction.response.send_message(
