@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import os
 import random
-import subprocess
-import sys
 import typing
 
 import discord
