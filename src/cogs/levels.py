@@ -390,7 +390,9 @@ class Levels(commands.Cog):
 
     @commands.hybrid_command(aliases=("lb", "levels", "leaderboards"))
     @commands.cooldown(1, 2, commands.BucketType.user)
-    async def leaderboard(self, ctx: commands.Context, page: int = 1):
+    async def leaderboard(
+        self, ctx: commands.Context, page: commands.Range[int, 1, None] = 1
+    ):
         """See leaderboard"""
         assert isinstance(ctx.guild, discord.Guild)
         ((users_count,),) = await async_db_execute(

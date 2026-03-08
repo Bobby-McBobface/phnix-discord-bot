@@ -40,7 +40,7 @@ class Paginator(ui.View, ABC):
     ):
         super().__init__(timeout=timeout)
         if page_total < page:
-            raise ValueError("Total pages more than current page")
+            raise commands.RangeError(page, 1, page_total)
         if page_total <= 0:
             raise ValueError("Total pages less than 1")
         if page_total == 1:  # No need for pagination
