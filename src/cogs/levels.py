@@ -272,22 +272,23 @@ class Levels(commands.Cog):
         hidden = []
         unhidden = []
 
-        for data in db_result:
-            user_id, is_hidden = data
+        for user_id, is_hidden in db_result:
+            # get_member only returns results from cache, and not from API
             member = ctx.guild.get_member(user_id)
+            if member is None:
+                try:
+                    member = await ctx.guild.fetch_member(user_id)
+                except discord.NotFound:
+                    member = None
 
-            if member and is_hidden:
-                unhidden.append(user_id)
+            desired_hidden = member is None
+
+            if desired_hidden != is_hidden:
                 await async_db_execute(
-                    "UPDATE levels SET hidden=FALSE WHERE user_id=?",
-                    (user_id,),
+                    "UPDATE levels SET hidden=? WHERE user_id=?",
+                    (desired_hidden, user_id),
                 )
-            elif member is None and not is_hidden:
-                hidden.append(user_id)
-                await async_db_execute(
-                    "UPDATE levels SET hidden=TRUE WHERE user_id=?",
-                    (user_id,),
-                )
+                (hidden if desired_hidden else unhidden).append(user_id)
 
         await ctx.reply(f"Successfully hid {hidden} and restored {unhidden}")
 
