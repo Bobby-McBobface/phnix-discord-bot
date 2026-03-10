@@ -25,7 +25,7 @@ class LeaderboardPaginator(Paginator):
     async def get_content(self, ctx) -> Paginator.GetContentReturnType:
         assert isinstance(ctx.guild, discord.Guild)
         db_result = await async_db_execute(
-            "SELECT user_id, level, xp FROM levels WHERE hidden=FALSE"
+            "SELECT user_id, level, xp FROM levels WHERE hidden=FALSE "
             "ORDER BY xp DESC LIMIT 10 OFFSET ?",
             ((self.page - 1) * 10,),
         )
