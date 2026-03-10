@@ -1,6 +1,7 @@
 """Moderation related functionality."""
 
 from datetime import datetime, timedelta
+from typing import Literal
 
 import discord
 from discord.ext import commands
@@ -45,7 +46,12 @@ class Moderation(commands.Cog):
     @commands.hybrid_command()
     @commands.has_permissions(manage_messages=True)
     async def warn(
-        self, ctx: commands.Context, user: discord.User | discord.Member, *, reason: str
+        self,
+        ctx: commands.Context,
+        silent: Literal["silent", "quiet", True, False] | None,
+        user: discord.User | discord.Member,
+        *,
+        reason: str,
     ):
         """Warn someone for breaking the rules."""
         assert isinstance(ctx.guild, discord.Guild)
@@ -58,14 +64,20 @@ class Moderation(commands.Cog):
             allowed_mentions=discord.AllowedMentions(users=False),
         )
 
-        if not (dm_channel := user.dm_channel):
-            dm_channel = await user.create_dm()
+        if silent:
+            return
+
         try:
+            if not (dm_channel := user.dm_channel):
+                dm_channel = await user.create_dm()
+
             await dm_channel.send(
                 f"You've been warned in `{ctx.guild.name}` for `{reason}`!"
             )
         except discord.HTTPException:
-            await response.edit(content=response.content + "\nUnable to DM user.")
+            await response.edit(
+                content=response.content + "\n\nNote: Unable to DM user."
+            )
 
     @commands.hybrid_command()
     @commands.has_permissions(moderate_members=True)
@@ -88,7 +100,7 @@ class Moderation(commands.Cog):
         await ctx.reply(
             f"Timeouted <@{user.id}> until <{int(timeout_finish.timestamp())}:f>"
         )
-        await ctx.invoke(self.warn, user, reason=reason)
+        await ctx.invoke(self.warn, silent=False, user=user, reason=reason)
 
     @commands.hybrid_command()
     @commands.has_permissions(manage_messages=True)
