@@ -48,7 +48,7 @@ class Moderation(commands.Cog):
     async def warn(
         self,
         ctx: commands.Context,
-        silent: Literal["silent", "quiet", True, False] | None,
+        silent: Literal["silent", "quiet", "dm"] | None,
         user: discord.User | discord.Member,
         *,
         reason: str,
@@ -64,7 +64,8 @@ class Moderation(commands.Cog):
             allowed_mentions=discord.AllowedMentions(users=False),
         )
 
-        if silent:
+        # default None = dm
+        if silent in ("slient", "quiet"):
             return
 
         try:
@@ -100,7 +101,7 @@ class Moderation(commands.Cog):
         await ctx.reply(
             f"Timeouted <@{user.id}> until <{int(timeout_finish.timestamp())}:f>"
         )
-        await ctx.invoke(self.warn, silent=False, user=user, reason=reason)
+        await ctx.invoke(self.warn, silent=None, user=user, reason=reason)
 
     @commands.hybrid_command()
     @commands.has_permissions(manage_messages=True)
