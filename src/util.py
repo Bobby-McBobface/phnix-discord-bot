@@ -152,7 +152,7 @@ class Paginator(ui.View, ABC):
 # pylint: disable=line-too-long, too-many-return-statements
 def parse_timeframe_ms(string) -> float | None:
     """Converts human readable timeframes to milliseconds"""
-    if len(string > 100):
+    if len(string) > 100:
         raise ValueError("Value exceeds the maximum length of 100 characters.")
 
     match = re.match(

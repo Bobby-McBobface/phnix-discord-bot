@@ -82,8 +82,12 @@ class Moderation(commands.Cog):
         timeout_duration = parse_timeframe_ms(timeframe)
         if not timeout_duration:
             return ctx.reply(f"The timeframe you provided, {timeframe}, is invalid.")
-        await user.timeout(timedelta(milliseconds=timeout_duration))
-        await ctx.reply(f"timeouted {user.id} for {timeout_duration}ms")
+        timeout_delta = timedelta(milliseconds=timeout_duration)
+        timeout_finish = datetime.now() + timeout_delta
+        await user.timeout(timeout_delta)
+        await ctx.reply(
+            f"Timeouted <@{user.id}> until <{int(timeout_finish.timestamp())}:f>"
+        )
         await ctx.invoke(self.warn, user, reason=reason)
 
     @commands.hybrid_command()
