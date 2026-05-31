@@ -11,15 +11,14 @@ python = "^3.10"
 "discord.py" = {version="^2.7.1", extras = ["speed"]}
 aiodns = "<4"
 aiosqlite = "^0.22.1"
-python-dotenv = "^1.0.1"
+python-dotenv = "^1.2.2"
 
 [tool.poetry.group.dev.dependencies]
-pylint = "^4.0.4"
-black = "^26.1.0"
-poetry = "^2.3.2"
-isort = "^7.0.0"
-pre-commit = "^4.5.1"
-pyright = "^1.1.408"
+pylint = "^4.0.5"
+black = "^26.5.0"
+isort = "^8.0.1"
+pre-commit = "^4.6.0"
+pyright = "^1.1.409"
 
 [tool.pylint.format]
 max-line-length = "88"
